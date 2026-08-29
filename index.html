@@ -152,6 +152,26 @@
   .cta-btn.primary{color:#000;background:var(--green);border-color:var(--green);}
   .cta-btn.primary:hover{color:#000;background:#5cff44;}
 
+  /* PROYECTOS */
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:18px;margin-top:22px;align-items:start;}
+  .proj{background:#060512;border:2px solid var(--line);border-left:5px solid var(--acc);
+    box-shadow:6px 6px 0 #000;padding:20px 20px 18px;transition:transform .05s;}
+  .proj:hover{transform:translate(-2px,-2px);}
+  .proj-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px;}
+  .proj-name{font-family:'Press Start 2P';font-size:15px;color:var(--acc);}
+  .proj-ver{font-family:'IBM Plex Mono';font-weight:600;font-size:11px;color:var(--dim);}
+  .proj-tag{font-size:14px;color:#fff;line-height:1.4;margin:10px 0 8px;}
+  .proj-desc{font-size:13px;color:var(--dim);line-height:1.6;}
+  .proj-desc code{background:#0b0a1a;border:1px solid var(--line);padding:1px 5px;color:var(--cyan);font-size:12px;}
+  .proj-badges{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 4px;}
+  .proj-badges .badge{font-size:7px;padding:6px 8px;}
+  .proj-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+  .proj-links .cta-btn{font-size:8px;padding:9px 12px;}
+  .proj-soon{border:2px dashed var(--line);background:transparent;box-shadow:none;display:flex;
+    align-items:center;justify-content:center;text-align:center;color:var(--dim);
+    font-family:'IBM Plex Mono';font-size:13px;line-height:1.6;min-height:120px;padding:20px;}
+  .proj-soon:hover{transform:none;}
+
   .stats{max-width:1040px;margin:34px auto 0;padding:0 22px;display:grid;
     grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:14px;}
   .stat{border:2px solid var(--line);background:var(--panel);padding:14px;box-shadow:4px 4px 0 #000;}
@@ -296,7 +316,7 @@
   <span class="brand"><b>iphobiuss</b>::offsec</span>
   <span class="links">
     <a href="#fundamentos">BASE</a><a href="#oscp">OSCP+</a><a href="#cape">CAPE</a><a href="#cpts">CPTS</a>
-    <a href="#cwes">CWES</a><a href="#coae">COAE</a><a href="#cheatsheet">CHEAT</a><a href="#arsenal">ARSENAL</a><a href="#glosario">GLOSARIO</a>
+    <a href="#cwes">CWES</a><a href="#coae">COAE</a><a href="#cheatsheet">CHEAT</a><a href="#arsenal">ARSENAL</a><a href="#proyectos" class="nav-proj">PROYECTOS</a><a href="#glosario">GLOSARIO</a>
   </span>
 </nav>
 
@@ -386,6 +406,47 @@
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">ARSENAL</h2></div>
     <div class="sec-focus">El toolkit explicado, ordenado por fase de la operación</div>
     <div class="ars-grid" id="arsGrid"></div>
+  </div>
+</section>
+
+<!-- PROYECTOS -->
+<section id="proyectos" style="--acc:var(--magenta)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">PROYECTOS</h2></div>
+    <div class="sec-focus">Herramientas propias, de la idea a releases con CI y tests</div>
+    <div class="proj-grid">
+
+      <article class="proj" data-search="pwnscrub sarif linter sanitizer redaction pentest notes writeup secrets nxc secretsdump dcc2 pwn3d ci pre-commit finding schema verify python zero-deps mit herramienta tool proyecto">
+        <div class="proj-top">
+          <span class="proj-name">pwnscrub</span>
+          <span class="proj-ver">v0.5.0 · MIT</span>
+        </div>
+        <div class="proj-tag">El linter de pre-publicación para notas de seguridad ofensiva.</div>
+        <div class="proj-desc">
+          Sanea writeups antes de publicarlos: reemplaza IPs, hashes, SIDs, dominios y flags por
+          placeholders consistentes, y con <code>--verify</code> marca credenciales sospechosas para revisión.
+          Un mismo modelo <code>Finding</code> alimenta tres salidas: informe humano, JSON y <code>SARIF</code>
+          para GitHub Code Scanning. Entiende la salida real de <code>nxc</code>, <code>secretsdump</code> y
+          <code>nmap</code>. Es la herramienta que garantiza justo lo que este sitio promete: cero datos de
+          ningún examen o cliente.
+        </div>
+        <div class="proj-badges">
+          <span class="badge b2">LINTER</span><span class="badge b3">SARIF</span>
+          <span class="badge b1">CI</span><span class="badge b1">145 TESTS</span>
+          <span class="badge b4">ZERO-DEPS</span><span class="badge b5">PYTHON 3.9+</span>
+        </div>
+        <div class="proj-links">
+          <a class="cta-btn primary" href="https://github.com/IphobiusS/pwnscrub" target="_blank" rel="noopener">CÓDIGO</a>
+          <a class="cta-btn" href="https://github.com/IphobiusS/pwnscrub/releases" target="_blank" rel="noopener">RELEASES</a>
+          <a class="cta-btn" href="https://github.com/IphobiusS/pwnscrub#readme" target="_blank" rel="noopener">README</a>
+        </div>
+      </article>
+
+      <article class="proj proj-soon" data-search="proximo proyecto next project wip roadmap">
+        más en camino<br>este espacio crece con cada release
+      </article>
+
+    </div>
   </div>
 </section>
 
