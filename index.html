@@ -316,7 +316,7 @@
   <span class="brand"><b>iphobiuss</b>::offsec</span>
   <span class="links">
     <a href="#fundamentos">BASE</a><a href="#oscp">OSCP+</a><a href="#cape">CAPE</a><a href="#cpts">CPTS</a>
-    <a href="#cwes">CWES</a><a href="#coae">COAE</a><a href="#cheatsheet">CHEAT</a><a href="#arsenal">ARSENAL</a><a href="#proyectos" class="nav-proj">PROYECTOS</a><a href="#glosario">GLOSARIO</a>
+    <a href="#cwes">CWES</a><a href="#coae">COAE</a><a href="#cheatsheet">CHEAT</a><a href="#arsenal">ARSENAL</a><a href="#writeups" class="nav-proj">WRITEUPS</a><a href="#glosario">GLOSARIO</a>
   </span>
 </nav>
 
@@ -409,15 +409,32 @@
   </div>
 </section>
 
-<!-- PROYECTOS -->
-<section id="proyectos" style="--acc:var(--magenta)">
+<!-- WRITEUPS -->
+<section id="writeups" style="--acc:var(--magenta)">
   <div class="wrap">
-    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">PROYECTOS</h2></div>
-    <div class="sec-focus">Próximamente: herramientas y proyectos propios en desarrollo</div>
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">WRITEUPS</h2></div>
+    <div class="sec-focus">Máquinas resueltas y documentadas paso a paso — el razonamiento, no solo los comandos</div>
     <div class="proj-grid">
 
-      <article class="proj proj-soon" data-search="en construccion under construction proximamente proyectos wip roadmap trabajo en curso">
-        [ EN CONSTRUCCIÓN ]<br>nuevos proyectos en camino
+      <article class="proj" style="--acc:var(--green)" data-search="cap htb hack the box maquina writeup guia idor insecure direct object reference pcap wireshark ftp texto plano password reuse capabilities getcap cap_setuid gtfobins escalada privilegios privilege escalation linux easy principiantes novatos">
+        <div class="proj-top">
+          <span class="proj-name">CAP</span>
+          <span class="proj-ver">HTB · EASY · LINUX</span>
+        </div>
+        <div class="proj-tag">Guía para principiantes: de la conexión VPN hasta root, razonando cada decisión.</div>
+        <div class="proj-desc">Cadena completa: reconocimiento con <code>nmap</code> → <code>IDOR</code> para acceder a un PCAP ajeno → credenciales FTP en texto plano en <code>Wireshark</code> → <code>password reuse</code> hacia SSH → escalada por <code>cap_setuid</code> en Python con GTFOBins. Pensada para quien resuelve su primera máquina.</div>
+        <div class="proj-badges">
+          <span class="badge b2">IDOR</span>
+          <span class="badge b4">PCAP</span>
+          <span class="badge b1">PRIVESC</span>
+        </div>
+        <div class="proj-links">
+          <a class="cta-btn primary" href="cap.html">LEER GUÍA</a>
+        </div>
+      </article>
+
+      <article class="proj proj-soon" data-search="proximamente writeups maquinas htb hack the box guias en camino serie">
+        [ MÁS MÁQUINAS ]<br>en camino
       </article>
 
     </div>
