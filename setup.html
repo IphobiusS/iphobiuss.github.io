@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0a1a">
+<meta name="author" content="Sebastián Latorre Muñoz">
+<title>00 · Fundamentos &amp; Setup · HTB // iphobiuss</title>
+<meta name="description" content="Guía 00 de la serie de writeups: setup del entorno, conexión VPN, metodología, reflejos del oficio y arsenal de herramientas explicado por propósito. La base común de todas las máquinas. Por Sebastián Latorre Muñoz (iphobiuss).">
+<link rel="canonical" href="https://iphobiuss.github.io/setup.html">
+<meta property="og:title" content="00 · Fundamentos &amp; Setup · HTB">
+<meta property="og:description" content="La base común antes de cualquier máquina: setup, VPN, metodología, reflejos y arsenal por propósito.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://iphobiuss.github.io/setup.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0a1a; --bg2:#12102a; --panel:#0f0d24;
+    --ink:#d3d1ef; --dim:#9c97c9; --line:#2a2350;
+    --green:#39ff14; --magenta:#ff2a6d; --cyan:#05d9e8; --amber:#ffd319; --violet:#b967ff;
+    --shadow:6px 6px 0 #000;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:15px;line-height:1.55;overflow-x:hidden;
+    background-image:radial-gradient(circle at 50% -10%, #1a1640 0%, var(--bg) 55%);}
+  .crt{position:fixed;inset:0;pointer-events:none;z-index:9000;}
+  .crt::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);}
+  .crt::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.5) 100%);}
+  @keyframes flick{0%,100%{opacity:.98}50%{opacity:1}}
+  @media (prefers-reduced-motion:no-preference){.crt{animation:flick 5s infinite steps(2);}}
+
+  .pixel{font-family:'Press Start 2P',monospace;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);text-decoration:none;} a:hover{text-decoration:underline;}
+  ::selection{background:var(--green);color:#000;}
+  :focus-visible{outline:2px solid var(--green);outline-offset:2px;}
+
+  .topbar{position:sticky;top:0;z-index:100;}
+  nav{display:flex;align-items:center;gap:16px;
+    padding:12px 20px;background:var(--bg2);border-bottom:3px solid var(--line);
+    font-family:'IBM Plex Mono';font-weight:600;font-size:12px;letter-spacing:.04em;flex-wrap:wrap;}
+  nav .brand{color:var(--green);} nav .brand b{color:#fff;}
+  nav .links{display:flex;gap:13px;margin-left:auto;flex-wrap:wrap;}
+  nav .links a{color:var(--amber);} nav .links a:hover{color:#fff;text-decoration:none;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px;}
+
+  /* HERO */
+  header{padding:54px 22px 26px;}
+  .hero{max-width:1040px;margin:0 auto;}
+  .prompt{font-family:'JetBrains Mono';font-size:15px;color:var(--dim);margin-bottom:14px;}
+  .prompt .g{color:var(--green);} .prompt .c{color:var(--cyan);}
+  .hero h1{font-family:'Press Start 2P';font-size:clamp(18px,4.4vw,34px);color:#fff;margin:0 0 16px;
+    line-height:1.4;text-shadow:0 0 6px rgba(57,255,20,.35),4px 4px 0 rgba(0,0,0,.6);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .badge{font-family:'Press Start 2P';font-size:8px;padding:7px 9px;border:2px solid var(--line);
+    background:var(--panel);box-shadow:3px 3px 0 #000;}
+  .badge.b1{color:var(--green);border-color:var(--green);}
+  .badge.b2{color:var(--cyan);border-color:var(--cyan);}
+  .badge.b3{color:var(--amber);border-color:var(--amber);}
+  .badge.b4{color:var(--magenta);border-color:var(--magenta);}
+  .badge.b5{color:var(--violet);border-color:var(--violet);}
+  .pitch{font-family:'IBM Plex Mono';font-size:14.5px;line-height:1.7;color:var(--ink);margin:16px 0 0;max-width:70ch;}
+  .pitch b{color:var(--amber);}
+
+  /* INTRO / callouts */
+  .intro{max-width:1040px;margin:28px auto 0;padding:0 22px;color:var(--ink);font-size:15.5px;line-height:1.62;}
+  .intro b{color:var(--amber);}
+  .intro .mono{font-size:.9em;background:#060512;border:1px solid var(--line);padding:1px 6px;color:var(--cyan);}
+
+  /* SECTIONS */
+  section{padding:48px 0 10px;border-top:3px solid var(--line);margin-top:42px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .sec-id{font-family:'Press Start 2P';font-size:20px;color:var(--acc);}
+  .sec-name{font-family:'Press Start 2P';font-size:clamp(12px,3.2vw,17px);color:#fff;margin:0;font-weight:400;line-height:1.5;}
+  .sec-focus{font-size:15px;color:var(--acc);margin:6px 0 22px;}
+  .sec-focus::before{content:"▸ ";}
+
+  h3.step{font-family:'IBM Plex Mono';font-weight:700;font-size:14px;color:#fff;
+    letter-spacing:.03em;margin:24px 0 10px;padding-left:12px;border-left:4px solid var(--acc,var(--cyan));}
+  p.f{font-size:15px;line-height:1.64;margin:0 0 14px;color:var(--ink);}
+  p.f b{color:#fff;}
+  .why{border-left:3px solid var(--amber);background:rgba(255,211,25,.05);padding:12px 15px;margin:0 0 14px;font-size:14.5px;line-height:1.6;}
+  .why b{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--amber);display:block;margin-bottom:6px;}
+
+  .cmdlabel{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--cyan);margin:12px 0 8px;}
+  pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;
+    background:#060512;border:2px solid var(--line);color:#d7f7d0;
+    padding:13px 15px;overflow-x:auto;margin:0 0 12px;}
+  pre .cmt{color:#8a84bd;} pre .k{color:var(--cyan);} pre .o{color:var(--amber);}
+  code.ic{background:#060512;border:1px solid var(--line);padding:1px 6px;color:var(--cyan);font-size:.9em;}
+
+  /* fundamento card */
+  .fcard{background:var(--panel);border:2px solid var(--line);border-left:5px solid var(--cyan);
+    padding:16px 18px;margin:0 0 14px;box-shadow:4px 4px 0 #000;}
+  .fcard h4{font-family:'IBM Plex Mono';font-weight:700;font-size:14px;color:var(--cyan);margin:0 0 10px;line-height:1.5;}
+  .fcard p{margin:0 0 10px;font-size:15px;line-height:1.6;}
+  .fcard p:last-child{margin-bottom:0;}
+
+  /* tables */
+  .tblwrap{overflow-x:auto;margin:0 0 14px;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--panel);box-shadow:4px 4px 0 #000;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;line-height:1.5;}
+  th{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--cyan);background:#060512;}
+  td code,th code{background:#060512;border:1px solid var(--line);padding:1px 5px;color:var(--cyan);font-size:12px;}
+  td b{color:#fff;}
+  .phase{font-family:'Press Start 2P';font-size:8px;color:var(--acc,var(--green));white-space:nowrap;}
+
+  /* glosario */
+  .gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px;margin:0 0 14px;}
+  .term{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--violet);padding:12px 14px;}
+  .term .t{font-family:'JetBrains Mono';font-weight:700;font-size:14.5px;color:var(--violet);margin-bottom:6px;}
+  .term .d{font-size:13.5px;color:var(--ink);line-height:1.55;}
+
+  .warn{border:3px dashed var(--magenta);background:rgba(255,42,109,.06);
+    padding:16px 18px;margin:34px 0;color:var(--magenta);font-size:14.5px;line-height:1.55;}
+  .warn b{font-family:'IBM Plex Mono';font-weight:700;font-size:12px;letter-spacing:.04em;display:block;margin-bottom:8px;}
+  .warn .mono{color:var(--amber);}
+
+  .checklist{list-style:none;padding:0;margin:6px 0 0;}
+  .checklist li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
+    padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
+  .checklist li::before{content:"[ ] ";font-family:'JetBrains Mono';color:var(--green);font-weight:700;}
+  .checklist li b{color:#fff;}
+
+  footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
+    font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
+  footer .g{color:var(--green);} footer a{color:var(--cyan);display:inline-block;padding:5px 7px;}
+
+  .skip{position:absolute;left:8px;top:-52px;z-index:200;background:var(--green);color:#000;
+    padding:9px 15px;font-family:'IBM Plex Mono';font-weight:700;font-size:13px;border:2px solid #000;transition:top .12s;}
+  .skip:focus{top:8px;text-decoration:none;}
+
+  @media (max-width:640px){
+    nav{flex-wrap:nowrap;gap:0;padding:0 14px;overflow-x:auto;scrollbar-width:none;}
+    nav::-webkit-scrollbar{display:none;}
+    nav .brand{flex-shrink:0;padding:13px 16px 13px 0;}
+    nav .links{flex-wrap:nowrap;margin-left:0;gap:0;}
+    nav .links a{padding:13px 9px;white-space:nowrap;}
+  }
+
+  @media print{
+    .crt,.topbar,.skip{display:none!important;}
+    body{background:#fff!important;background-image:none!important;font-size:11pt;}
+    *{box-shadow:none!important;text-shadow:none!important;color:#111!important;
+      background:transparent!important;border-color:#bbb!important;}
+    a{text-decoration:underline;}
+    pre{background:#f3f3f3!important;border:1px solid #ccc!important;white-space:pre-wrap;word-break:break-word;}
+    pre .cmt,pre .k,pre .o{color:#555!important;}
+    table{background:#fff!important;} th{background:#eee!important;}
+    .badge,.fcard,.warn,.term,pre,table,.why,.checklist li{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="crt"></div>
+
+<div class="topbar">
+<nav aria-label="Navegación">
+  <span class="brand"><b>iphobiuss</b>::offsec</span>
+  <span class="links">
+    <a href="index.html">← KNOWLEDGE BASE</a>
+    <a href="#entorno">ENTORNO</a><a href="#metodo">MÉTODO</a><a href="#recon">RECON</a>
+    <a href="#reflejos">REFLEJOS</a><a href="#arsenal">ARSENAL</a><a href="#conceptos">CONCEPTOS</a><a href="#checklist">CHECKLIST</a>
+    <a href="cap.html">CAP</a><a href="knife.html">KNIFE</a><a href="forest.html">FOREST</a>
+  </span>
+</nav>
+</div>
+
+<main id="contenido">
+<header>
+  <div class="hero">
+    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --setup --read-first</div>
+    <h1 class="pixel">00 · FUNDAMENTOS<br>&amp; SETUP</h1>
+    <div class="meta">
+      <span class="badge b1">SETUP</span>
+      <span class="badge b2">KALI</span>
+      <span class="badge b3">METODOLOGÍA</span>
+      <span class="badge b4">ARSENAL</span>
+      <span class="badge b5">GLOSARIO</span>
+    </div>
+    <p class="pitch">La base común de <b>toda</b> la serie de writeups. Antes de meterte en <a href="cap.html">Cap</a>, <a href="knife.html">Knife</a> o <a href="forest.html">Forest</a>, esto es lo que se repite en cada máquina: cómo montar el entorno, la metodología, los reflejos que se aplican una y otra vez, y el arsenal explicado <b>por propósito</b> — no la sintaxis, sino cuándo usar cada herramienta y por qué. Si empiezas de cero, léela primero. Si ya estás en una máquina, úsala como referencia.</p>
+  </div>
+</header>
+
+<div class="intro">
+  <b>Qué NO es esto:</b> no es un cheatsheet de comandos para copiar. Para eso está la sección <a href="index.html#cheatsheet">CHEATSHEET</a> del knowledge base. Aquí lo que importa es el <b>porqué</b> y el <b>cuándo</b>: el criterio que hace que un comando sirva. Los writeups traen los comandos en contexto; esta guía trae el andamiaje que los une.
+</div>
+
+<!-- ===================== ENTORNO ===================== -->
+<section id="entorno" style="--acc:var(--cyan)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · ENTORNO &amp; CONEXIÓN</h2></div>
+    <div class="sec-focus">El primer muro real de todo principiante: llegar a la máquina.</div>
+
+    <h3 class="step">Qué necesitas</h3>
+    <p class="f">Cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener">Hack The Box</a> (VIP para máquinas retiradas), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y paciencia para atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.</p>
+
+    <h3 class="step">Conectarse a la VPN</h3>
+    <p class="f">Descarga tu <code class="ic">.ovpn</code> del panel de la máquina en HTB y conéctate. La terminal se queda colgada mostrando logs: eso es correcto, no la cierres. Trabaja en una terminal nueva.</p>
+    <pre><span class="k">sudo</span> pkill openvpn                        <span class="cmt"># mata cualquier VPN previa (una a la vez)</span>
+<span class="k">sudo</span> openvpn ~/htb/tu_archivo.ovpn         <span class="cmt"># espera "Initialization Sequence Completed"</span>
+<span class="k">ip</span> a show tun0                            <span class="cmt"># debe existir con IP 10.10.x.x</span>
+<span class="k">ping</span> -c 3 &lt;IP_OBJETIVO&gt;                   <span class="cmt"># confirma línea con la máquina</span></pre>
+    <div class="why"><b>UNA VPN A LA VEZ</b>Si levantas una segunda VPN sin cerrar la anterior, Linux crea <code class="ic">tun1</code> (porque <code class="ic">tun0</code> sigue ocupada) y aparecen errores <code class="ic">route ... File exists</code>. Siempre <code class="ic">sudo pkill openvpn</code> antes de reconectar.</div>
+
+    <h3 class="step">Problemas típicos de VPN</h3>
+    <p class="f">Cada error dice una cosa distinta. Aprender a leerlos es media batalla:</p>
+    <div class="tblwrap"><table>
+      <tr><th>Lo que ves</th><th>Qué significa</th><th>Qué hacer</th></tr>
+      <tr><td><code>TLS handshake / key negotiation timed out</code></td><td>Tus paquetes salen, nadie responde. Típico de UDP tras una VM/red restrictiva.</td><td>Protocolo <b>TCP 443</b>, baja un <code>.ovpn</code> nuevo.</td></tr>
+      <tr><td><code>Connection refused</code> (TCP)</td><td>Tu paquete llegó y el destino dijo "no". Ese servidor no acepta ahora.</td><td><b>Cambia de servidor VPN.</b></td></tr>
+      <tr><td><code>Destination Host Unreachable</code></td><td>El gateway de HTB no encuentra el host.</td><td>La <b>IP de la máquina cambió</b>: verifícala en la web.</td></tr>
+    </table></div>
+    <p class="f"><b>Diagnóstico de abajo hacia arriba:</b> antes de culpar a la VPN, confirma que Kali tiene internet (<code class="ic">ping 8.8.8.8</code>) y DNS (<code class="ic">ping google.com</code>). Si ambos van, el problema es de la VPN; si ninguno va, es la red de la VM.</p>
+    <div class="warn"><b>LA IP NO ES ETERNA</b>La IP de una máquina de HTB <span class="mono">cambia</span> si la reinicias, si cambias de servidor VPN, o entre sesiones. Antes de atacar, <span class="mono">confirma siempre la IP actual en la web</span>. Nunca la asumas de memoria.</div>
+  </div>
+</section>
+
+<!-- ===================== MÉTODO ===================== -->
+<section id="metodo" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · METODOLOGÍA</h2></div>
+    <div class="sec-focus">Los hábitos que separan a quien entiende de quien copia comandos.</div>
+
+    <h3 class="step">Una carpeta por máquina</h3>
+    <p class="f">Desde el día uno: cada máquina, su carpeta; todo guardado, nada suelto. Y en nmap, <b>guardar siempre</b> con <code class="ic">-oA</code> — nunca escanees sin dejar registro.</p>
+    <pre><span class="k">mkdir</span> -p ~/htb/&lt;maquina&gt;/nmap &amp;&amp; <span class="k">cd</span> ~/htb/&lt;maquina&gt;</pre>
+
+    <h3 class="step">Mide antes de tocar</h3>
+    <p class="f">Cuando algo falle, no cambies cinco cosas a la vez esperando que una funcione. Haz una prueba, lee el resultado, y deja que el resultado te diga qué cambiar. <b>Un error que cambia cuando tocas algo es buena señal:</b> significa que tu cambio tuvo efecto y estás cercando el problema.</p>
+
+    <h3 class="step">Anota las tasks a medida</h3>
+    <p class="f">Si resuelves en Guided Mode, copia cada respuesta <b>apenas la marcas</b>, no al final. Muchas tasks se resuelven tempranísimo (los puertos con el primer nmap) y se olvidan al llegar al cierre. Anotar sobre la marcha hace que tu writeup salga completo solo.</p>
+
+    <h3 class="step">Higiene de herramientas</h3>
+    <p class="f">Un dominio por análisis en BloodHound (limpia la base antes de cargar otro lab, o los grafos se contaminan). Limpia entradas viejas de <code class="ic">/etc/hosts</code> entre labs. Ordena para no confundirte a ti mismo.</p>
+  </div>
+</section>
+
+<!-- ===================== RECON ===================== -->
+<section id="recon" style="--acc:var(--amber)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · RECONOCIMIENTO</h2></div>
+    <div class="sec-focus">El primer movimiento de todo pentest: qué puertas hay abiertas.</div>
+
+    <h3 class="step">El TTL delata el sistema operativo</h3>
+    <p class="f">Antes de escanear, el ping ya te dice ante qué estás. El TTL parte en un valor por SO y baja 1 por salto de red:</p>
+    <div class="tblwrap"><table>
+      <tr><th>TTL que ves</th><th>Sistema operativo probable</th></tr>
+      <tr><td><code>~63</code> (parte en 64)</td><td><b>Linux</b> / Unix</td></tr>
+      <tr><td><code>~127</code> (parte en 128)</td><td><b>Windows</b></td></tr>
+    </table></div>
+
+    <h3 class="step">El flujo de nmap</h3>
+    <p class="f">Dos pasos: primero un barrido de <b>todos</b> los puertos, luego un escaneo detallado solo de los que salieron abiertos.</p>
+    <pre><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports &lt;IP&gt;        <span class="cmt"># los 65535 puertos, rápido, guardado</span>
+<span class="k">nmap</span> -sCV -p &lt;PUERTOS_ABIERTOS&gt; -oA nmap/detail &lt;IP&gt;  <span class="cmt"># versión (-sV) + scripts (-sC)</span></pre>
+    <p class="f"><code class="ic">-p-</code> no se salta puertos raros; <code class="ic">--min-rate 1000</code> acelera; <code class="ic">-oA</code> guarda en tres formatos; <code class="ic">-sCV</code> es tu radar: qué servicio y versión corre cada puerto.</p>
+
+    <h3 class="step">Elegir por dónde entrar</h3>
+    <p class="f">Piensa en cada puerto como una puerta y pregúntate cuánta superficie ofrece. Regla que se repite en toda la serie: <b>atacas por donde puedes hacer algo, no por donde estás bloqueado.</b> SSH/WinRM sin credenciales están cerrados con llave (los guardas para después); la web (HTTP) suele ser la superficie más rica para empezar.</p>
+    <div class="why"><b>MUCHOS PUERTOS = DOMAIN CONTROLLER</b>2-3 puertos es una Linux típica. <b>20+ puertos</b> con Kerberos (88) + LDAP (389/636) + SMB (445) + DNS (53) juntos = un <b>Domain Controller</b> de Active Directory. La explosión de puertos es, en sí misma, una pista.</div>
+  </div>
+</section>
+
+<!-- ===================== REFLEJOS ===================== -->
+<section id="reflejos" style="--acc:var(--magenta)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · REFLEJOS DEL OFICIO</h2></div>
+    <div class="sec-focus">Patrones que se aplican una y otra vez, máquina tras máquina.</div>
+
+    <div class="tblwrap"><table>
+      <tr><th>Situación</th><th>Reflejo</th></tr>
+      <tr><td>Encuentro una <b>versión de software</b> específica y rara (<code>-dev</code>, <code>beta</code>, <code>RC</code>)</td><td>Buscar de inmediato si tiene <b>vulnerabilidad/CVE pública conocida</b>. Una versión de desarrollo en producción es bandera roja.</td></tr>
+      <tr><td>La web <b>no muestra nada obvio</b> al navegarla</td><td>Mirar lo que hay por debajo: cabeceras HTTP con <code>curl -I</code> revelan servidor, SO y versiones.</td></tr>
+      <tr><td>Consigo <b>unas credenciales</b> en un servicio</td><td>Probarlas en <b>todos</b> los demás servicios (password reuse). La gente reutiliza contraseñas; casi siempre pagan.</td></tr>
+      <tr><td>Voy a <b>ejecutar un exploit</b> descargado</td><td>Leerlo antes (<code>cat</code>). Entender qué hace = separar entender de copiar. Nunca a ciegas.</td></tr>
+      <tr><td>Tengo un <b>binario poco común</b> con permisos (SUID/sudo/capabilities)</td><td>Buscarlo en <b>GTFOBins</b>, usando la sección del permiso que TENGO (Sudo ≠ Capabilities ≠ SUID).</td></tr>
+      <tr><td>Consigo un <b>hash</b> de contraseña</td><td>Crackearlo <b>offline</b> (silencioso, ilimitado). <code>john</code> si no hay GPU; <code>hashcat</code> con GPU. rockyou como diccionario.</td></tr>
+      <tr><td>Estoy en una máquina de <b>Active Directory</b></td><td>Mapear el dominio en <code>/etc/hosts</code> (obligatorio: muchas herramientas Kerberos fallan por IP). Enumerar anónimo antes que nada.</td></tr>
+      <tr><td>Consigo <b>credenciales</b> nuevas en AD</td><td>Validarlas (<code>netexec</code>), ver dónde entran (SMB/WinRM), y mapear el dominio con <b>BloodHound</b> para el camino a Domain Admin.</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- ===================== ARSENAL ===================== -->
+<section id="arsenal" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · ARSENAL POR PROPÓSITO</h2></div>
+    <div class="sec-focus">Qué es cada herramienta y CUÁNDO usarla — no la sintaxis.</div>
+
+    <div class="tblwrap"><table>
+      <tr><th>Fase</th><th>Herramienta</th><th>Para qué sirve · cuándo</th></tr>
+      <tr><td><span class="phase" style="--acc:var(--cyan)">RECON</span></td><td><code>nmap</code></td><td>Descubrir puertos y servicios. Siempre el primer paso frente a una IP.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--cyan)">RECON</span></td><td><code>curl -I</code></td><td>Leer cabeceras HTTP de una web. Cuando la página no da pistas a la vista (fingerprinting de versiones).</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--amber)">ENUM</span></td><td><code>netexec</code> (ex-crackmapexec)</td><td>Hablar SMB/WinRM/LDAP con o sin credenciales. Enumerar usuarios anónimos, validar credenciales, ver si dan shell (<code>Pwn3d!</code>).</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--amber)">ENUM</span></td><td><code>rpcclient</code></td><td>Consultar el dominio por RPC vía sesión nula. Alternativa para enumerar usuarios cuando SMB no basta.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--amber)">ENUM (AD)</span></td><td><code>bloodhound-python</code> + <b>BloodHound CE</b></td><td>Recolectar y <b>dibujar</b> el dominio como grafo. Calcula el camino más corto a Domain Admin. La herramienta estrella de AD.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--magenta)">EXPLOIT</span></td><td><code>searchsploit</code> / Exploit-DB</td><td>Buscar exploits públicos para una versión concreta. Tras identificar software vulnerable.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--magenta)">EXPLOIT</span></td><td><b>GTFOBins</b></td><td>Cómo abusar de un binario de Linux con permisos especiales (SUID/sudo/capabilities). En la escalada, usando la sección del permiso correcto.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--magenta)">EXPLOIT (AD)</span></td><td><code>impacket-GetNPUsers</code></td><td>AS-REP Roasting: pedir el hash de usuarios sin pre-autenticación de Kerberos. Tras enumerar usuarios.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--green)">ACCESO</span></td><td><code>nc</code> (netcat)</td><td>Ponerse a la escucha para recibir una reverse shell (<code>nc -lvnp</code>). La "navaja suiza" de red.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--green)">ACCESO</span></td><td><code>ssh</code></td><td>Shell remota en Linux con credenciales. El destino a donde llegas tras encontrar usuario+contraseña.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--green)">ACCESO (Win)</span></td><td><code>evil-winrm</code></td><td>Shell remota PowerShell en Windows (el "SSH de Windows"). Con credenciales o con hash (<code>-H</code>, Pass-the-Hash).</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--violet)">CRACKING</span></td><td><code>john</code> / <code>hashcat</code></td><td>Romper hashes offline con diccionario. <b>john</b> en VM sin GPU (autodetecta el tipo); <b>hashcat</b> con GPU.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--violet)">POST (AD)</span></td><td><b>PowerView</b> (PowerShell)</td><td>Enumerar y manipular AD desde dentro: grupos, ACLs. Abusar de GenericAll/WriteDacl.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--violet)">POST (AD)</span></td><td><code>impacket-secretsdump</code></td><td>DCSync: volcar todos los hashes del dominio abusando de la replicación. Tras conseguir derechos de replicación.</td></tr>
+      <tr><td><span class="phase" style="--acc:var(--amber)">ANÁLISIS</span></td><td><b>Wireshark</b></td><td>Leer capturas de tráfico (PCAP). Filtrar protocolos sin cifrar (FTP, HTTP) para cazar credenciales en texto plano.</td></tr>
+    </table></div>
+    <p class="f">Todas vienen preinstaladas en Kali. La suite <code class="ic">impacket-*</code> agrupa muchas herramientas de red Windows/AD; <code class="ic">netexec</code> es el sucesor de <code class="ic">crackmapexec</code>, quizá lo veas con el nombre viejo.</p>
+  </div>
+</section>
+
+<!-- ===================== CONCEPTOS ===================== -->
+<section id="conceptos" style="--acc:var(--violet)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · CONCEPTOS BASE</h2></div>
+    <div class="sec-focus">El vocabulario mínimo que verás en cada writeup.</div>
+
+    <div class="gloss">
+      <div class="term"><div class="t">Shell</div><div class="d">Acceso a la línea de comandos de la máquina objetivo. Pasar de "mirar desde afuera" a "estar adentro".</div></div>
+      <div class="term"><div class="t">Reverse shell</div><div class="d">Conseguir una shell sin credenciales haciendo que la víctima <em>te llame de vuelta</em> a tu IP+puerto (no al revés).</div></div>
+      <div class="term"><div class="t">Foothold</div><div class="d">El primer acceso conseguido en una máquina, normalmente como un usuario de pocos privilegios.</div></div>
+      <div class="term"><div class="t">Privesc</div><div class="d">Escalada de privilegios: pasar de usuario común a administrador total (root en Linux, Administrator/Domain Admin en Windows).</div></div>
+      <div class="term"><div class="t">Hash</div><div class="d">Representación cifrada de una contraseña. No es la contraseña, pero se puede crackear offline o, en Windows, usar directo (Pass-the-Hash).</div></div>
+      <div class="term"><div class="t">User / Root flag</div><div class="d">Los dos "trofeos" de una máquina HTB: user.txt (usuario normal) y root.txt (administrador). Prueban el compromiso.</div></div>
+      <div class="term"><div class="t">$ vs #</div><div class="d">El prompt te dice quién eres en Linux: <code>$</code> = usuario normal; <code>#</code> = root (superusuario).</div></div>
+      <div class="term"><div class="t">RCE</div><div class="d">Remote Code Execution: ejecutar tus comandos en un servidor remoto explotando una vulnerabilidad.</div></div>
+      <div class="term"><div class="t">IDOR</div><div class="d">Acceder a objetos ajenos cambiando un ID predecible en una URL, porque la app no verifica permisos.</div></div>
+      <div class="term"><div class="t">Password reuse</div><div class="d">Reutilización de la misma contraseña en varios servicios. Un par de credenciales puede abrir varias puertas.</div></div>
+      <div class="term"><div class="t">Pass-the-Hash</div><div class="d">Autenticarse en Windows con el hash NTLM de una cuenta, sin conocer la contraseña en texto.</div></div>
+      <div class="term"><div class="t">DCSync</div><div class="d">Abusar de la replicación entre Domain Controllers para pedirle al DC todos los hashes del dominio.</div></div>
+    </div>
+    <p class="f">¿Quieres más profundidad por técnica? El <a href="index.html#glosario">GLOSARIO</a> y el knowledge base cubren cada área con prerequisitos, detección y mitigación.</p>
+  </div>
+</section>
+
+<!-- ===================== CHECKLIST ===================== -->
+<section id="checklist" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CHECKLIST DE ARRANQUE</h2></div>
+    <div class="sec-focus">Antes de cada máquina, recorre esto.</div>
+    <ul class="checklist">
+      <li><b>VPN:</b> mata las previas (<code class="ic">sudo pkill openvpn</code>), conecta, espera <code class="ic">Initialization Sequence Completed</code>.</li>
+      <li><b>tun0:</b> verifica que existe con IP <code class="ic">10.10.x.x</code> (<code class="ic">ip a show tun0</code>).</li>
+      <li><b>IP objetivo:</b> confírmala en la web (cambia entre sesiones) y comprueba línea con <code class="ic">ping</code>.</li>
+      <li><b>Carpeta:</b> crea <code class="ic">~/htb/&lt;maquina&gt;/nmap</code> y trabaja ahí.</li>
+      <li><b>TTL:</b> mira el ping — ¿63 (Linux) o 127 (Windows)?</li>
+      <li><b>Recon:</b> <code class="ic">nmap -p-</code> y luego <code class="ic">-sCV</code>, guardando con <code class="ic">-oA</code>.</li>
+      <li><b>Decisión:</b> elige la puerta con más superficie, no la que esté cerrada con llave.</li>
+      <li><b>Si es AD:</b> mapea el dominio en <code class="ic">/etc/hosts</code> antes de usar herramientas Kerberos.</li>
+      <li><b>Tasks:</b> anota cada respuesta apenas la resuelvas, no al final.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "el terreno común: apréndelo una vez, aplícalo en todas."</span></div>
+  <div>00 · Fundamentos &amp; Setup · base de la serie de writeups de Hack The Box</div>
+  <div>
+    <a href="index.html">Knowledge base</a> ·
+    <a href="cap.html">Cap</a> · <a href="knife.html">Knife</a> · <a href="forest.html">Forest</a> ·
+    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
+</footer>
+</body>
+</html>
