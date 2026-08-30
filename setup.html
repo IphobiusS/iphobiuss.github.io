@@ -190,7 +190,7 @@
       <span class="badge b4">ARSENAL</span>
       <span class="badge b5">GLOSARIO</span>
     </div>
-    <p class="pitch">La base común de <b>toda</b> la serie de writeups. Antes de meterte en <a href="cap.html">Cap</a>, <a href="knife.html">Knife</a> o <a href="forest.html">Forest</a>, esto es lo que se repite en cada máquina: cómo montar el entorno, la metodología, los reflejos que se aplican una y otra vez, y el arsenal explicado <b>por propósito</b> — no la sintaxis, sino cuándo usar cada herramienta y por qué. Si empiezas de cero, léela primero. Si ya estás en una máquina, úsala como referencia.</p>
+    <p class="pitch">La base común de <b>toda</b> la serie de writeups. Antes de meterte en <a href="cap.html">Cap</a>, <a href="knife.html">Knife</a> o <a href="forest.html">Forest</a>, esto es lo que se repite en cada máquina: cómo montar el entorno, la metodología, los reflejos que se aplican una y otra vez, y el arsenal explicado <b>por propósito</b>: no la sintaxis, sino cuándo usar cada herramienta y por qué. Si empiezas de cero, léela primero. Si ya estás en una máquina, úsala como referencia.</p>
   </div>
 </header>
 
@@ -235,7 +235,7 @@
     <div class="sec-focus">Los hábitos que separan a quien entiende de quien copia comandos.</div>
 
     <h3 class="step">Una carpeta por máquina</h3>
-    <p class="f">Desde el día uno: cada máquina, su carpeta; todo guardado, nada suelto. Y en nmap, <b>guardar siempre</b> con <code class="ic">-oA</code> — nunca escanees sin dejar registro.</p>
+    <p class="f">Desde el día uno: cada máquina, su carpeta; todo guardado, nada suelto. Y en nmap, <b>guardar siempre</b> con <code class="ic">-oA</code>, nunca escanees sin dejar registro.</p>
     <pre><span class="k">mkdir</span> -p ~/htb/&lt;maquina&gt;/nmap &amp;&amp; <span class="k">cd</span> ~/htb/&lt;maquina&gt;</pre>
 
     <h3 class="step">Mide antes de tocar</h3>
@@ -299,7 +299,7 @@
 <section id="arsenal" style="--acc:var(--green)">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · ARSENAL POR PROPÓSITO</h2></div>
-    <div class="sec-focus">Qué es cada herramienta y CUÁNDO usarla — no la sintaxis.</div>
+    <div class="sec-focus">Qué es cada herramienta y CUÁNDO usarla, no la sintaxis.</div>
 
     <div class="tblwrap"><table>
       <tr><th>Fase</th><th>Herramienta</th><th>Para qué sirve · cuándo</th></tr>
@@ -357,7 +357,7 @@
       <li><b>tun0:</b> verifica que existe con IP <code class="ic">10.10.x.x</code> (<code class="ic">ip a show tun0</code>).</li>
       <li><b>IP objetivo:</b> confírmala en la web (cambia entre sesiones) y comprueba línea con <code class="ic">ping</code>.</li>
       <li><b>Carpeta:</b> crea <code class="ic">~/htb/&lt;maquina&gt;/nmap</code> y trabaja ahí.</li>
-      <li><b>TTL:</b> mira el ping — ¿63 (Linux) o 127 (Windows)?</li>
+      <li><b>TTL:</b> mira el ping: ¿63 (Linux) o 127 (Windows)?</li>
       <li><b>Recon:</b> <code class="ic">nmap -p-</code> y luego <code class="ic">-sCV</code>, guardando con <code class="ic">-oA</code>.</li>
       <li><b>Decisión:</b> elige la puerta con más superficie, no la que esté cerrada con llave.</li>
       <li><b>Si es AD:</b> mapea el dominio en <code class="ic">/etc/hosts</code> antes de usar herramientas Kerberos.</li>

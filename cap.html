@@ -207,7 +207,7 @@
 </header>
 
 <div class="intro">
-  <b>Antes de empezar necesitas:</b> una cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener">Hack The Box</a> (Cap es retirada — requiere VIP, salvo cuando es la máquina activa), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y ganas de atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.
+  <b>Antes de empezar necesitas:</b> una cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener">Hack The Box</a> (Cap es retirada, requiere VIP salvo cuando es la máquina activa), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y ganas de atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.
   <br><br>
   El método que recorre toda la guía: <b>mide antes de tocar.</b> Cuando algo falle, no cambies cinco cosas a la vez esperando que una funcione. Haz una prueba, lee el resultado, y deja que el resultado te diga qué cambiar.
 </div>
@@ -224,14 +224,14 @@
 <span class="k">cd</span> ~/htb/cap</pre>
 
     <h3 class="step">Descarga tu .ovpn y conéctate</h3>
-    <p class="f">En el panel de la máquina en HTB hay un botón <em>Connect to ... with OpenVPN</em>. Ahí eliges <b>servidor</b> y <b>protocolo</b> y descargas tu archivo <code class="ic">.ovpn</code> — tu llave para entrar a la red del laboratorio.</p>
+    <p class="f">En el panel de la máquina en HTB hay un botón <em>Connect to ... with OpenVPN</em>. Ahí eliges <b>servidor</b> y <b>protocolo</b> y descargas tu archivo <code class="ic">.ovpn</code>, tu llave para entrar a la red del laboratorio.</p>
     <pre><span class="k">sudo</span> openvpn ~/htb/cap/tu_archivo.ovpn</pre>
     <p class="f">Esta terminal se queda <b>colgada mostrando logs</b>. Es correcto: mientras esté abierta, tu VPN está activa. <b>No la cierres.</b> Abre una terminal <em>nueva</em> para trabajar.</p>
 
     <h3 class="step">Busca la bandera verde</h3>
     <p class="f">En los logs, la línea que confirma que estás dentro:</p>
     <pre>Initialization Sequence Completed</pre>
-    <p class="f">Los avisos <code class="ic">WARNING</code> y <code class="ic">DEPRECATED OPTION</code> <b>no son errores</b> — son de una config algo antigua de HTB y no te afectan. Distinguir un <em>aviso</em> de un <em>error real</em> es media batalla del troubleshooting.</p>
+    <p class="f">Los avisos <code class="ic">WARNING</code> y <code class="ic">DEPRECATED OPTION</code> <b>no son errores</b>: son de una config algo antigua de HTB y no te afectan. Distinguir un <em>aviso</em> de un <em>error real</em> es media batalla del troubleshooting.</p>
 
     <h3 class="step">Verifica la interfaz tun0</h3>
     <pre><span class="k">ip</span> a show tun0</pre>
@@ -252,9 +252,9 @@
     <p class="f">Si ambas responden → tu internet está sano y el problema es de la VPN (servidor/protocolo). Si ninguna responde → es la red de tu VM (revisa el adaptador en VirtualBox). Para probar si un puerto del servidor VPN es alcanzable sin la VPN:</p>
     <pre><span class="k">nc</span> -zv &lt;IP_DEL_SERVIDOR_VPN&gt; 443</pre>
 
-    <div class="why"><b>NOTA DE ORO · TROUBLESHOOTING</b>Un error que <b>cambia</b> cuando tocas algo es buena señal: significa que tu cambio tuvo efecto y estás cercando el problema. En Cap, el arreglo final fue <b>cambiar de servidor VPN</b> — el original rechazaba la conexión.</div>
+    <div class="why"><b>NOTA DE ORO · TROUBLESHOOTING</b>Un error que <b>cambia</b> cuando tocas algo es buena señal: significa que tu cambio tuvo efecto y estás cercando el problema. En Cap, el arreglo final fue <b>cambiar de servidor VPN</b>, porque el original rechazaba la conexión.</div>
 
-    <div class="warn"><b>LA IP NO ES ETERNA</b>La IP de una máquina de HTB <span class="mono">no es fija</span>: cambia si la reinicias, si cambias de servidor VPN, o entre sesiones. Antes de atacar, <span class="mono">confirma siempre la IP actual en la web</span>. En esta guía es <span class="mono">10.129.103.82</span>; la tuya será distinta — reemplázala en todos los comandos.</div>
+    <div class="warn"><b>LA IP NO ES ETERNA</b>La IP de una máquina de HTB <span class="mono">no es fija</span>: cambia si la reinicias, si cambias de servidor VPN, o entre sesiones. Antes de atacar, <span class="mono">confirma siempre la IP actual en la web</span>. En esta guía es <span class="mono">10.129.103.82</span>; la tuya será distinta, reemplázala en todos los comandos.</div>
   </div>
 </section>
 
@@ -285,7 +285,7 @@
       <tr><td><code>21</code></td><td>FTP</td><td>Transferencia de archivos. A veces permite <code>anonymous</code> sin credenciales. Buen segundo lugar.</td></tr>
       <tr><td><code>80</code></td><td>HTTP</td><td><b>La superficie más grande y rica:</b> páginas, formularios, funciones, código, rutas, parámetros. Cada una es una posible vía.</td></tr>
     </table></div>
-    <p class="f"><b>Decisión:</b> empezamos por <b>HTTP</b>. No por corazonada, sino por criterio — la web casi siempre ofrece más por dónde tirar.</p>
+    <p class="f"><b>Decisión:</b> empezamos por <b>HTTP</b>. No por corazonada, sino por criterio: la web casi siempre ofrece más por dónde tirar.</p>
   </div>
 </section>
 
@@ -303,10 +303,10 @@
     <h3 class="step">Vigila la URL</h3>
     <p class="f">Haz click en <b>Security Snapshot</b>. La página trabaja y <b>te redirige</b>. Mira la barra de direcciones:</p>
     <pre>http://10.129.103.82/data/1</pre>
-    <p class="f">Esa forma — una ruta que termina en <code class="ic">/algo/&lt;número&gt;</code> — es <b>una de las cosas más jugosas que un pentester puede encontrar en una web</b>. El <code class="ic">data</code> es la sección; el <code class="ic">1</code> es el <b>ID de tu scan</b>.</p>
+    <p class="f">Esa forma, una ruta que termina en <code class="ic">/algo/&lt;número&gt;</code>, es <b>una de las cosas más jugosas que un pentester puede encontrar en una web</b>. El <code class="ic">data</code> es la sección; el <code class="ic">1</code> es el <b>ID de tu scan</b>.</p>
 
     <h3 class="step">La hipótesis y la prueba</h3>
-    <p class="f">La app te asignó a <b>ti</b> el ID <code class="ic">1</code>. Pregunta del pentester: <em>ese 1 es mío… ¿qué pasa si lo cambio por otro número?</em> Nada te impide editarlo a mano en la barra de direcciones.</p>
+    <p class="f">La app te asignó a <b>ti</b> el ID <code class="ic">1</code>. Pregunta del pentester: <em>ese 1 es mío. ¿Y si lo cambio por otro número?</em> Nada te impide editarlo a mano en la barra de direcciones.</p>
     <div class="tblwrap"><table>
       <tr><th>URL</th><th>Resultado</th><th>Interpretación</th></tr>
       <tr><td><code>/data/1</code></td><td>0 paquetes</td><td>Tu scan. Vacío porque en tus 5 s no hubo tráfico.</td></tr>
@@ -315,12 +315,12 @@
     </table></div>
 
     <div class="fcard">
-      <h4>▚ IDOR — Insecure Direct Object Reference</h4>
+      <h4>▚ IDOR: Insecure Direct Object Reference</h4>
       <p>Accediste a datos que <b>no son tuyos</b>, simplemente pidiéndolos por su ID. La aplicación <b>no verificó</b> si ese scan te pertenecía.</p>
       <p>Ocurre cuando una app usa un identificador <b>predecible</b> (un número secuencial: 0, 1, 2…) para referirse a objetos y <b>no comprueba si el usuario tiene permiso</b> para acceder a ese objeto concreto. Cambias el número y ves cosas ajenas. Está en el <b>OWASP Top 10</b> bajo <em>Broken Access Control</em>, y es de las vulnerabilidades más comunes en aplicaciones reales.</p>
     </div>
 
-    <div class="why"><b>MATIZ: ACCESO ≠ SUPLANTACIÓN</b>Al ver <code class="ic">/data/0</code> sigues siendo Nathan (tu sesión no cambia). Eso <b>no contradice</b> la vulnerabilidad — <b>es</b> la vulnerabilidad. No necesitas convertirte en otro usuario para robar su información: basta con pedir su objeto por el ID. Confundir "ver lo de otro" con "ser otro" es un error clásico de principiante.</div>
+    <div class="why"><b>MATIZ: ACCESO ≠ SUPLANTACIÓN</b>Al ver <code class="ic">/data/0</code> sigues siendo Nathan (tu sesión no cambia). Eso <b>no contradice</b> la vulnerabilidad: <b>es</b> la vulnerabilidad. No necesitas convertirte en otro usuario para robar su información: basta con pedir su objeto por el ID. Confundir "ver lo de otro" con "ser otro" es un error clásico de principiante.</div>
   </div>
 </section>
 
@@ -332,7 +332,7 @@
 
     <div class="fcard cyan">
       <h4>▚ ¿Qué es un PCAP?</h4>
-      <p><b>PCAP = Packet Capture</b> (captura de paquetes). Es una <b>grabación de todo el tráfico de red</b> que pasó por una máquina durante un período: quién habló con quién, por qué puerto, y — lo crucial — <b>el contenido de esas comunicaciones</b>.</p>
+      <p><b>PCAP = Packet Capture</b> (captura de paquetes). Es una <b>grabación de todo el tráfico de red</b> que pasó por una máquina durante un período: quién habló con quién, por qué puerto y, lo crucial, <b>el contenido de esas comunicaciones</b>.</p>
       <p>¿Por qué es oro para un pentester? Porque <b>muchos protocolos viejos envían la información sin cifrar, en texto plano</b>. Si un usuario se autenticó con uno de ellos mientras la captura corría, su <b>usuario y contraseña quedaron grabados dentro del PCAP</b>, legibles.</p>
     </div>
 
@@ -349,7 +349,7 @@
     <p class="f">Mira la columna <b>Info</b>. En FTP cada acción aparece casi como lenguaje humano. Busca <code class="ic">Request: USER</code> (el nombre de usuario) y <code class="ic">Request: PASS</code> (la contraseña):</p>
     <pre>Request: USER nathan
 Request: PASS Buck3tH4TF0RM3!</pre>
-    <div class="why"><b>TRUCO DE WIRESHARK</b>Click derecho en cualquier paquete FTP → <b>Follow → TCP Stream</b>. Wireshark arma toda la conversación FTP completa en una ventana, ordenada y legible de corrido. Una de las funciones más útiles del programa — anótala.</div>
+    <div class="why"><b>TRUCO DE WIRESHARK</b>Click derecho en cualquier paquete FTP → <b>Follow → TCP Stream</b>. Wireshark arma toda la conversación FTP completa en una ventana, ordenada y legible de corrido. Una de las funciones más útiles del programa; anótala.</div>
     <p class="f"><b>Credenciales obtenidas:</b> <code class="ic">nathan</code> / <code class="ic">Buck3tH4TF0RM3!</code></p>
   </div>
 </section>
@@ -365,7 +365,7 @@ Request: PASS Buck3tH4TF0RM3!</pre>
 
     <h3 class="step">Conectarse por SSH</h3>
     <pre><span class="k">ssh</span> nathan@10.129.103.82</pre>
-    <p class="f">La primera vez pregunta por la autenticidad del host → escribe <code class="ic">yes</code>. Luego pide la contraseña: <code class="ic">Buck3tH4TF0RM3!</code>. <b>No verás nada al escribir</b> (ni asteriscos ni puntos) — es normal en Linux. Escríbela completa y Enter a ciegas.</p>
+    <p class="f">La primera vez pregunta por la autenticidad del host → escribe <code class="ic">yes</code>. Luego pide la contraseña: <code class="ic">Buck3tH4TF0RM3!</code>. <b>No verás nada al escribir</b> (ni asteriscos ni puntos): es normal en Linux. Escríbela completa y Enter a ciegas.</p>
     <p class="f">Si funciona, el prompt cambia de <code class="ic">iphobiuss@kali</code> a <code class="ic">nathan@cap:~$</code>. Eso significa que <b>estás dentro de la máquina víctima</b>. A eso se le llama conseguir un <b>shell</b>.</p>
 
     <h3 class="step">La user flag</h3>
@@ -394,7 +394,7 @@ Request: PASS Buck3tH4TF0RM3!</pre>
 /usr/bin/traceroute6.iputils = cap_net_raw+ep
 /usr/bin/mtr-packet = cap_net_raw+ep
 /usr/lib/.../gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep</pre>
-    <p class="f">Las de <code class="ic">cap_net_raw</code> / <code class="ic">cap_net_bind_service</code> son de red — no sirven para root. <b>La única con <code class="ic">cap_setuid</code> es Python:</b> <code class="ic">/usr/bin/python3.8</code>. Un binario que <b>puede convertirse en root</b> y que además <b>ejecuta cualquier código que le escribas</b>: una llave maestra que te deja escribir tus propias órdenes.</p>
+    <p class="f">Las de <code class="ic">cap_net_raw</code> / <code class="ic">cap_net_bind_service</code> son de red, no sirven para root. <b>La única con <code class="ic">cap_setuid</code> es Python:</b> <code class="ic">/usr/bin/python3.8</code>. Un binario que <b>puede convertirse en root</b> y que además <b>ejecuta cualquier código que le escribas</b>: una llave maestra que te deja escribir tus propias órdenes.</p>
 
     <h3 class="step">GTFOBins: la referencia obligatoria</h3>
     <p class="f">No hace falta memorizar la sintaxis. <a href="https://gtfobins.github.io" target="_blank" rel="noopener">GTFOBins</a> cataloga binarios de Linux y <b>exactamente cómo abusar de cada uno</b> según el permiso que tenga (SUID, Sudo, Capabilities…).</p>
@@ -412,7 +412,7 @@ Request: PASS Buck3tH4TF0RM3!</pre>
 
     <h3 class="step">La root flag</h3>
     <pre><span class="k">cat</span> /root/root.txt   <span class="cmt"># -&gt; 268ae2e96af7256c928d718f8717f1b9</span></pre>
-    <p class="f"><b>Máquina comprometida por completo.</b> User flag + root flag. 🏴‍☠️</p>
+    <p class="f"><b>Máquina comprometida por completo.</b> User flag + root flag.</p>
   </div>
 </section>
 
