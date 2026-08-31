@@ -10,6 +10,7 @@
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
   body{margin:0;background:var(--bg);color:var(--ink);
     font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:15px;line-height:1.55;overflow-x:hidden;
+    background-image:radial-gradient(circle at 50% -12%, #17143b 0%, var(--bg) 54%);
     background-image:radial-gradient(circle at 50% -12%, color-mix(in srgb, var(--machine) 13%, #14113a) 0%, var(--bg) 54%);}
   .crt{position:fixed;inset:0;pointer-events:none;z-index:9000;}
   .crt::before{content:"";position:absolute;inset:0;
@@ -40,7 +41,8 @@
   .prompt{font-family:'JetBrains Mono';font-size:15px;color:var(--dim);margin-bottom:14px;}
   .prompt .g{color:var(--green);} .prompt .c{color:var(--cyan);}
   .hero h1{font-family:'Press Start 2P';font-size:clamp(20px,5vw,38px);color:#fff;margin:0 0 16px;
-    line-height:1.4;text-shadow:0 0 10px color-mix(in srgb, var(--machine) 55%, transparent),4px 4px 0 rgba(0,0,0,.6);}
+    line-height:1.4;text-shadow:0 0 8px rgba(57,255,20,.30),4px 4px 0 rgba(0,0,0,.6);
+    text-shadow:0 0 10px color-mix(in srgb, var(--machine) 55%, transparent),4px 4px 0 rgba(0,0,0,.6);}
   .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
   .badge{font-family:'Press Start 2P';font-size:8px;padding:7px 9px;border:2px solid var(--line);
     background:var(--panel);box-shadow:3px 3px 0 #000;}
@@ -122,7 +124,8 @@
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
-  footer .g{color:var(--green);} footer a{color:var(--cyan);display:inline-block;padding:5px 7px;}
+  footer .g{color:var(--green);}
+  .rev{color:var(--dim);} footer a{color:var(--cyan);display:inline-block;padding:5px 7px;}
 
   .skip{position:absolute;left:8px;top:-52px;z-index:200;background:var(--green);color:#000;
     padding:9px 15px;font-family:'IBM Plex Mono';font-weight:700;font-size:13px;border:2px solid #000;transition:top .12s;}
