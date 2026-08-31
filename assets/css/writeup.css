@@ -1,0 +1,56 @@
+/* writeup.css - layout y componentes de las guias de maquina.
+   Carga DESPUES de base.css. El home (index.css) NO lo usa, por eso no colisionan. */
+
+body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'IBM Plex Mono','JetBrains Mono',monospace;font-size:15px;line-height:1.55;overflow-x:hidden;
+    background-image:radial-gradient(circle at 50% -12%, #17143b 0%, var(--bg) 54%);
+    background-image:radial-gradient(circle at 50% -12%, color-mix(in srgb, var(--machine) 13%, #14113a) 0%, var(--bg) 54%);}
+  header{padding:54px 22px 26px;}
+  .hero{max-width:1040px;margin:0 auto;}
+  .hero h1{font-family:'Press Start 2P';font-size:clamp(20px,5vw,38px);color:#fff;margin:0 0 16px;
+    line-height:1.4;text-shadow:0 0 8px rgba(57,255,20,.30),4px 4px 0 rgba(0,0,0,.6);
+    text-shadow:0 0 10px color-mix(in srgb, var(--machine) 55%, transparent),4px 4px 0 rgba(0,0,0,.6);}
+  .badge.b2{color:var(--cyan);border-color:var(--cyan);}
+  .badge.b3{color:var(--amber);border-color:var(--amber);}
+  .badge.b4{color:var(--magenta);border-color:var(--magenta);}
+  .pitch{font-family:'IBM Plex Mono';font-size:14.5px;line-height:1.7;color:var(--ink);margin:16px 0 0;max-width:70ch;}
+  .intro{max-width:1040px;margin:28px auto 0;padding:0 22px;color:var(--ink);font-size:15.5px;line-height:1.62;}
+  section{padding:48px 0 10px;border-top:3px solid var(--line);margin-top:42px;}
+  .sec-id{font-family:'Press Start 2P';font-size:20px;color:var(--acc);}
+  .sec-name{font-family:'Press Start 2P';font-size:clamp(12px,3.2vw,17px);color:#fff;margin:0;font-weight:400;line-height:1.5;}
+  .sec-focus{font-size:15px;color:var(--acc);margin:6px 0 22px;}
+  .fcard{background:var(--panel);border:2px solid var(--line);border-left:5px solid var(--violet);
+    padding:16px 18px;margin:0 0 14px;box-shadow:4px 4px 0 #000;}
+  .fcard p{margin:0 0 10px;font-size:15px;line-height:1.6;}
+  .warn{border:3px dashed var(--magenta);background:rgba(255,42,109,.06);
+    padding:16px 18px;margin:34px 0;color:var(--magenta);font-size:14.5px;line-height:1.55;}
+  .warn > b:first-child{font-family:'IBM Plex Mono';font-weight:700;font-size:12px;letter-spacing:.04em;display:block;margin-bottom:8px;}
+  footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
+    font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
+  .skip{position:absolute;left:8px;top:-52px;z-index:200;background:var(--green);color:#000;
+    padding:9px 15px;font-family:'IBM Plex Mono';font-weight:700;font-size:13px;border:2px solid #000;transition:top .12s;}
+  @media (max-width:640px){
+    nav{flex-wrap:nowrap;gap:0;padding:0 14px;overflow-x:auto;scrollbar-width:none;}
+    nav::-webkit-scrollbar{display:none;}
+    nav .brand{flex-shrink:0;padding:13px 16px 13px 0;}
+    nav .links{flex-wrap:nowrap;margin-left:0;gap:0;}
+    nav .links a{padding:13px 9px;white-space:nowrap;}
+  }
+  @media print{
+    .crt,.topbar,.skip{display:none!important;}
+    body{background:#fff!important;background-image:none!important;font-size:11pt;}
+    *{box-shadow:none!important;text-shadow:none!important;color:#111!important;
+      background:transparent!important;border-color:#bbb!important;}
+    a{text-decoration:underline;}
+    pre,.path{background:#f3f3f3!important;border:1px solid #ccc!important;white-space:pre-wrap;word-break:break-word;}
+    pre .cmt,pre .k,pre .o,.path .node,.path .rel{color:#333!important;}
+    table{background:#fff!important;} th{background:#eee!important;}
+    .badge,.fcard,.warn,.chain .lnk,pre,table,.why,.takeaways li,.path{break-inside:avoid;}
+    .ans{color:#111!important;}
+  }
+  /* ===== reglas específicas de páginas concretas (setup/forest), inertes donde no se usan ===== */
+  .cmdlabel{font-family:'IBM Plex Mono';font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--cyan);margin:12px 0 8px;}
+  .phase{font-family:'Press Start 2P';font-size:8px;color:var(--acc,var(--green));white-space:nowrap;}
+  .gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px;margin:0 0 14px;}
+  .term .t{font-family:'JetBrains Mono';font-weight:700;font-size:14.5px;color:var(--violet);margin-bottom:6px;}
+  .term .d{font-size:13.5px;color:var(--ink);line-height:1.55;}
