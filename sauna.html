@@ -129,6 +129,11 @@
   .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
     padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
   .takeaways li b{color:var(--green);}
+  .tk{display:inline-block;font-family:'IBM Plex Mono';font-weight:700;font-size:8.5px;letter-spacing:.06em;padding:2px 6px;margin-right:9px;border:1px solid;vertical-align:2px;white-space:nowrap;}
+  .tk-gen{color:var(--green);border-color:var(--green);}
+  .tk-lab{color:var(--amber);border-color:var(--amber);}
+  .tk-legend{font-size:13px;color:var(--dim);margin:0 0 16px;line-height:1.7;}
+  .tk-legend .tk{margin-right:5px;}
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
@@ -211,8 +216,8 @@
     <div class="sec-focus">Un DC como Forest, más una web: dos superficies de ataque.</div>
     <pre><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.219
 <span class="k">nmap</span> -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.219</pre>
-    <p class="f"><code class="ic">ttl=127</code> = Windows. La huella de AD conocida de Forest (Kerberos 88, LDAP 389/636, SMB 445, DNS 53, WinRM 5985) confirma un <b>Domain Controller</b>. El <code class="ic">-sCV</code> revela el dominio: <b>EGOTISTICAL-BANK.LOCAL</b>, host <b>SAUNA</b>, Windows Server 2019.</p>
-    <p class="f">Mapea el dominio en <code class="ic">/etc/hosts</code> (obligatorio en AD):</p>
+    <p class="f"><code class="ic">ttl=127</code> sugiere Windows (pista, se confirma con el fingerprint). La huella de AD conocida de Forest (Kerberos 88, LDAP 389/636, SMB 445, DNS 53, WinRM 5985) confirma un <b>Domain Controller</b>. El <code class="ic">-sCV</code> revela el dominio: <b>EGOTISTICAL-BANK.LOCAL</b>, host <b>SAUNA</b>, Windows Server 2019.</p>
+    <p class="f">Mapea el dominio en <code class="ic">/etc/hosts</code> para que Kerberos resuelva el nombre (habitual en labs):</p>
     <pre><span class="k">sudo</span> sh -c 'echo "10.129.62.219 EGOTISTICAL-BANK.LOCAL sauna.egotistical-bank.local SAUNA" &gt;&gt; /etc/hosts'</pre>
     <div class="why"><b>LA DIFERENCIA CON FOREST: EL PUERTO 80</b>Aquí, además de todos los servicios de AD, hay una <b>web</b> (IIS, "Egotistical Bank"). Eso es una segunda superficie, y en Sauna resulta ser la puerta de entrada, porque el SMB anónimo no coopera como en Forest.</div>
   </div>
@@ -350,12 +355,13 @@
       <tr><td>Escalada a DA</td><td>Cadena de ACLs → concederse DCSync</td><td><b>DCSync directo (permiso de fábrica)</b></td></tr>
       <tr><td>Final</td><td>Pass-the-Hash</td><td>Pass-the-Hash</td></tr>
     </table></div>
+    <p class="tk-legend"><span class="tk tk-gen">GENERAL</span> principio transferible a otras máquinas. <span class="tk tk-lab">LAB</span> heurística o convención de laboratorio (HTB), no una regla universal.</p>
     <ul class="takeaways">
-      <li><b>Usuarios desde la web:</b> si el SMB anónimo no da usuarios, los nombres de empleados de la web + una convención (<code class="ic">fsmith</code>) se validan contra Kerberos con <code class="ic">GetNPUsers</code>.</li>
-      <li><b>Autologon en el registro:</b> tras conseguir shell en Windows, revisa <code class="ic">HKLM\...\Winlogon</code> por <code class="ic">DefaultPassword</code> en texto claro.</li>
-      <li><b>DCSync directo:</b> una cuenta con <code class="ic">GetChanges</code>/<code class="ic">GetChangesAll</code> vuelca todos los hashes sin cadenas de ACLs previas.</li>
-      <li><b>El nombre del registro puede no ser el real:</b> <code class="ic">svc_loanmanager</code> (registro) vs <code class="ic">svc_loanmgr</code> (cuenta). Prueba variantes.</li>
-      <li><b>Reforzado de Forest:</b> AS-REP Roasting, cracking offline con john, WinRM con evil-winrm, DCSync con secretsdump, Pass-the-Hash con <code class="ic">-H</code>.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Usuarios desde la web:</b> si el SMB anónimo no da usuarios, los nombres de empleados de la web + una convención (<code class="ic">fsmith</code>) se validan contra Kerberos con <code class="ic">GetNPUsers</code>.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Autologon en el registro:</b> tras conseguir shell en Windows, revisa <code class="ic">HKLM\...\Winlogon</code> por <code class="ic">DefaultPassword</code> en texto claro.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>DCSync directo:</b> una cuenta con <code class="ic">GetChanges</code>/<code class="ic">GetChangesAll</code> vuelca todos los hashes sin cadenas de ACLs previas.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>El nombre del registro puede no ser el real:</b> <code class="ic">svc_loanmanager</code> (registro) vs <code class="ic">svc_loanmgr</code> (cuenta). Prueba variantes.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Reforzado de Forest:</b> AS-REP Roasting, cracking offline con john, WinRM con evil-winrm, DCSync con secretsdump, Pass-the-Hash con <code class="ic">-H</code>.</li>
     </ul>
   </div>
 </section>

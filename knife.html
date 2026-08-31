@@ -136,6 +136,11 @@
   .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
     padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
   .takeaways li b{color:var(--green);}
+  .tk{display:inline-block;font-family:'IBM Plex Mono';font-weight:700;font-size:8.5px;letter-spacing:.06em;padding:2px 6px;margin-right:9px;border:1px solid;vertical-align:2px;white-space:nowrap;}
+  .tk-gen{color:var(--green);border-color:var(--green);}
+  .tk-lab{color:var(--amber);border-color:var(--amber);}
+  .tk-legend{font-size:13px;color:var(--dim);margin:0 0 16px;line-height:1.7;}
+  .tk-legend .tk{margin-right:5px;}
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
@@ -369,15 +374,16 @@ james@knife:/$</pre>
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (vs CAP)</h2></div>
     <div class="sec-focus">Knife no repite Cap: lo extiende. Esto es lo que suma a tu arsenal.</div>
+    <p class="tk-legend"><span class="tk tk-gen">GENERAL</span> principio transferible a otras máquinas. <span class="tk tk-lab">LAB</span> heurística o convención de laboratorio (HTB), no una regla universal.</p>
     <ul class="takeaways">
-      <li><b>Una VPN a la vez:</b> mata la anterior (<code class="ic">sudo pkill openvpn</code>) antes de levantar otra, o acabas en <code class="ic">tun1</code> con rutas duplicadas.</li>
-      <li><b>Fingerprinting por cabeceras:</b> <code class="ic">curl -I</code> revela servidor, SO y versiones cuando la web no muestra nada a la vista.</li>
-      <li><b>Versión rara → CVE:</b> <code class="ic">-dev</code>/<code class="ic">beta</code>/<code class="ic">RC</code> = bandera roja. Reflejo: buscar vulnerabilidad pública conocida.</li>
-      <li><b>Leer el exploit antes de lanzarlo:</b> entender qué hace (el <code class="ic">User-Agentt</code>, el payload) es lo que separa entender de copiar.</li>
-      <li><b>Reverse shell:</b> acceso <em>sin credenciales</em>. Listener (<code class="ic">nc -lvnp</code>) + la víctima te llama de vuelta a tu <b>IP + puerto</b>.</li>
-      <li><b>Estabilizar la shell:</b> <code class="ic">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> convierte una shell básica en una usable.</li>
-      <li><b>Escalada por <code class="ic">sudo -l</code>:</b> el vector de privesc más común del mundo real. <code class="ic">NOPASSWD</code> es regalo.</li>
-      <li><b>Encadenar GTFOBins:</b> knife hereda de ruby: seguir esa pista hasta el comando final, usando la sección del permiso correcto (Sudo).</li>
+      <li><span class="tk tk-lab">LAB</span><b>Una VPN a la vez:</b> mata la anterior (<code class="ic">sudo pkill openvpn</code>) antes de levantar otra, o acabas en <code class="ic">tun1</code> con rutas duplicadas.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Fingerprinting por cabeceras:</b> <code class="ic">curl -I</code> revela servidor, SO y versiones cuando la web no muestra nada a la vista.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Versión rara → CVE:</b> <code class="ic">-dev</code>/<code class="ic">beta</code>/<code class="ic">RC</code> = bandera roja. Reflejo: buscar vulnerabilidad pública conocida.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Leer el exploit antes de lanzarlo:</b> entender qué hace (el <code class="ic">User-Agentt</code>, el payload) es lo que separa entender de copiar.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Reverse shell:</b> acceso <em>sin credenciales</em>. Listener (<code class="ic">nc -lvnp</code>) + la víctima te llama de vuelta a tu <b>IP + puerto</b>.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Estabilizar la shell:</b> <code class="ic">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> convierte una shell básica en una usable.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Escalada por <code class="ic">sudo -l</code>:</b> el vector de privesc más común del mundo real. <code class="ic">NOPASSWD</code> es regalo.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Encadenar GTFOBins:</b> knife hereda de ruby: seguir esa pista hasta el comando final, usando la sección del permiso correcto (Sudo).</li>
     </ul>
   </div>
 </section>

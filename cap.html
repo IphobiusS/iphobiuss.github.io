@@ -135,6 +135,11 @@
   .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
     padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
   .takeaways li b{color:var(--green);}
+  .tk{display:inline-block;font-family:'IBM Plex Mono';font-weight:700;font-size:8.5px;letter-spacing:.06em;padding:2px 6px;margin-right:9px;border:1px solid;vertical-align:2px;white-space:nowrap;}
+  .tk-gen{color:var(--green);border-color:var(--green);}
+  .tk-lab{color:var(--amber);border-color:var(--amber);}
+  .tk-legend{font-size:13px;color:var(--dim);margin:0 0 16px;line-height:1.7;}
+  .tk-legend .tk{margin-right:5px;}
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
@@ -441,16 +446,17 @@ Request: PASS Buck3tH4TF0RM3!</pre>
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS TRANSFERIBLES</h2></div>
     <div class="sec-focus">Cap es solo el vehículo. Esto sirve para cualquier máquina.</div>
+    <p class="tk-legend"><span class="tk tk-gen">GENERAL</span> principio transferible a otras máquinas. <span class="tk tk-lab">LAB</span> heurística o convención de laboratorio (HTB), no una regla universal.</p>
     <ul class="takeaways">
-      <li><b>Método:</b> mide, lee el resultado, cambia una sola cosa. Un error que cambia es progreso. Diagnostica de abajo hacia arriba (¿internet? → ¿DNS? → ¿VPN?).</li>
-      <li><b>La IP objetivo no es fija.</b> Confírmala en la web antes de cada sesión.</li>
-      <li><b>Recon primero, siempre.</b> <code class="ic">nmap -p-</code> para no perder puertos; <code class="ic">-sCV</code> para versiones; guarda con <code class="ic">-oA</code>.</li>
-      <li><b>Elegir por dónde entrar es criterio, no azar.</b> La web suele ofrecer más superficie.</li>
-      <li><b>IDOR:</b> ID secuencial en la URL + sin control de acceso = enumerar objetos ajenos. Acceso ≠ suplantación.</li>
-      <li><b>Protocolos sin cifrar</b> (FTP, HTTP, Telnet) filtran credenciales en un PCAP. Fíltralos en Wireshark; usa <em>Follow TCP Stream</em>.</li>
-      <li><b>Password reuse:</b> unas credenciales de un servicio se prueban en <b>todos</b> los demás. Casi siempre pagan.</li>
-      <li><b>Escalada por capabilities:</b> <code class="ic">getcap -r / 2&gt;/dev/null</code> para encontrarlas; <code class="ic">cap_setuid</code> es la joya; <b>GTFOBins</b> para la técnica, usando la sección del permiso correcto.</li>
-      <li><b><code class="ic">$</code> vs <code class="ic">#</code>:</b> el prompt te dice quién eres. <code class="ic">#</code> = root.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Método:</b> mide, lee el resultado, cambia una sola cosa. Un error que cambia es progreso. Diagnostica de abajo hacia arriba (¿internet? → ¿DNS? → ¿VPN?).</li>
+      <li><span class="tk tk-lab">LAB</span><b>La IP objetivo no es fija.</b> Confírmala en la web antes de cada sesión.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Recon primero, siempre.</b> <code class="ic">nmap -p-</code> para no perder puertos; <code class="ic">-sCV</code> para versiones; guarda con <code class="ic">-oA</code>.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Elegir por dónde entrar es criterio, no azar.</b> La web suele ofrecer más superficie.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>IDOR:</b> ID secuencial en la URL + sin control de acceso = enumerar objetos ajenos. Acceso ≠ suplantación.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Protocolos sin cifrar</b> (FTP, HTTP, Telnet) filtran credenciales en un PCAP. Fíltralos en Wireshark; usa <em>Follow TCP Stream</em>.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Password reuse:</b> unas credenciales de un servicio se prueban en <b>todos</b> los demás. Casi siempre pagan.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Escalada por capabilities:</b> <code class="ic">getcap -r / 2&gt;/dev/null</code> para encontrarlas; <code class="ic">cap_setuid</code> es la joya; <b>GTFOBins</b> para la técnica, usando la sección del permiso correcto.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b><code class="ic">$</code> vs <code class="ic">#</code>:</b> el prompt te dice quién eres. <code class="ic">#</code> = root.</li>
     </ul>
   </div>
 </section>

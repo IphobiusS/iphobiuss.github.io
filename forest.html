@@ -144,6 +144,11 @@
   .takeaways li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
     padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
   .takeaways li b{color:var(--green);}
+  .tk{display:inline-block;font-family:'IBM Plex Mono';font-weight:700;font-size:8.5px;letter-spacing:.06em;padding:2px 6px;margin-right:9px;border:1px solid;vertical-align:2px;white-space:nowrap;}
+  .tk-gen{color:var(--green);border-color:var(--green);}
+  .tk-lab{color:var(--amber);border-color:var(--amber);}
+  .tk-legend{font-size:13px;color:var(--dim);margin:0 0 16px;line-height:1.7;}
+  .tk-legend .tk{margin-right:5px;}
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
@@ -220,7 +225,7 @@
 <div class="intro">
   <b>Requisitos:</b> cuenta HTB (VIP para retiradas), Kali, y la VPN levantada (una a la vez: <span class="mono">sudo pkill openvpn</span> antes de reconectar, como en <a href="knife.html">Knife</a>).
   <br><br>
-  <b>Herramientas nuevas que usa esta máquina:</b> <span class="mono">netexec</span>, <span class="mono">impacket-GetNPUsers</span>, <span class="mono">john</span>, <span class="mono">evil-winrm</span>, <span class="mono">bloodhound-python</span> + <span class="mono">BloodHound CE</span>, <span class="mono">PowerView</span>, <span class="mono">impacket-secretsdump</span>. Todas vienen en Kali. En esta guía la IP objetivo es <span class="mono">10.129.62.145</span> y la IP del atacante (tun0) <span class="mono">10.10.14.57</span>; las tuyas serán distintas.
+  <b>Herramientas nuevas que usa esta máquina:</b> <span class="mono">netexec</span>, <span class="mono">impacket-GetNPUsers</span>, <span class="mono">john</span>, <span class="mono">evil-winrm</span>, <span class="mono">bloodhound-python</span> + <span class="mono">BloodHound CE</span>, <span class="mono">PowerView</span>, <span class="mono">impacket-secretsdump</span>. La mayoría vienen en Kali (según la instalación). En esta guía la IP objetivo es <span class="mono">10.129.62.145</span> y la IP del atacante (tun0) <span class="mono">10.10.14.57</span>; las tuyas serán distintas.
 </div>
 
 <!-- ===================== RECON ===================== -->
@@ -231,20 +236,20 @@
 
     <div class="fcard cyan">
       <h4>▚ Dominio y Domain Controller</h4>
-      <p>Un <b>dominio</b> gestiona de forma centralizada muchos equipos y usuarios bajo un mismo paraguas (la cuenta corporativa con la que inicia sesión toda una empresa). El <b>Domain Controller (DC)</b> es el servidor que manda: guarda todas las cuentas, contraseñas, grupos y permisos, y autentica a todos. <b>Forest es un DC.</b> Comprometer un DC es comprometer el dominio entero, por eso es el objetivo más goloso.</p>
+      <p>Un <b>dominio</b> gestiona de forma centralizada muchos equipos y usuarios bajo un mismo paraguas (la cuenta corporativa con la que inicia sesión toda una empresa). El <b>Domain Controller (DC)</b> es el servidor que manda: centraliza las cuentas, grupos, permisos y los secretos de autenticación (no contraseñas en texto claro, sino material derivado de ellas), y autentica a todos. <b>Forest es un DC.</b> Comprometer un DC es comprometer el dominio entero, por eso es el objetivo más goloso.</p>
     </div>
 
     <h3 class="step">Barrido y detección</h3>
     <pre><span class="k">mkdir</span> -p ~/htb/forest/nmap &amp;&amp; <span class="k">cd</span> ~/htb/forest
 <span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.145
 <span class="k">nmap</span> -sCV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.145</pre>
-    <div class="why"><b>EL TTL DELATA EL SO</b>El ping devolvía <code class="ic">ttl=127</code>. Windows parte su TTL en 128 (baja 1 por salto); Linux en 64. Así que <code class="ic">ttl=127</code> = <b>Windows</b>, antes de tocar nada. Coherente: AD es tecnología Microsoft.</div>
+    <div class="why"><b>EL TTL, UNA PISTA DEL SO</b>El ping devolvía <code class="ic">ttl=127</code>. Windows suele partir su TTL en 128 (baja 1 por salto) y Linux en 64, así que <code class="ic">~127</code> sugiere Windows y <code class="ic">~63</code> Linux. Es una pista frecuente en labs, no una prueba (el TTL se puede modificar y depende de los saltos). Aquí encaja con que AD es tecnología Microsoft, y se confirma con el fingerprint.</div>
 
     <h3 class="step">Leer un DC de un vistazo</h3>
     <p class="f">A diferencia de Cap (3 puertos) y Knife (2), un DC devuelve <b>23</b>. Los <code class="ic">4966x/4967x</code> son RPC dinámico (ruido). Los que importan forman la huella de AD:</p>
     <div class="tblwrap"><table>
       <tr><th>Puerto</th><th>Servicio</th><th>Qué significa</th></tr>
-      <tr><td><code>88</code></td><td>Kerberos</td><td>La estrella: El sistema de autenticación de AD. Verlo = hay dominio Windows. La técnica de Forest lo ataca.</td></tr>
+      <tr><td><code>88</code></td><td>Kerberos</td><td>La estrella: el sistema de autenticación de AD. Es una pieza característica de la huella de AD; por sí solo no prueba que sea un DC, pero junto a LDAP, SMB y DNS la inferencia es fuerte. La técnica de Forest lo ataca.</td></tr>
       <tr><td><code>389 / 636</code></td><td>LDAP / LDAPS</td><td>La "guía telefónica" del dominio: usuarios, grupos, permisos. Clave para enumerar. Permite <em>anonymous bind</em>.</td></tr>
       <tr><td><code>445</code></td><td>SMB</td><td>Comparticiones Windows. Aquí acepta sesión nula (<code>guest</code>).</td></tr>
       <tr><td><code>53</code></td><td>DNS</td><td>El DC también es el DNS del dominio.</td></tr>
@@ -252,11 +257,11 @@
     </table></div>
     <p class="f">El <code class="ic">-sCV</code> revela el nombre del dominio, repetido por todas partes: <b>Domain: htb.local</b>, <code class="ic">FQDN: FOREST.htb.local</code>, Windows Server 2016. Y una perla en el script de SMB: <code class="ic">account_used: guest</code> → acepta acceso anónimo.</p>
 
-    <h3 class="step">Mapear el dominio en /etc/hosts (obligatorio en AD)</h3>
+    <h3 class="step">Mapear el dominio en /etc/hosts (resolución de nombres)</h3>
     <p class="f">Muchas herramientas de AD (sobre todo las de Kerberos) fallan si les hablas por IP: necesitan el <b>nombre</b>. Enséñale a Kali a resolver el dominio:</p>
     <pre><span class="k">sudo</span> sh -c 'echo "10.129.62.145 htb.local forest.htb.local FOREST" &gt;&gt; /etc/hosts'
 <span class="k">ping</span> -c 2 forest.htb.local   <span class="cmt"># debe resolver el nombre a la IP</span></pre>
-    <div class="why"><b>REGLA DE AD</b>Mapear el dominio en <code class="ic">/etc/hosts</code> es obligatorio en toda máquina de AD. Y un dominio por vez: limpia entradas viejas de otros labs para no confundirte.</div>
+    <div class="why"><b>RESOLUCIÓN DE NOMBRES EN AD</b>Kerberos y muchas herramientas de AD necesitan resolver el nombre del dominio, no la IP. Si tu Kali no usa el DNS del DC, ese nombre se mapea en <code class="ic">/etc/hosts</code>: es lo habitual en labs, no un requisito inherente de AD. Y un dominio por vez: limpia entradas viejas de otros labs para no confundirte.</div>
   </div>
 </section>
 
@@ -279,7 +284,7 @@
       <tr><th>Ruido (ignorar)</th><th>Grano (personas / cuentas reales)</th></tr>
       <tr><td><code>Administrator</code>, <code>Guest</code>, <code>krbtgt</code>, <code>DefaultAccount</code> (integradas) · <code>SM_*</code>, <code>HealthMailbox*</code>, <code>$*</code> (cuentas de Exchange, autogeneradas)</td><td><code>sebastien</code>, <code>lucinda</code>, <code>andy</code>, <code>mark</code>, <code>santi</code>, y <b><code>svc-alfresco</code></b></td></tr>
     </table></div>
-    <div class="why"><b>EL PREFIJO svc-</b><code class="ic">svc-alfresco</code> salta a la vista: <code class="ic">svc-</code> = <em>service account</em> (cuenta de servicio, no persona). Las cuentas de servicio suelen estar peor configuradas: contraseñas débiles y, a menudo, la debilidad de Kerberos que vamos a explotar.</div>
+    <div class="why"><b>EL PREFIJO svc-</b><code class="ic">svc-alfresco</code> salta a la vista: <code class="ic">svc-</code> = <em>service account</em> (cuenta de servicio, no persona). Son objetivos interesantes porque pueden tener configuraciones o credenciales débiles, así que el prefijo <code class="ic">svc-</code> justifica priorizar su revisión. Pero eso no implica por sí mismo que sea vulnerable a AS-REP Roasting: es un reflejo de "investigar primero", no de "asumir vulnerable".</div>
 
     <p class="f">Guarda los usuarios-persona en un archivo (los necesitarás):</p>
     <pre><span class="k">echo</span> 'sebastien
@@ -295,12 +300,12 @@ svc-alfresco' &gt; users.txt</pre>
 <section id="asrep" style="--acc:var(--magenta)">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · AS-REP ROASTING + CRACKING</h2></div>
-    <div class="sec-focus">Pedir el hash de un usuario sin autenticarte, y romperlo offline.</div>
+    <div class="sec-focus">Pedir material AS-REP de un usuario sin autenticarte y atacarlo offline.</div>
 
     <div class="fcard magenta">
       <h4>▚ AS-REP Roasting</h4>
       <p>Normalmente Kerberos exige <b>pre-autenticarte</b> antes de darte información. Pero existe una opción de cuenta, <b>"no requiere pre-autenticación"</b>, que si está activada hace que Kerberos te entregue información cifrada <b>sin autenticarte</b>. Esa información contiene algo derivado de la <b>contraseña</b> del usuario. Si la capturas, la crackeas offline.</p>
-      <p><b>AS-REP Roasting</b> = pedirle a Kerberos el hash de un usuario con la pre-autenticación desactivada, para romperlo. Las cuentas <code class="ic">svc-</code> son candidatas frecuentes.</p>
+      <p><b>AS-REP Roasting</b> = solicitar un AS-REP de una cuenta sin pre-autenticación y atacar offline la porción cifrada con una clave derivada de su contraseña. El tooling lo llama coloquialmente "hash" (<code class="ic">$krb5asrep$</code>, <code class="ic">hash.txt</code>), pero es material cifrado, no una huella unidireccional.</p>
     </div>
 
     <h3 class="step">Pedir los hashes</h3>
@@ -309,7 +314,7 @@ svc-alfresco' &gt; users.txt</pre>
     <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt</pre>
 
     <h3 class="step">Crackear offline</h3>
-    <p class="f">El hash es una representación cifrada de la contraseña. Se rompe <b>offline</b> (en tu Kali, sin tocar la víctima, intentos ilimitados) probando un diccionario. hashcat es lo estándar, pero en una VM sin GPU falla:</p>
+    <p class="f">Ojo con el vocabulario: <code class="ic">GetNPUsers</code> devuelve el <b>AS-REP</b> en un formato que john/hashcat atacan offline, pero no es una simple huella unidireccional de la contraseña. Parte del AS-REP está <b>cifrada con una clave derivada de la contraseña</b> del usuario, así que pruebas candidatos localmente hasta dar con uno que descifre correctamente el mensaje. Se hace <b>offline</b> (en tu Kali, sin tocar la víctima, intentos ilimitados) con un diccionario. hashcat es lo estándar, pero en una VM sin GPU falla:</p>
     <pre><span class="k">hashcat</span> -m 18200 hash.txt rockyou.txt   <span class="cmt"># falla: no OpenCL/CUDA (VM sin GPU)</span>
 <span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># funciona: detecta el tipo solo</span></pre>
     <p class="f">John lo rompe en un segundo: <b><code class="ic">svc-alfresco : s3rvice</code></b>.</p>
@@ -323,7 +328,7 @@ svc-alfresco' &gt; users.txt</pre>
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · FOOTHOLD · WINRM</h2></div>
     <div class="sec-focus">De anónimo a usuario autenticado del dominio.</div>
 
-    <h3 class="step">Validar credenciales (reflejo obligatorio en AD)</h3>
+    <h3 class="step">Validar credenciales (buen reflejo en AD)</h3>
     <p class="f">Antes de usar unas credenciales nuevas, compruébalas. Y verifica si sirven para WinRM:</p>
     <pre><span class="k">netexec</span> smb 10.129.62.145 -u svc-alfresco -p s3rvice    <span class="cmt"># [+] = válidas</span>
 <span class="k">netexec</span> winrm 10.129.62.145 -u svc-alfresco -p s3rvice  <span class="cmt"># (Pwn3d!) = puede entrar por WinRM</span></pre>
@@ -431,17 +436,18 @@ $cred = New-Object System.Management.Automation.PSCredential('htb\svc-alfresco',
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (EL MUNDO AD)</h2></div>
     <div class="sec-focus">Forest abre Active Directory: un arsenal entero que Cap y Knife no tenían.</div>
+    <p class="tk-legend"><span class="tk tk-gen">GENERAL</span> principio transferible a otras máquinas. <span class="tk tk-lab">LAB</span> heurística o convención de laboratorio (HTB), no una regla universal.</p>
     <ul class="takeaways">
-      <li><b>Fingerprint de DC:</b> 20+ puertos con Kerberos (88) + LDAP (389/636) + SMB (445) + DNS (53) = Domain Controller. <code class="ic">ttl=127</code> = Windows.</li>
-      <li><b><code class="ic">/etc/hosts</code> en AD:</b> mapear el dominio a la IP es obligatorio; muchas herramientas Kerberos fallan por IP.</li>
-      <li><b>Enumeración anónima:</b> SMB con <code class="ic">Null Auth</code> / LDAP <em>anonymous bind</em> → lista de usuarios del dominio sin credenciales.</li>
-      <li><b>AS-REP Roasting:</b> cuentas sin pre-auth de Kerberos (típico en <code class="ic">svc-</code>) → hash con <code class="ic">GetNPUsers</code>, crackeable offline.</li>
-      <li><b>Cracking:</b> <code class="ic">john</code> cuando no hay GPU; autodetecta el tipo de hash. rockyou como diccionario.</li>
-      <li><b>Validar y entrar:</b> <code class="ic">netexec smb/winrm</code> (<code class="ic">Pwn3d!</code>) → <code class="ic">evil-winrm</code> para shell.</li>
-      <li><b>BloodHound:</b> recolectar con <code class="ic">bloodhound-python</code>, analizar el grafo, leer el camino a Domain Admin.</li>
-      <li><b>Abuso de ACLs:</b> <code class="ic">GenericAll</code> (control total) y <code class="ic">WriteDacl</code> (modificar permisos) con PowerView.</li>
-      <li><b>DCSync:</b> abusar de la replicación para volcar todos los hashes (<code class="ic">secretsdump</code>), incluido Administrator.</li>
-      <li><b>Pass-the-Hash:</b> autenticarte con el hash NTLM sin conocer la contraseña (<code class="ic">-H</code>).</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Fingerprint de DC:</b> 20+ puertos con Kerberos (88) + LDAP (389/636) + SMB (445) + DNS (53) = Domain Controller. <code class="ic">ttl≈127</code> sugiere Windows (pista, no prueba).</li>
+      <li><span class="tk tk-lab">LAB</span><b><code class="ic">/etc/hosts</code> en AD:</b> Kerberos resuelve por nombre, no por IP; mapear el dominio en <code class="ic">/etc/hosts</code> es la solución habitual en labs (no un requisito inherente de AD).</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Enumeración anónima:</b> SMB con <code class="ic">Null Auth</code> / LDAP <em>anonymous bind</em> → lista de usuarios del dominio sin credenciales.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>AS-REP Roasting:</b> cuentas sin pre-auth de Kerberos (típico en <code class="ic">svc-</code>) → hash con <code class="ic">GetNPUsers</code>, crackeable offline.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Cracking:</b> <code class="ic">john</code> cuando no hay GPU; autodetecta el tipo de hash. rockyou como diccionario.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Validar y entrar:</b> <code class="ic">netexec smb/winrm</code> (<code class="ic">Pwn3d!</code>) → <code class="ic">evil-winrm</code> para shell.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>BloodHound:</b> recolectar con <code class="ic">bloodhound-python</code>, analizar el grafo, leer el camino a Domain Admin.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Abuso de ACLs:</b> <code class="ic">GenericAll</code> (control total) y <code class="ic">WriteDacl</code> (modificar permisos) con PowerView.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>DCSync:</b> abusar de la replicación para volcar todos los hashes (<code class="ic">secretsdump</code>), incluido Administrator.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Pass-the-Hash:</b> autenticarte con el hash NTLM sin conocer la contraseña (<code class="ic">-H</code>).</li>
     </ul>
   </div>
 </section>

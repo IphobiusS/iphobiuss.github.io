@@ -132,6 +132,9 @@
     padding:11px 14px;margin:0 0 9px;font-size:14.5px;line-height:1.55;}
   .checklist li::before{content:"[ ] ";font-family:'JetBrains Mono';color:var(--green);font-weight:700;}
   .checklist li b{color:#fff;}
+  .tk{display:inline-block;font-family:'IBM Plex Mono';font-weight:700;font-size:8.5px;letter-spacing:.06em;padding:2px 6px;margin-right:6px;border:1px solid;vertical-align:1px;white-space:nowrap;}
+  .tk-gen{color:var(--green);border-color:var(--green);}
+  .tk-lab{color:var(--amber);border-color:var(--amber);}
 
   footer{border-top:3px solid var(--line);margin-top:44px;padding:34px 22px 60px;text-align:center;
     font-family:'IBM Plex Mono';font-weight:600;font-size:11px;letter-spacing:.03em;color:var(--dim);line-height:2.4;}
@@ -196,6 +199,8 @@
 
 <div class="intro">
   <b>Qué NO es esto:</b> no es un cheatsheet de comandos para copiar. Para eso está la sección <a href="index.html#cheatsheet">CHEATSHEET</a> del knowledge base. Aquí lo que importa es el <b>porqué</b> y el <b>cuándo</b>: el criterio que hace que un comando sirva. Los writeups traen los comandos en contexto; esta guía trae el andamiaje que los une.
+  <br><br>
+  <b>Una convención de la serie:</b> en los writeups verás dos etiquetas. <span class="tk tk-gen">GENERAL</span> marca un principio transferible (sirve en cualquier máquina). <span class="tk tk-lab">LAB</span> marca una heurística o convención de laboratorio (propia de HTB o del entorno), que <b>no</b> es una regla universal. La idea es clara: lo que resolvió una máquina no siempre funciona igual fuera de ella.
 </div>
 
 <!-- ===================== ENTORNO ===================== -->
@@ -255,10 +260,10 @@
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · RECONOCIMIENTO</h2></div>
     <div class="sec-focus">El primer movimiento de todo pentest: qué puertas hay abiertas.</div>
 
-    <h3 class="step">El TTL delata el sistema operativo</h3>
-    <p class="f">Antes de escanear, el ping ya te dice ante qué estás. El TTL parte en un valor por SO y baja 1 por salto de red:</p>
+    <h3 class="step">El TTL: una pista del SO, no una prueba</h3>
+    <p class="f">El ping da una pista temprana del sistema operativo. El TTL suele partir en un valor por SO y baja 1 por salto de red. Es una heurística frecuente en labs, no una identificación fiable: el TTL se puede modificar y depende de los saltos. Confírmalo siempre con el fingerprint:</p>
     <div class="tblwrap"><table>
-      <tr><th>TTL que ves</th><th>Sistema operativo probable</th></tr>
+      <tr><th>TTL que ves</th><th>SO que sugiere (a confirmar)</th></tr>
       <tr><td><code>~63</code> (parte en 64)</td><td><b>Linux</b> / Unix</td></tr>
       <tr><td><code>~127</code> (parte en 128)</td><td><b>Windows</b></td></tr>
     </table></div>
@@ -289,7 +294,7 @@
       <tr><td>Voy a <b>ejecutar un exploit</b> descargado</td><td>Leerlo antes (<code>cat</code>). Entender qué hace = separar entender de copiar. Nunca a ciegas.</td></tr>
       <tr><td>Tengo un <b>binario poco común</b> con permisos (SUID/sudo/capabilities)</td><td>Buscarlo en <b>GTFOBins</b>, usando la sección del permiso que TENGO (Sudo ≠ Capabilities ≠ SUID).</td></tr>
       <tr><td>Consigo un <b>hash</b> de contraseña</td><td>Crackearlo <b>offline</b> (silencioso, ilimitado). <code>john</code> si no hay GPU; <code>hashcat</code> con GPU. rockyou como diccionario.</td></tr>
-      <tr><td>Estoy en una máquina de <b>Active Directory</b></td><td>Mapear el dominio en <code>/etc/hosts</code> (obligatorio: muchas herramientas Kerberos fallan por IP). Enumerar anónimo antes que nada.</td></tr>
+      <tr><td>Estoy en una máquina de <b>Active Directory</b></td><td>Kerberos necesita resolver el nombre del dominio; si tu Kali no usa el DNS del DC, se mapea en <code>/etc/hosts</code> (común en labs, no un requisito inherente de AD). Enumerar anónimo antes que nada.</td></tr>
       <tr><td>Consigo <b>credenciales</b> nuevas en AD</td><td>Validarlas (<code>netexec</code>), ver dónde entran (SMB/WinRM), y mapear el dominio con <b>BloodHound</b> para el camino a Domain Admin.</td></tr>
     </table></div>
   </div>
@@ -319,7 +324,7 @@
       <tr><td><span class="phase" style="--acc:var(--violet)">POST (AD)</span></td><td><code>impacket-secretsdump</code></td><td>DCSync: volcar todos los hashes del dominio abusando de la replicación. Tras conseguir derechos de replicación.</td></tr>
       <tr><td><span class="phase" style="--acc:var(--amber)">ANÁLISIS</span></td><td><b>Wireshark</b></td><td>Leer capturas de tráfico (PCAP). Filtrar protocolos sin cifrar (FTP, HTTP) para cazar credenciales en texto plano.</td></tr>
     </table></div>
-    <p class="f">Todas vienen preinstaladas en Kali. La suite <code class="ic">impacket-*</code> agrupa muchas herramientas de red Windows/AD; <code class="ic">netexec</code> es el sucesor de <code class="ic">crackmapexec</code>, quizá lo veas con el nombre viejo.</p>
+    <p class="f">La mayoría vienen en la instalación estándar de Kali, aunque según la versión y los metapaquetes alguna puede requerir instalarse aparte. La suite <code class="ic">impacket-*</code> agrupa muchas herramientas de red Windows/AD; <code class="ic">netexec</code> es el sucesor de <code class="ic">crackmapexec</code>, quizá lo veas con el nombre viejo.</p>
   </div>
 </section>
 
@@ -334,7 +339,7 @@
       <div class="term"><div class="t">Reverse shell</div><div class="d">Conseguir una shell sin credenciales haciendo que la víctima <em>te llame de vuelta</em> a tu IP+puerto (no al revés).</div></div>
       <div class="term"><div class="t">Foothold</div><div class="d">El primer acceso conseguido en una máquina, normalmente como un usuario de pocos privilegios.</div></div>
       <div class="term"><div class="t">Privesc</div><div class="d">Escalada de privilegios: pasar de usuario común a administrador total (root en Linux, Administrator/Domain Admin en Windows).</div></div>
-      <div class="term"><div class="t">Hash</div><div class="d">Representación cifrada de una contraseña. No es la contraseña, pero se puede crackear offline o, en Windows, usar directo (Pass-the-Hash).</div></div>
+      <div class="term"><div class="t">Hash</div><div class="d">Huella de una sola vía de una contraseña: se calcula fácil en un sentido, pero no se descifra de vuelta (no es cifrado). No es la contraseña; se intenta adivinar comparando huellas (crackear offline) o, en Windows, se usa el hash directo (Pass-the-Hash).</div></div>
       <div class="term"><div class="t">User / Root flag</div><div class="d">Los dos "trofeos" de una máquina HTB: user.txt (usuario normal) y root.txt (administrador). Prueban el compromiso.</div></div>
       <div class="term"><div class="t">$ vs #</div><div class="d">El prompt te dice quién eres en Linux: <code>$</code> = usuario normal; <code>#</code> = root (superusuario).</div></div>
       <div class="term"><div class="t">RCE</div><div class="d">Remote Code Execution: ejecutar tus comandos en un servidor remoto explotando una vulnerabilidad.</div></div>
@@ -357,7 +362,7 @@
       <li><b>tun0:</b> verifica que existe con IP <code class="ic">10.10.x.x</code> (<code class="ic">ip a show tun0</code>).</li>
       <li><b>IP objetivo:</b> confírmala en la web (cambia entre sesiones) y comprueba línea con <code class="ic">ping</code>.</li>
       <li><b>Carpeta:</b> crea <code class="ic">~/htb/&lt;maquina&gt;/nmap</code> y trabaja ahí.</li>
-      <li><b>TTL:</b> mira el ping: ¿63 (Linux) o 127 (Windows)?</li>
+      <li><b>TTL:</b> mira el ping como pista del SO (~63 sugiere Linux, ~127 Windows); no es prueba, confírmalo.</li>
       <li><b>Recon:</b> <code class="ic">nmap -p-</code> y luego <code class="ic">-sCV</code>, guardando con <code class="ic">-oA</code>.</li>
       <li><b>Decisión:</b> elige la puerta con más superficie, no la que esté cerrada con llave.</li>
       <li><b>Si es AD:</b> mapea el dominio en <code class="ic">/etc/hosts</code> antes de usar herramientas Kerberos.</li>
