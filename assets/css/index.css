@@ -201,3 +201,9 @@ body{margin:0;background:var(--bg);color:var(--ink);
     details>*{display:block!important;} .chev{display:none!important;}
     .badge,.stat,.phase,.card,.ars,.fcard,.term,details.tech,details.tool,pre,.warn{break-inside:avoid;}
   }
+
+  /* screenshot dentro de tarjeta de proyecto */
+  .proj-shot{display:block;margin:0 0 14px;border:2px solid var(--line);background:#0b0a1a;
+    box-shadow:4px 4px 0 #000;overflow:hidden;line-height:0;transition:transform .05s,box-shadow .05s;}
+  .proj-shot:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000;text-decoration:none;}
+  .proj-shot img{display:block;width:100%;height:auto;}
