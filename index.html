@@ -52,7 +52,7 @@
 <nav aria-label="Navegación principal">
   <span class="brand"><b>iphobiuss</b>::offsec</span>
   <span class="links">
-    <a href="#fundamentos">BASE</a><a href="#oscp">OSCP+</a><a href="#cape">CAPE</a><a href="#cpts">CPTS</a>
+    <a href="#proyectos" class="nav-proj">PROYECTOS</a><a href="#fundamentos">BASE</a><a href="#oscp">OSCP+</a><a href="#cape">CAPE</a><a href="#cpts">CPTS</a>
     <a href="#cwes">CWES</a><a href="#coae">COAE</a><a href="#cheatsheet">CHEAT</a><a href="#arsenal">ARSENAL</a><a href="#writeups" class="nav-proj">WRITEUPS</a><a href="#glosario">GLOSARIO</a>
   </span>
 </nav>
@@ -85,6 +85,7 @@
       <p class="pitch">Penetration Tester certificado <b>OSCP+</b>, enfocado en Web Security, Active Directory y AI/LLM Security. Este sitio reúne mi knowledge base personal de técnicas estudiadas y practicadas en laboratorios autorizados.</p>
       <div class="cta">
         <a class="cta-btn primary" href="#fundamentos">EXPLORAR KNOWLEDGE BASE</a>
+        <a class="cta-btn" href="#proyectos">▸ REPORT-GEN</a>
         <a class="cta-btn" href="https://github.com/iphobiuss" target="_blank" rel="noopener">GITHUB</a>
         <a class="cta-btn" href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LINKEDIN</a>
       </div>
@@ -104,7 +105,7 @@
   necesitas, <b>por qué</b> funcionan, cómo identificarlas, la <b>detección</b> defensiva y la <b>mitigación</b>. Todo con placeholders
   genéricos (<span class="mono">corp.local</span>, <span class="mono">$DC_IP</span>). Nada reproduce
   hosts, flags ni cadenas de ningún examen. Si recién empiezas, parte por
-  <a href="#fundamentos">BASE</a> y el <a href="#glosario">GLOSARIO</a>.
+  <a href="#proyectos" class="nav-proj">PROYECTOS</a><a href="#fundamentos">BASE</a> y el <a href="#glosario">GLOSARIO</a>.
 </div>
 
 <!-- PHASES -->
@@ -115,6 +116,37 @@
 </div>
 
 <div class="wrap"><div class="grid" id="certGrid"></div></div>
+
+<!-- PROYECTOS -->
+<section id="proyectos" style="--acc:var(--violet)">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">◆</span><h2 class="sec-name">PROYECTOS</h2></div>
+    <div class="sec-focus">Herramientas que construyo, no solo las que uso</div>
+    <div class="proj-grid">
+      <article class="proj" style="--acc:var(--green)" data-search="report-gen report gen reportes informes pentest reporting cvss 3.1 4.0 pdf docx markdown flask python plantillas templates oscp htb cpts cwes cape coae cwee cwpe cjca cdsa herramienta tool proyecto project sysreptor local-first editor">
+        <div class="proj-top">
+          <span class="proj-name">REPORT-GEN</span>
+          <span class="proj-ver">HERRAMIENTA PROPIA · PYTHON + FLASK · v0.10.0</span>
+        </div>
+        <div class="proj-tag">Toolkit local-first para informes de pentesting.</div>
+        <div class="proj-desc">Motor propio con separación <code>datos → render → export</code>: un mismo engagement genera el informe en <code>PDF</code>, <code>DOCX</code> y <code>Markdown</code>. Calculadora <code>CVSS 3.1 y 4.0</code> validada contra la implementación de referencia de FIRST/Red Hat (<code>20.087</code> vectores, <code>0</code> divergencias), editor local con buscador y autocompletado de <code>CWE</code>, y plantillas por certificación con diseño propio para <code>OSCP</code> y la familia <code>HTB</code> (CPTS · CWES · CAPE · COAE · CWEE · CWPE · CJCA · CDSA). Con hardening, tests y CI.</div>
+        <div class="proj-badges">
+          <span class="badge b1">PYTHON</span>
+          <span class="badge b3">FLASK</span>
+          <span class="badge b4">CVSS 4.0</span>
+          <span class="badge b2">96 TESTS · CI</span>
+          <span class="badge b5">MIT</span>
+        </div>
+        <div class="proj-links">
+          <a class="cta-btn primary" href="https://github.com/IphobiusS/report-gen" target="_blank" rel="noopener">VER EN GITHUB</a>
+          <a class="cta-btn" href="https://github.com/IphobiusS/report-gen/releases/latest" target="_blank" rel="noopener">RELEASE v0.10.0</a>
+          <a class="cta-btn" href="https://github.com/IphobiusS/report-gen#readme" target="_blank" rel="noopener">README</a>
+        </div>
+      </article>
+      <div class="proj proj-soon">Más proyectos en camino…</div>
+    </div>
+  </div>
+</section>
 
 <!-- FUNDAMENTOS -->
 <section id="fundamentos" style="--acc:var(--cyan)">
