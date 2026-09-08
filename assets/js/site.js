@@ -1044,7 +1044,8 @@ const SYN={
 };
 function expand(q){
   const set=new Set([q]);
-  for(const k in SYN){ if(k.includes(q)||q.includes(k)) SYN[k].forEach(x=>set.add(x)); }
+  const words=q.split(/\s+/).filter(Boolean);
+  for(const k in SYN){ if(k===q||words.includes(k)) SYN[k].forEach(x=>set.add(x)); }
   return [...set];
 }
 const frontMatter=[...document.querySelectorAll('.intro,.phases,#certGrid')];
@@ -1086,6 +1087,11 @@ function runSearch(){
 const EGG=new Set(['prometeo','evaristo','prometeo y evaristo','sudo gracias','whoami --companions']);
 const LAB=new Set(['flag','ctf','lab','sentinel','root','reto','challenge','flag_root','hack']);
 search.addEventListener('input',runSearch);
+window.addEventListener('hashchange',()=>{
+  if(search.value){ search.value=''; runSearch(); }
+  const id=decodeURIComponent(location.hash.slice(1));
+  if(id){ const el=document.getElementById(id); if(el){ el.style.display=''; el.scrollIntoView(); } }
+});
 
 /* SENTINEL: asistente LLM simulado con dos capas de defensa (instrucción + filtro de salida).
    se vence con inyección de prompt + exfiltración ofuscada que evade el filtro. */
@@ -1170,3 +1176,22 @@ addEventListener('beforeprint',()=>document.querySelectorAll('details').forEach(
 addEventListener('afterprint',()=>document.querySelectorAll('details').forEach(d=>{
   d.open=d.dataset.wasOpen==='1'; delete d.dataset.wasOpen;
 }));
+
+/* --- Efectos retro (CRT) toggle --- */
+(function(){
+  try{ if(localStorage.getItem('rg.retro')==='1') document.documentElement.setAttribute('data-retro',''); }catch(e){}
+  const nav=document.querySelector('nav .links')||document.querySelector('nav');
+  if(!nav) return;
+  const btn=document.createElement('button');
+  btn.id='retroToggle'; btn.className='retro-toggle'; btn.type='button';
+  btn.title='Efectos retro (CRT)';
+  const on=()=>document.documentElement.hasAttribute('data-retro');
+  const label=()=>{ btn.textContent=(on()?'\u25c9':'\u25ce')+' RETRO'; };
+  label();
+  btn.addEventListener('click',()=>{
+    if(on()){ document.documentElement.removeAttribute('data-retro'); try{localStorage.setItem('rg.retro','0');}catch(e){} }
+    else{ document.documentElement.setAttribute('data-retro',''); try{localStorage.setItem('rg.retro','1');}catch(e){} }
+    label();
+  });
+  nav.appendChild(btn);
+})();
