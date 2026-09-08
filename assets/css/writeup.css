@@ -14,14 +14,15 @@ body{margin:0;background:var(--bg);color:var(--ink);
   .badge.b3{color:var(--amber);border-color:var(--amber);}
   .badge.b4{color:var(--magenta);border-color:var(--magenta);}
   .pitch{font-family:'IBM Plex Mono';font-size:14.5px;line-height:1.7;color:var(--ink);margin:16px 0 0;max-width:70ch;}
-  .intro{max-width:1040px;margin:28px auto 0;padding:0 22px;color:var(--ink);font-size:15.5px;line-height:1.62;}
+  .intro{max-width:1040px;margin:28px auto 0;padding:0 22px;color:var(--ink);font-size:16.5px;line-height:1.72;}
+  .intro p{max-width:74ch;}
   section{padding:48px 0 10px;border-top:3px solid var(--line);margin-top:42px;}
   .sec-id{font-family:'Press Start 2P';font-size:20px;color:var(--acc);}
   .sec-name{font-family:'Press Start 2P';font-size:clamp(12px,3.2vw,17px);color:#fff;margin:0;font-weight:400;line-height:1.5;}
   .sec-focus{font-size:15px;color:var(--acc);margin:6px 0 22px;}
   .fcard{background:var(--panel);border:2px solid var(--line);border-left:5px solid var(--violet);
     padding:16px 18px;margin:0 0 14px;box-shadow:4px 4px 0 #000;}
-  .fcard p{margin:0 0 10px;font-size:15px;line-height:1.6;}
+  .fcard p{margin:0 0 10px;font-size:16.5px;line-height:1.72;}
   .warn{border:3px dashed var(--magenta);background:rgba(255,42,109,.06);
     padding:16px 18px;margin:34px 0;color:var(--magenta);font-size:14.5px;line-height:1.55;}
   .warn > b:first-child{font-family:'IBM Plex Mono';font-weight:700;font-size:12px;letter-spacing:.04em;display:block;margin-bottom:8px;}
