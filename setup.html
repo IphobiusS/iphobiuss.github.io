@@ -1,89 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0a1a">
-<meta name="author" content="Sebastián Latorre Muñoz">
-<title>00 · Fundamentos &amp; Setup · HTB // iphobiuss</title>
-<meta name="description" content="Guía 00 de la serie de writeups: setup del entorno, conexión VPN, metodología, reflejos del oficio y arsenal de herramientas explicado por propósito. La base común de todas las máquinas. Por Sebastián Latorre Muñoz (iphobiuss).">
-<link rel="canonical" href="https://iphobiuss.github.io/setup.html">
-<meta property="og:title" content="00 · Fundamentos &amp; Setup · HTB">
-<meta property="og:description" content="La base común antes de cualquier máquina: setup, VPN, metodología, reflejos y arsenal por propósito.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://iphobiuss.github.io/setup.html">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/writeup.css">
-<style>
-  :root{--machine:var(--amber);}
-  .hero h1{font-size:clamp(18px,4.4vw,34px);}
-</style>
-</head>
-<body>
-<a class="skip" href="#contenido">Saltar al contenido</a>
-<div class="crt"></div>
-
-<div class="topbar">
-<nav aria-label="Navegación">
-  <span class="brand"><b>iphobiuss</b>::offsec</span>
-  <span class="links">
-    <a href="index.html">← KNOWLEDGE BASE</a>
-    <a href="#entorno">ENTORNO</a><a href="#metodo">MÉTODO</a><a href="#recon">RECON</a>
-    <a href="#reflejos">REFLEJOS</a><a href="#arsenal">ARSENAL</a><a href="#conceptos">CONCEPTOS</a><a href="#checklist">CHECKLIST</a>
-    <a href="cap.html">CAP</a><a href="knife.html">KNIFE</a><a href="forest.html">FOREST</a>
-  </span>
-</nav>
-</div>
-
-<main id="contenido">
-<header>
-  <div class="hero">
-    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --setup --read-first</div>
-    <h1 class="pixel">00 · FUNDAMENTOS<br>&amp; SETUP</h1>
-    <div class="meta">
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0d15"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="Sebastián Latorre Muñoz">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9U+JHdaWm7JkV4XlwLDbbKdBrHCEe9pvr+tfhrJn0Qw='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>Fundamentos &amp; setup · Guía HTB // iphobiuss</title><meta name="description" content="Guía 00 de la serie de writeups: setup del entorno, conexión VPN, metodología, reflejos del oficio y arsenal de herramientas explicado por propósito. La base común de todas las máquinas. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="canonical" href="https://iphobiuss.github.io/setup.html"><meta property="og:title" content="Fundamentos &amp; setup · Guía HTB"><meta property="og:description" content="Guía 00 de la serie de writeups: setup del entorno, conexión VPN, metodología, reflejos del oficio y arsenal de herramientas explicado por propósito. La base común de todas las máquinas. Por Sebastián Latorre Muñoz (iphobiuss)."><meta property="og:type" content="article"><meta property="og:url" content="https://iphobiuss.github.io/setup.html"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Fundamentos &amp; setup · Guía HTB"><meta name="twitter:description" content="Guía 00 de la serie de writeups: setup del entorno, conexión VPN, metodología, reflejos del oficio y arsenal de herramientas explicado por propósito. La base común de todas las máquinas. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/css/site.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Fundamentos & setup · Guía HTB", "description": "Guía 00 de la serie de writeups: setup del entorno, conexión VPN, metodología, reflejos del oficio y arsenal de herramientas explicado por propósito. La base común de todas las máquinas. Por Sebastián Latorre Muñoz (iphobiuss).", "url": "https://iphobiuss.github.io/setup.html", "inLanguage": "es", "author": {"@type": "Person", "name": "Sebastián Latorre Muñoz", "url": "https://iphobiuss.github.io/"}, "headline": "Fundamentos & setup · Guía HTB", "dateModified": "2026-09-08"}</script><script src="assets/js/site.js" defer></script></head>
+<body data-page="setup"><a class="skip" href="#contenido">Saltar al contenido</a>
+ <header class="site-header"><div class="header-inner"><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a>
+ <nav class="site-nav" id="site-nav" aria-label="Navegación principal"><a href="index.html">Inicio</a><a href="guias.html" aria-current="page">Guías</a><a href="tecnicas.html">Técnicas</a><a href="herramientas.html">Herramientas</a><a href="proyectos.html">Proyectos</a></nav>
+ <div class="header-tools"><a class="icon-button" href="buscar.html" aria-label="Buscar en el sitio">Buscar</a><button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-pressed="false" hidden>Efectos retro</button><button type="button" class="icon-button menu-toggle" aria-controls="site-nav" aria-expanded="false" hidden>Menú</button></div></div><div class="reading-progress" aria-hidden="true"></div></header><main class="site-main" id="contenido" tabindex="-1"><div class="page-head"><div class="shell"><p class="eyebrow"><a href="guias.html">Guías</a> / 00 · Entorno</p><h1>FUNDAMENTOS &amp; SETUP</h1><div class="meta">
       <span class="badge b1">SETUP</span>
       <span class="badge b2">KALI</span>
       <span class="badge b3">METODOLOGÍA</span>
       <span class="badge b4">ARSENAL</span>
       <span class="badge b5">GLOSARIO</span>
     </div>
-    <p class="pitch">La base común de <b>toda</b> la serie de writeups. Antes de meterte en <a href="cap.html">Cap</a>, <a href="knife.html">Knife</a> o <a href="forest.html">Forest</a>, esto es lo que se repite en cada máquina: cómo montar el entorno, la metodología, los reflejos que se aplican una y otra vez, y el arsenal explicado <b>por propósito</b>: no la sintaxis, sino cuándo usar cada herramienta y por qué. Si empiezas de cero, léela primero. Si ya estás en una máquina, úsala como referencia.</p>
-  </div>
-</header>
-
-<div class="intro">
-  <b>Qué NO es esto:</b> no es un cheatsheet de comandos para copiar. Para eso está la sección <a href="index.html#cheatsheet">CHEATSHEET</a> del knowledge base. Aquí lo que importa es el <b>porqué</b> y el <b>cuándo</b>: el criterio que hace que un comando sirva. Los writeups traen los comandos en contexto; esta guía trae el andamiaje que los une.
+    <div class="article-meta"><time datetime="2026-09-08">Edición: 8 sep 2026</time><span>11 min de lectura aprox.</span><span>Guía 00</span></div><p>La base común de <b>toda</b> la serie de writeups. Antes de meterte en <a href="cap.html">Cap</a>, <a href="knife.html">Knife</a> o <a href="forest.html">Forest</a>, esto es lo que se repite en cada máquina: cómo montar el entorno, la metodología, los reflejos que se aplican una y otra vez, y el arsenal explicado <b>por propósito</b>: no la sintaxis, sino cuándo usar cada herramienta y por qué. Si empiezas de cero, léela primero. Si ya estás en una máquina, úsala como referencia.</p></div></div><div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En esta guía</span><nav aria-label="Índice de la guía"><a href="#entorno">01 · ENTORNO &amp; CONEXIÓN</a><a href="#metodo">02 · METODOLOGÍA</a><a href="#recon">03 · RECONOCIMIENTO</a><a href="#reflejos">04 · REFLEJOS DEL OFICIO</a><a href="#arsenal">05 · ARSENAL POR PROPÓSITO</a><a href="#conceptos">06 · CONCEPTOS BASE</a><a href="#checklist">CHECKLIST DE ARRANQUE</a></nav></aside><div class="article-content"><details class="mobile-toc"><summary>En esta guía</summary><nav aria-label="Índice móvil"><a href="#entorno">01 · ENTORNO &amp; CONEXIÓN</a><a href="#metodo">02 · METODOLOGÍA</a><a href="#recon">03 · RECONOCIMIENTO</a><a href="#reflejos">04 · REFLEJOS DEL OFICIO</a><a href="#arsenal">05 · ARSENAL POR PROPÓSITO</a><a href="#conceptos">06 · CONCEPTOS BASE</a><a href="#checklist">CHECKLIST DE ARRANQUE</a></nav></details><div class="notice">
+  <b>Qué NO es esto:</b> no es un cheatsheet de comandos para copiar. Para eso está la sección <a href="herramientas.html#cheatsheet">CHEATSHEET</a> del knowledge base. Aquí lo que importa es el <b>porqué</b> y el <b>cuándo</b>: el criterio que hace que un comando sirva. Los writeups traen los comandos en contexto; esta guía trae el andamiaje que los une.
   <br><br>
   <b>Una convención de la serie:</b> en los writeups verás dos etiquetas. <span class="tk tk-gen">GENERAL</span> marca un principio transferible (sirve en cualquier máquina). <span class="tk tk-lab">LAB</span> marca una heurística o convención de laboratorio (propia de HTB o del entorno), que <b>no</b> es una regla universal. La idea es clara: lo que resolvió una máquina no siempre funciona igual fuera de ella.
 </div>
 
-<!-- ===================== ENTORNO ===================== -->
-<section id="entorno" style="--acc:var(--cyan)">
+<details class="environment"><summary>Entorno y versiones documentadas</summary><ul><li>Kali Linux y VirtualBox: versiones no especificadas en la guía original.</li><li>Análisis: BloodHound CE; versión exacta no indicada.</li></ul><p>Las versiones indicadas provienen del texto original. La fecha de edición identifica la revisión de esta página; no implica que se haya repetido el laboratorio.</p></details><div class="guide-controls js-only" hidden><span>Modo de lectura</span><button class="small-button" type="button" data-guide-mode="full" aria-pressed="true">Guía completa</button><button class="small-button" type="button" data-guide-mode="hints" aria-pressed="false">Solo pistas</button><button class="small-button print-button" type="button" data-print>Imprimir / PDF</button></div><section id="entorno">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · ENTORNO &amp; CONEXIÓN</h2></div>
     <div class="sec-focus">El primer muro real de todo principiante: llegar a la máquina.</div>
 
     <h3 class="step">Qué necesitas</h3>
-    <p class="f">Cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener">Hack The Box</a> (VIP para máquinas retiradas), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y paciencia para atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.</p>
+    <p class="f">Cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener noreferrer">Hack The Box</a> (VIP para máquinas retiradas), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y paciencia para atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.</p>
 
     <h3 class="step">Conectarse a la VPN</h3>
     <p class="f">Descarga tu <code class="ic">.ovpn</code> del panel de la máquina en HTB y conéctate. La terminal se queda colgada mostrando logs: eso es correcto, no la cierres. Trabaja en una terminal nueva.</p>
-    <pre><span class="k">sudo</span> pkill openvpn                        <span class="cmt"># mata cualquier VPN previa (una a la vez)</span>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sudo</span> pkill openvpn                        <span class="cmt"># mata cualquier VPN previa (una a la vez)</span>
 <span class="k">sudo</span> openvpn ~/htb/tu_archivo.ovpn         <span class="cmt"># espera "Initialization Sequence Completed"</span>
 <span class="k">ip</span> a show tun0                            <span class="cmt"># debe existir con IP 10.10.x.x</span>
-<span class="k">ping</span> -c 3 &lt;IP_OBJETIVO&gt;                   <span class="cmt"># confirma línea con la máquina</span></pre>
-    <div class="why"><b>UNA VPN A LA VEZ</b>Si levantas una segunda VPN sin cerrar la anterior, Linux crea <code class="ic">tun1</code> (porque <code class="ic">tun0</code> sigue ocupada) y aparecen errores <code class="ic">route ... File exists</code>. Siempre <code class="ic">sudo pkill openvpn</code> antes de reconectar.</div>
+<span class="k">ping</span> -c 3 &lt;IP_OBJETIVO&gt;                   <span class="cmt"># confirma línea con la máquina</span></code></pre>
+    </figure><div class="why"><b>UNA VPN A LA VEZ</b>Si levantas una segunda VPN sin cerrar la anterior, Linux crea <code class="ic">tun1</code> (porque <code class="ic">tun0</code> sigue ocupada) y aparecen errores <code class="ic">route ... File exists</code>. Siempre <code class="ic">sudo pkill openvpn</code> antes de reconectar.</div>
 
     <h3 class="step">Problemas típicos de VPN</h3>
     <p class="f">Cada error dice una cosa distinta. Aprender a leerlos es media batalla:</p>
     <div class="tblwrap"><table>
-      <tr><th>Lo que ves</th><th>Qué significa</th><th>Qué hacer</th></tr>
+      <tr><th scope="col">Lo que ves</th><th scope="col">Qué significa</th><th scope="col">Qué hacer</th></tr>
       <tr><td><code>TLS handshake / key negotiation timed out</code></td><td>Tus paquetes salen, nadie responde. Típico de UDP tras una VM/red restrictiva.</td><td>Protocolo <b>TCP 443</b>, baja un <code>.ovpn</code> nuevo.</td></tr>
       <tr><td><code>Connection refused</code> (TCP)</td><td>Tu paquete llegó y el destino dijo "no". Ese servidor no acepta ahora.</td><td><b>Cambia de servidor VPN.</b></td></tr>
       <tr><td><code>Destination Host Unreachable</code></td><td>El gateway de HTB no encuentra el host.</td><td>La <b>IP de la máquina cambió</b>: verifícala en la web.</td></tr>
@@ -93,17 +47,16 @@
   </div>
 </section>
 
-<!-- ===================== MÉTODO ===================== -->
-<section id="metodo" style="--acc:var(--green)">
+<section id="metodo">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · METODOLOGÍA</h2></div>
     <div class="sec-focus">Los hábitos que separan a quien entiende de quien copia comandos.</div>
 
     <h3 class="step">Una carpeta por máquina</h3>
     <p class="f">Desde el día uno: cada máquina, su carpeta; todo guardado, nada suelto. Y en nmap, <b>guardar siempre</b> con <code class="ic">-oA</code>, nunca escanees sin dejar registro.</p>
-    <pre><span class="k">mkdir</span> -p ~/htb/&lt;maquina&gt;/nmap &amp;&amp; <span class="k">cd</span> ~/htb/&lt;maquina&gt;</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">mkdir</span> -p ~/htb/&lt;maquina&gt;/nmap &amp;&amp; <span class="k">cd</span> ~/htb/&lt;maquina&gt;</code></pre>
 
-    <h3 class="step">Mide antes de tocar</h3>
+    </figure><h3 class="step">Mide antes de tocar</h3>
     <p class="f">Cuando algo falle, no cambies cinco cosas a la vez esperando que una funcione. Haz una prueba, lee el resultado, y deja que el resultado te diga qué cambiar. <b>Un error que cambia cuando tocas algo es buena señal:</b> significa que tu cambio tuvo efecto y estás cercando el problema.</p>
 
     <h3 class="step">Anota las tasks a medida</h3>
@@ -114,8 +67,7 @@
   </div>
 </section>
 
-<!-- ===================== RECON ===================== -->
-<section id="recon" style="--acc:var(--amber)">
+<section id="recon">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · RECONOCIMIENTO</h2></div>
     <div class="sec-focus">El primer movimiento de todo pentest: qué puertas hay abiertas.</div>
@@ -123,16 +75,16 @@
     <h3 class="step">El TTL: una pista del SO, no una prueba</h3>
     <p class="f">El ping da una pista temprana del sistema operativo. El TTL suele partir en un valor por SO y baja 1 por salto de red. Es una heurística frecuente en labs, no una identificación fiable: el TTL se puede modificar y depende de los saltos. Confírmalo siempre con el fingerprint:</p>
     <div class="tblwrap"><table>
-      <tr><th>TTL que ves</th><th>SO que sugiere (a confirmar)</th></tr>
+      <tr><th scope="col">TTL que ves</th><th scope="col">SO que sugiere (a confirmar)</th></tr>
       <tr><td><code>~63</code> (parte en 64)</td><td><b>Linux</b> / Unix</td></tr>
       <tr><td><code>~127</code> (parte en 128)</td><td><b>Windows</b></td></tr>
     </table></div>
 
     <h3 class="step">El flujo de nmap</h3>
     <p class="f">Dos pasos: primero un barrido de <b>todos</b> los puertos, luego un escaneo detallado solo de los que salieron abiertos.</p>
-    <pre><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports &lt;IP&gt;        <span class="cmt"># los 65535 puertos, rápido, guardado</span>
-<span class="k">nmap</span> -sCV -p &lt;PUERTOS_ABIERTOS&gt; -oA nmap/detail &lt;IP&gt;  <span class="cmt"># versión (-sV) + scripts (-sC)</span></pre>
-    <p class="f"><code class="ic">-p-</code> no se salta puertos raros; <code class="ic">--min-rate 1000</code> acelera; <code class="ic">-oA</code> guarda en tres formatos; <code class="ic">-sCV</code> es tu radar: qué servicio y versión corre cada puerto.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports &lt;IP&gt;        <span class="cmt"># los 65535 puertos, rápido, guardado</span>
+<span class="k">nmap</span> -sCV -p &lt;PUERTOS_ABIERTOS&gt; -oA nmap/detail &lt;IP&gt;  <span class="cmt"># versión (-sV) + scripts (-sC)</span></code></pre>
+    </figure><p class="f"><code class="ic">-p-</code> no se salta puertos raros; <code class="ic">--min-rate 1000</code> acelera; <code class="ic">-oA</code> guarda en tres formatos; <code class="ic">-sCV</code> es tu radar: qué servicio y versión corre cada puerto.</p>
 
     <h3 class="step">Elegir por dónde entrar</h3>
     <p class="f">Piensa en cada puerto como una puerta y pregúntate cuánta superficie ofrece. Regla que se repite en toda la serie: <b>atacas por donde puedes hacer algo, no por donde estás bloqueado.</b> SSH/WinRM sin credenciales están cerrados con llave (los guardas para después); la web (HTTP) suele ser la superficie más rica para empezar.</p>
@@ -140,14 +92,13 @@
   </div>
 </section>
 
-<!-- ===================== REFLEJOS ===================== -->
-<section id="reflejos" style="--acc:var(--magenta)">
+<section id="reflejos">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · REFLEJOS DEL OFICIO</h2></div>
     <div class="sec-focus">Patrones que se aplican una y otra vez, máquina tras máquina.</div>
 
     <div class="tblwrap"><table>
-      <tr><th>Situación</th><th>Reflejo</th></tr>
+      <tr><th scope="col">Situación</th><th scope="col">Reflejo</th></tr>
       <tr><td>Encuentro una <b>versión de software</b> específica y rara (<code>-dev</code>, <code>beta</code>, <code>RC</code>)</td><td>Buscar de inmediato si tiene <b>vulnerabilidad/CVE pública conocida</b>. Una versión de desarrollo en producción es bandera roja.</td></tr>
       <tr><td>La web <b>no muestra nada obvio</b> al navegarla</td><td>Mirar lo que hay por debajo: cabeceras HTTP con <code>curl -I</code> revelan servidor, SO y versiones.</td></tr>
       <tr><td>Consigo <b>unas credenciales</b> en un servicio</td><td>Probarlas en <b>todos</b> los demás servicios (password reuse). La gente reutiliza contraseñas; casi siempre pagan.</td></tr>
@@ -160,36 +111,34 @@
   </div>
 </section>
 
-<!-- ===================== ARSENAL ===================== -->
-<section id="arsenal" style="--acc:var(--green)">
+<section id="arsenal">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · ARSENAL POR PROPÓSITO</h2></div>
     <div class="sec-focus">Qué es cada herramienta y CUÁNDO usarla, no la sintaxis.</div>
 
     <div class="tblwrap"><table>
-      <tr><th>Fase</th><th>Herramienta</th><th>Para qué sirve · cuándo</th></tr>
-      <tr><td><span class="phase" style="--acc:var(--cyan)">RECON</span></td><td><code>nmap</code></td><td>Descubrir puertos y servicios. Siempre el primer paso frente a una IP.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--cyan)">RECON</span></td><td><code>curl -I</code></td><td>Leer cabeceras HTTP de una web. Cuando la página no da pistas a la vista (fingerprinting de versiones).</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--amber)">ENUM</span></td><td><code>netexec</code> (ex-crackmapexec)</td><td>Hablar SMB/WinRM/LDAP con o sin credenciales. Enumerar usuarios anónimos, validar credenciales, ver si dan shell (<code>Pwn3d!</code>).</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--amber)">ENUM</span></td><td><code>rpcclient</code></td><td>Consultar el dominio por RPC vía sesión nula. Alternativa para enumerar usuarios cuando SMB no basta.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--amber)">ENUM (AD)</span></td><td><code>bloodhound-python</code> + <b>BloodHound CE</b></td><td>Recolectar y <b>dibujar</b> el dominio como grafo. Calcula el camino más corto a Domain Admin. La herramienta estrella de AD.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--magenta)">EXPLOIT</span></td><td><code>searchsploit</code> / Exploit-DB</td><td>Buscar exploits públicos para una versión concreta. Tras identificar software vulnerable.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--magenta)">EXPLOIT</span></td><td><b>GTFOBins</b></td><td>Cómo abusar de un binario de Linux con permisos especiales (SUID/sudo/capabilities). En la escalada, usando la sección del permiso correcto.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--magenta)">EXPLOIT (AD)</span></td><td><code>impacket-GetNPUsers</code></td><td>AS-REP Roasting: pedir el hash de usuarios sin pre-autenticación de Kerberos. Tras enumerar usuarios.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--green)">ACCESO</span></td><td><code>nc</code> (netcat)</td><td>Ponerse a la escucha para recibir una reverse shell (<code>nc -lvnp</code>). La "navaja suiza" de red.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--green)">ACCESO</span></td><td><code>ssh</code></td><td>Shell remota en Linux con credenciales. El destino a donde llegas tras encontrar usuario+contraseña.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--green)">ACCESO (Win)</span></td><td><code>evil-winrm</code></td><td>Shell remota PowerShell en Windows (el "SSH de Windows"). Con credenciales o con hash (<code>-H</code>, Pass-the-Hash).</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--violet)">CRACKING</span></td><td><code>john</code> / <code>hashcat</code></td><td>Romper hashes offline con diccionario. <b>john</b> en VM sin GPU (autodetecta el tipo); <b>hashcat</b> con GPU.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--violet)">POST (AD)</span></td><td><b>PowerView</b> (PowerShell)</td><td>Enumerar y manipular AD desde dentro: grupos, ACLs. Abusar de GenericAll/WriteDacl.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--violet)">POST (AD)</span></td><td><code>impacket-secretsdump</code></td><td>DCSync: volcar todos los hashes del dominio abusando de la replicación. Tras conseguir derechos de replicación.</td></tr>
-      <tr><td><span class="phase" style="--acc:var(--amber)">ANÁLISIS</span></td><td><b>Wireshark</b></td><td>Leer capturas de tráfico (PCAP). Filtrar protocolos sin cifrar (FTP, HTTP) para cazar credenciales en texto plano.</td></tr>
+      <tr><th scope="col">Fase</th><th scope="col">Herramienta</th><th scope="col">Para qué sirve · cuándo</th></tr>
+      <tr><td><span class="phase">RECON</span></td><td><code>nmap</code></td><td>Descubrir puertos y servicios. Siempre el primer paso frente a una IP.</td></tr>
+      <tr><td><span class="phase">RECON</span></td><td><code>curl -I</code></td><td>Leer cabeceras HTTP de una web. Cuando la página no da pistas a la vista (fingerprinting de versiones).</td></tr>
+      <tr><td><span class="phase">ENUM</span></td><td><code>netexec</code> (ex-crackmapexec)</td><td>Hablar SMB/WinRM/LDAP con o sin credenciales. Enumerar usuarios anónimos, validar credenciales, ver si dan shell (<code>Pwn3d!</code>).</td></tr>
+      <tr><td><span class="phase">ENUM</span></td><td><code>rpcclient</code></td><td>Consultar el dominio por RPC vía sesión nula. Alternativa para enumerar usuarios cuando SMB no basta.</td></tr>
+      <tr><td><span class="phase">ENUM (AD)</span></td><td><code>bloodhound-python</code> + <b>BloodHound CE</b></td><td>Recolectar y <b>dibujar</b> el dominio como grafo. Calcula el camino más corto a Domain Admin. La herramienta estrella de AD.</td></tr>
+      <tr><td><span class="phase">EXPLOIT</span></td><td><code>searchsploit</code> / Exploit-DB</td><td>Buscar exploits públicos para una versión concreta. Tras identificar software vulnerable.</td></tr>
+      <tr><td><span class="phase">EXPLOIT</span></td><td><b>GTFOBins</b></td><td>Cómo abusar de un binario de Linux con permisos especiales (SUID/sudo/capabilities). En la escalada, usando la sección del permiso correcto.</td></tr>
+      <tr><td><span class="phase">EXPLOIT (AD)</span></td><td><code>impacket-GetNPUsers</code></td><td>AS-REP Roasting: pedir el hash de usuarios sin pre-autenticación de Kerberos. Tras enumerar usuarios.</td></tr>
+      <tr><td><span class="phase">ACCESO</span></td><td><code>nc</code> (netcat)</td><td>Ponerse a la escucha para recibir una reverse shell (<code>nc -lvnp</code>). La "navaja suiza" de red.</td></tr>
+      <tr><td><span class="phase">ACCESO</span></td><td><code>ssh</code></td><td>Shell remota en Linux con credenciales. El destino a donde llegas tras encontrar usuario+contraseña.</td></tr>
+      <tr><td><span class="phase">ACCESO (Win)</span></td><td><code>evil-winrm</code></td><td>Shell remota PowerShell en Windows (el "SSH de Windows"). Con credenciales o con hash (<code>-H</code>, Pass-the-Hash).</td></tr>
+      <tr><td><span class="phase">CRACKING</span></td><td><code>john</code> / <code>hashcat</code></td><td>Romper hashes offline con diccionario. <b>john</b> en VM sin GPU (autodetecta el tipo); <b>hashcat</b> con GPU.</td></tr>
+      <tr><td><span class="phase">POST (AD)</span></td><td><b>PowerView</b> (PowerShell)</td><td>Enumerar y manipular AD desde dentro: grupos, ACLs. Abusar de GenericAll/WriteDacl.</td></tr>
+      <tr><td><span class="phase">POST (AD)</span></td><td><code>impacket-secretsdump</code></td><td>DCSync: volcar todos los hashes del dominio abusando de la replicación. Tras conseguir derechos de replicación.</td></tr>
+      <tr><td><span class="phase">ANÁLISIS</span></td><td><b>Wireshark</b></td><td>Leer capturas de tráfico (PCAP). Filtrar protocolos sin cifrar (FTP, HTTP) para cazar credenciales en texto plano.</td></tr>
     </table></div>
     <p class="f">La mayoría vienen en la instalación estándar de Kali, aunque según la versión y los metapaquetes alguna puede requerir instalarse aparte. La suite <code class="ic">impacket-*</code> agrupa muchas herramientas de red Windows/AD; <code class="ic">netexec</code> es el sucesor de <code class="ic">crackmapexec</code>, quizá lo veas con el nombre viejo.</p>
   </div>
 </section>
 
-<!-- ===================== CONCEPTOS ===================== -->
-<section id="conceptos" style="--acc:var(--violet)">
+<section id="conceptos">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · CONCEPTOS BASE</h2></div>
     <div class="sec-focus">El vocabulario mínimo que verás en cada writeup.</div>
@@ -208,40 +157,25 @@
       <div class="term"><div class="t">Pass-the-Hash</div><div class="d">Autenticarse en Windows con el hash NTLM de una cuenta, sin conocer la contraseña en texto.</div></div>
       <div class="term"><div class="t">DCSync</div><div class="d">Abusar de la replicación entre Domain Controllers para pedirle al DC todos los hashes del dominio.</div></div>
     </div>
-    <p class="f">¿Quieres más profundidad por técnica? El <a href="index.html#glosario">GLOSARIO</a> y el knowledge base cubren cada área con prerequisitos, detección y mitigación.</p>
+    <p class="f">¿Quieres más profundidad por técnica? El <a href="fundamentos.html#glosario">GLOSARIO</a> y el knowledge base cubren cada área con prerequisitos, detección y mitigación.</p>
   </div>
 </section>
 
-<!-- ===================== CHECKLIST ===================== -->
-<section id="checklist" style="--acc:var(--green)">
+<section id="checklist">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CHECKLIST DE ARRANQUE</h2></div>
     <div class="sec-focus">Antes de cada máquina, recorre esto.</div>
     <ul class="checklist">
-      <li><b>VPN:</b> mata las previas (<code class="ic">sudo pkill openvpn</code>), conecta, espera <code class="ic">Initialization Sequence Completed</code>.</li>
-      <li><b>tun0:</b> verifica que existe con IP <code class="ic">10.10.x.x</code> (<code class="ic">ip a show tun0</code>).</li>
-      <li><b>IP objetivo:</b> confírmala en la web (cambia entre sesiones) y comprueba línea con <code class="ic">ping</code>.</li>
-      <li><b>Carpeta:</b> crea <code class="ic">~/htb/&lt;maquina&gt;/nmap</code> y trabaja ahí.</li>
-      <li><b>TTL:</b> mira el ping como pista del SO (~63 sugiere Linux, ~127 Windows); no es prueba, confírmalo.</li>
-      <li><b>Recon:</b> <code class="ic">nmap -p-</code> y luego <code class="ic">-sCV</code>, guardando con <code class="ic">-oA</code>.</li>
-      <li><b>Decisión:</b> elige la puerta con más superficie, no la que esté cerrada con llave.</li>
-      <li><b>Si es AD:</b> mapea el dominio en <code class="ic">/etc/hosts</code> antes de usar herramientas Kerberos.</li>
-      <li><b>Tasks:</b> anota cada respuesta apenas la resuelvas, no al final.</li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-0"><b>VPN:</b> mata las previas (<code class="ic">sudo pkill openvpn</code>), conecta, espera <code class="ic">Initialization Sequence Completed</code>.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-1"><b>tun0:</b> verifica que existe con IP <code class="ic">10.10.x.x</code> (<code class="ic">ip a show tun0</code>).</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-2"><b>IP objetivo:</b> confírmala en la web (cambia entre sesiones) y comprueba línea con <code class="ic">ping</code>.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-3"><b>Carpeta:</b> crea <code class="ic">~/htb/&lt;maquina&gt;/nmap</code> y trabaja ahí.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-4"><b>TTL:</b> mira el ping como pista del SO (~63 sugiere Linux, ~127 Windows); no es prueba, confírmalo.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-5"><b>Recon:</b> <code class="ic">nmap -p-</code> y luego <code class="ic">-sCV</code>, guardando con <code class="ic">-oA</code>.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-6"><b>Decisión:</b> elige la puerta con más superficie, no la que esté cerrada con llave.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-7"><b>Si es AD:</b> mapea el dominio en <code class="ic">/etc/hosts</code> antes de usar herramientas Kerberos.</label></li>
+      <li><label><input type="checkbox" data-checklist="setup-checklist-8"><b>Tasks:</b> anota cada respuesta apenas la resuelvas, no al final.</label></li>
     </ul>
   </div>
 </section>
-</main>
-
-<footer>
-  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "el terreno común: apréndelo una vez, aplícalo en todas."</span></div>
-  <div>00 · Fundamentos &amp; Setup · base de la serie de writeups de Hack The Box</div>
-  <div>
-    <a href="index.html">Knowledge base</a> ·
-    <a href="cap.html">Cap</a> · <a href="knife.html">Knife</a> · <a href="forest.html">Forest</a> ·
-    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
-    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
-</footer>
-</body>
-</html>
+<nav class="series-nav" aria-label="Navegación por la serie"><a href="guias.html"><small>ÍNDICE</small><span>← Todas las guías</span></a><a href="cap.html"><small>SIGUIENTE · GUÍA 01</small><span>Cap →</span></a></nav></div></div></main><footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a><p>Sebastián Latorre Muñoz · Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener noreferrer" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" rel="noopener noreferrer" target="_blank">LinkedIn</a><button class="small-button js-only" data-retro-toggle aria-pressed="false" type="button" hidden>Efectos retro</button></div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p></body></html>

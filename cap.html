@@ -1,171 +1,124 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0a1a">
-<meta name="author" content="Sebastián Latorre Muñoz">
-<title>Cap · HTB · Guía para principiantes // iphobiuss</title>
-<meta name="description" content="Writeup y guía para principiantes de la máquina Cap (Hack The Box): reconocimiento, IDOR, análisis de PCAP, password reuse y escalada por Linux capabilities. Por Sebastián Latorre Muñoz (iphobiuss).">
-<link rel="canonical" href="https://iphobiuss.github.io/cap.html">
-<meta property="og:title" content="Cap · HTB · Guía para principiantes">
-<meta property="og:description" content="Cómo se piensa frente a un objetivo: IDOR, PCAP, password reuse y capabilities, paso a paso y razonado.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://iphobiuss.github.io/cap.html">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/writeup.css">
-<style>
-  :root{--machine:var(--green);}
-</style>
-</head>
-<body>
-<a class="skip" href="#contenido">Saltar al contenido</a>
-<div class="crt"></div>
-
-<div class="topbar">
-<nav aria-label="Navegación">
-  <span class="brand"><b>iphobiuss</b>::offsec</span>
-  <span class="links">
-    <a href="index.html">← KNOWLEDGE BASE</a>
-    <a href="#recon">RECON</a><a href="#idor">IDOR</a><a href="#pcap">PCAP</a>
-    <a href="#access">ACCESO</a><a href="#privesc">PRIVESC</a><a href="#tasks">TASKS</a><a href="#takeaways">TAKEAWAYS</a>
-  </span>
-</nav>
-</div>
-
-<main id="contenido">
-<header>
-  <div class="hero">
-    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box cap --mode guided</div>
-    <h1 class="pixel">CAP</h1>
-    <div class="meta">
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0d15"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="Sebastián Latorre Muñoz">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-pTox/ZUAVMpCR7uR0RPBfvFdI6FtAcJjSx5LH8EyfEA='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>Cap · Guía HTB // iphobiuss</title><meta name="description" content="Writeup y guía para principiantes de la máquina Cap (Hack The Box): reconocimiento, IDOR, análisis de PCAP, password reuse y escalada por Linux capabilities. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="canonical" href="https://iphobiuss.github.io/cap.html"><meta property="og:title" content="Cap · Guía HTB"><meta property="og:description" content="Writeup y guía para principiantes de la máquina Cap (Hack The Box): reconocimiento, IDOR, análisis de PCAP, password reuse y escalada por Linux capabilities. Por Sebastián Latorre Muñoz (iphobiuss)."><meta property="og:type" content="article"><meta property="og:url" content="https://iphobiuss.github.io/cap.html"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Cap · Guía HTB"><meta name="twitter:description" content="Writeup y guía para principiantes de la máquina Cap (Hack The Box): reconocimiento, IDOR, análisis de PCAP, password reuse y escalada por Linux capabilities. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/css/site.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Cap · Guía HTB", "description": "Writeup y guía para principiantes de la máquina Cap (Hack The Box): reconocimiento, IDOR, análisis de PCAP, password reuse y escalada por Linux capabilities. Por Sebastián Latorre Muñoz (iphobiuss).", "url": "https://iphobiuss.github.io/cap.html", "inLanguage": "es", "author": {"@type": "Person", "name": "Sebastián Latorre Muñoz", "url": "https://iphobiuss.github.io/"}, "headline": "Cap · Guía HTB", "dateModified": "2026-09-08"}</script><script src="assets/js/site.js" defer></script></head>
+<body data-page="cap"><a class="skip" href="#contenido">Saltar al contenido</a>
+ <header class="site-header"><div class="header-inner"><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a>
+ <nav class="site-nav" id="site-nav" aria-label="Navegación principal"><a href="index.html">Inicio</a><a href="guias.html" aria-current="page">Guías</a><a href="tecnicas.html">Técnicas</a><a href="herramientas.html">Herramientas</a><a href="proyectos.html">Proyectos</a></nav>
+ <div class="header-tools"><a class="icon-button" href="buscar.html" aria-label="Buscar en el sitio">Buscar</a><button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-pressed="false" hidden>Efectos retro</button><button type="button" class="icon-button menu-toggle" aria-controls="site-nav" aria-expanded="false" hidden>Menú</button></div></div><div class="reading-progress" aria-hidden="true"></div></header><main class="site-main" id="contenido" tabindex="-1"><div class="page-head"><div class="shell"><p class="eyebrow"><a href="guias.html">Guías</a> / 01 · Linux</p><h1>CAP</h1><div class="meta">
       <span class="badge b1">HTB</span>
       <span class="badge b2">LINUX</span>
       <span class="badge b3">EASY</span>
       <span class="badge b4">IDOR</span>
       <span class="badge b5">CAPABILITIES</span>
     </div>
-    <p class="pitch">Guía para principiantes de la máquina <b>Cap</b> de Hack The Box. No es una lista de comandos para copiar y pegar: explica <b>qué hacer, por qué hacerlo y cómo se decide cada paso</b>. Si es tu primera máquina, léela de arriba a abajo. El objetivo es que al terminar no sepas "cómo se resuelve Cap", sino <b>cómo se piensa frente a un objetivo</b>. Lo primero sirve solo para esta máquina; lo segundo, para todas.</p>
-
-    <div class="chain">
-      <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>nmap · 3 puertos</div></div>
-      <div class="lnk" style="--acc:var(--magenta)"><div class="n">02</div><div class="t"><b>IDOR</b><br>/data/1 → /data/0</div></div>
-      <div class="lnk" style="--acc:var(--amber)"><div class="n">03</div><div class="t"><b>PCAP</b><br>FTP en texto plano</div></div>
-      <div class="lnk" style="--acc:var(--green)"><div class="n">04</div><div class="t"><b>ACCESO</b><br>password reuse → SSH</div></div>
-      <div class="lnk" style="--acc:var(--violet)"><div class="n">05</div><div class="t"><b>PRIVESC</b><br>cap_setuid → root</div></div>
-    </div>
-  </div>
-</header>
-
-<div class="intro">
-  <b>Antes de empezar necesitas:</b> una cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener">Hack The Box</a> (Cap es retirada, requiere VIP salvo cuando es la máquina activa), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y ganas de atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.
+    <div class="article-meta"><time datetime="2026-09-08">Edición: 8 sep 2026</time><span>14 min de lectura aprox.</span><span>Easy</span></div><p>Guía para principiantes de la máquina <b>Cap</b> de Hack The Box. No es una lista de comandos para copiar y pegar: explica <b>qué hacer, por qué hacerlo y cómo se decide cada paso</b>. Si es tu primera máquina, léela de arriba a abajo. El objetivo es que al terminar no sepas "cómo se resuelve Cap", sino <b>cómo se piensa frente a un objetivo</b>. Lo primero sirve solo para esta máquina; lo segundo, para todas.</p></div></div><div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En esta guía</span><nav aria-label="Índice de la guía"><a href="#vpn">00 · CONECTARSE AL LAB (VPN)</a><a href="#recon">01 · RECONOCIMIENTO</a><a href="#idor">02 · EXPLORAR LA WEB · IDOR</a><a href="#pcap">03 · ANÁLISIS DEL PCAP</a><a href="#access">04 · ACCESO INICIAL</a><a href="#privesc">05 · ESCALADA DE PRIVILEGIOS</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">CONCEPTOS TRANSFERIBLES</a></nav></aside><div class="article-content"><details class="mobile-toc"><summary>En esta guía</summary><nav aria-label="Índice móvil"><a href="#vpn">00 · CONECTARSE AL LAB (VPN)</a><a href="#recon">01 · RECONOCIMIENTO</a><a href="#idor">02 · EXPLORAR LA WEB · IDOR</a><a href="#pcap">03 · ANÁLISIS DEL PCAP</a><a href="#access">04 · ACCESO INICIAL</a><a href="#privesc">05 · ESCALADA DE PRIVILEGIOS</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">CONCEPTOS TRANSFERIBLES</a></nav></details><div class="notice">
+  <b>Antes de empezar necesitas:</b> una cuenta en <a href="https://www.hackthebox.com/" target="_blank" rel="noopener noreferrer">Hack The Box</a> (Cap es retirada, requiere VIP salvo cuando es la máquina activa), <b>Kali Linux</b> funcionando (aquí, sobre VirtualBox), y ganas de atascarte. Atascarse <b>es</b> el proceso, no un fallo del proceso.
   <br><br>
   El método que recorre toda la guía: <b>mide antes de tocar.</b> Cuando algo falle, no cambies cinco cosas a la vez esperando que una funcione. Haz una prueba, lee el resultado, y deja que el resultado te diga qué cambiar.
 </div>
 
-<!-- ===================== VPN ===================== -->
-<section id="vpn" style="--acc:var(--cyan)">
+<details class="spoiler"><summary>Resumen del recorrido · contiene spoilers</summary><div class="chain">
+      <div class="lnk"><div class="n">01</div><div class="t"><b>RECON</b><br>nmap · 3 puertos</div></div>
+      <div class="lnk"><div class="n">02</div><div class="t"><b>IDOR</b><br>/data/1 → /data/0</div></div>
+      <div class="lnk"><div class="n">03</div><div class="t"><b>PCAP</b><br>FTP en texto plano</div></div>
+      <div class="lnk"><div class="n">04</div><div class="t"><b>ACCESO</b><br>password reuse → SSH</div></div>
+      <div class="lnk"><div class="n">05</div><div class="t"><b>PRIVESC</b><br>cap_setuid → root</div></div>
+    </div>
+  </details><details class="environment"><summary>Entorno y versiones documentadas</summary><ul><li>Kali Linux y VirtualBox: versiones no especificadas en la guía original.</li><li>Binario del objetivo: Python 3.8.</li></ul><p>Las versiones indicadas provienen del texto original. La fecha de edición identifica la revisión de esta página; no implica que se haya repetido el laboratorio.</p></details><div class="guide-controls js-only" hidden><span>Modo de lectura</span><button class="small-button" type="button" data-guide-mode="full" aria-pressed="true">Guía completa</button><button class="small-button" type="button" data-guide-mode="hints" aria-pressed="false">Solo pistas</button><button class="small-button print-button" type="button" data-print>Imprimir / PDF</button></div><section id="vpn">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">00 · CONECTARSE AL LAB (VPN)</h2></div>
     <div class="sec-focus">El primer muro real. Casi ningún writeup lo explica.</div>
 
-    <h3 class="step">Ordena tu espacio de trabajo</h3>
+    <div class="hint"><b>PISTA</b>Verifica primero la conexión a Internet y después la interfaz y la ruta de la VPN. Lee el mensaje de error antes de cambiar la configuración.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">Ordena tu espacio de trabajo</h3>
     <p class="f">Regla de oro desde el día uno: <b>cada máquina, su carpeta.</b> Todo guardado, nada suelto.</p>
-    <pre><span class="k">mkdir</span> -p ~/htb/cap/nmap
-<span class="k">cd</span> ~/htb/cap</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">mkdir</span> -p ~/htb/cap/nmap
+<span class="k">cd</span> ~/htb/cap</code></pre>
 
-    <h3 class="step">Descarga tu .ovpn y conéctate</h3>
+    </figure><h3 class="step">Descarga tu .ovpn y conéctate</h3>
     <p class="f">En el panel de la máquina en HTB hay un botón <em>Connect to ... with OpenVPN</em>. Ahí eliges <b>servidor</b> y <b>protocolo</b> y descargas tu archivo <code class="ic">.ovpn</code>, tu llave para entrar a la red del laboratorio.</p>
-    <pre><span class="k">sudo</span> openvpn ~/htb/cap/tu_archivo.ovpn</pre>
-    <p class="f">Esta terminal se queda <b>colgada mostrando logs</b>. Es correcto: mientras esté abierta, tu VPN está activa. <b>No la cierres.</b> Abre una terminal <em>nueva</em> para trabajar.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sudo</span> openvpn ~/htb/cap/tu_archivo.ovpn</code></pre>
+    </figure><p class="f">Esta terminal se queda <b>colgada mostrando logs</b>. Es correcto: mientras esté abierta, tu VPN está activa. <b>No la cierres.</b> Abre una terminal <em>nueva</em> para trabajar.</p>
 
     <h3 class="step">Busca la bandera verde</h3>
     <p class="f">En los logs, la línea que confirma que estás dentro:</p>
-    <pre>Initialization Sequence Completed</pre>
-    <p class="f">Los avisos <code class="ic">WARNING</code> y <code class="ic">DEPRECATED OPTION</code> <b>no son errores</b>: son de una config algo antigua de HTB y no te afectan. Distinguir un <em>aviso</em> de un <em>error real</em> es media batalla del troubleshooting.</p>
+    <figure class="code-block" data-code-kind="output"><figcaption><span>Salida de ejemplo</span></figcaption><pre tabindex="0" aria-label="Salida de ejemplo; desplazamiento horizontal disponible"><code>Initialization Sequence Completed</code></pre>
+    </figure><p class="f">Los avisos <code class="ic">WARNING</code> y <code class="ic">DEPRECATED OPTION</code> <b>no son errores</b>: son de una config algo antigua de HTB y no te afectan. Distinguir un <em>aviso</em> de un <em>error real</em> es media batalla del troubleshooting.</p>
 
     <h3 class="step">Verifica la interfaz tun0</h3>
-    <pre><span class="k">ip</span> a show tun0</pre>
-    <p class="f">Busca una interfaz <code class="ic">tun0</code> con IP tipo <code class="ic">10.10.x.x</code>. Si aparece, tienes identidad dentro del lab.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">ip</span> a show tun0</code></pre>
+    </figure><p class="f">Busca una interfaz <code class="ic">tun0</code> con IP tipo <code class="ic">10.10.x.x</code>. Si aparece, tienes identidad dentro del lab.</p>
 
     <h3 class="step">Problemas típicos de VPN (y cómo se leen)</h3>
     <p class="f">Estos tres errores frenan a casi todo principiante. La clave: <b>cada uno dice una cosa distinta.</b></p>
     <div class="tblwrap"><table>
-      <tr><th>Lo que ves</th><th>Qué significa realmente</th><th>Qué hacer</th></tr>
+      <tr><th scope="col">Lo que ves</th><th scope="col">Qué significa realmente</th><th scope="col">Qué hacer</th></tr>
       <tr><td><code>TLS handshake / key negotiation timed out</code></td><td>Tus paquetes salen pero nadie responde. Típico de <b>UDP</b> tras una VM/red restrictiva.</td><td>Cambia el protocolo a <b>TCP 443</b> y baja un <code>.ovpn</code> nuevo.</td></tr>
       <tr><td><code>Connection refused</code> (TCP)</td><td>Tu paquete <b>sí llegó</b> y el destino dijo "no". Ese servidor no acepta conexiones ahora.</td><td><b>Cambia de servidor VPN.</b></td></tr>
       <tr><td><code>Destination Host Unreachable</code></td><td>El <em>gateway</em> de HTB no encuentra el host. Casi siempre: la <b>IP de la máquina cambió</b>.</td><td>Verifica la IP actual en la web.</td></tr>
     </table></div>
 
     <p class="f"><b>Diagnóstico de abajo hacia arriba.</b> Antes de culpar a la VPN, confirma que tu Kali tiene internet:</p>
-    <pre><span class="k">ping</span> -c 3 8.8.8.8      <span class="cmt"># ¿hay salida a internet?</span>
-<span class="k">ping</span> -c 3 google.com   <span class="cmt"># ¿funciona el DNS?</span></pre>
-    <p class="f">Si ambas responden → tu internet está sano y el problema es de la VPN (servidor/protocolo). Si ninguna responde → es la red de tu VM (revisa el adaptador en VirtualBox). Para probar si un puerto del servidor VPN es alcanzable sin la VPN:</p>
-    <pre><span class="k">nc</span> -zv &lt;IP_DEL_SERVIDOR_VPN&gt; 443</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">ping</span> -c 3 8.8.8.8      <span class="cmt"># ¿hay salida a internet?</span>
+<span class="k">ping</span> -c 3 google.com   <span class="cmt"># ¿funciona el DNS?</span></code></pre>
+    </figure><p class="f">Si ambas responden → tu internet está sano y el problema es de la VPN (servidor/protocolo). Si ninguna responde → es la red de tu VM (revisa el adaptador en VirtualBox). Para probar si un puerto del servidor VPN es alcanzable sin la VPN:</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">nc</span> -zv &lt;IP_DEL_SERVIDOR_VPN&gt; 443</code></pre>
 
-    <div class="why"><b>NOTA DE ORO · TROUBLESHOOTING</b>Un error que <b>cambia</b> cuando tocas algo es buena señal: significa que tu cambio tuvo efecto y estás cercando el problema. En Cap, el arreglo final fue <b>cambiar de servidor VPN</b>, porque el original rechazaba la conexión.</div>
+    </figure><div class="why"><b>NOTA DE ORO · TROUBLESHOOTING</b>Un error que <b>cambia</b> cuando tocas algo es buena señal: significa que tu cambio tuvo efecto y estás cercando el problema. En Cap, el arreglo final fue <b>cambiar de servidor VPN</b>, porque el original rechazaba la conexión.</div>
 
     <div class="warn"><b>LA IP NO ES ETERNA</b>La IP de una máquina de HTB <span class="mono">no es fija</span>: cambia si la reinicias, si cambias de servidor VPN, o entre sesiones. Antes de atacar, <span class="mono">confirma siempre la IP actual en la web</span>. En esta guía es <span class="mono">10.129.103.82</span>; la tuya será distinta, reemplázala en todos los comandos.</div>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== RECON ===================== -->
-<section id="recon" style="--acc:var(--cyan)">
+<section id="recon">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO</h2></div>
     <div class="sec-focus">El primer movimiento de todo pentest: qué puertas tiene abiertas el objetivo.</div>
 
-    <h3 class="step">Barrido de todos los puertos</h3>
-    <pre><span class="k">cd</span> ~/htb/cap
-<span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.103.82</pre>
-    <p class="f"><code class="ic">-p-</code> escanea los <b>65535</b> puertos, no solo los comunes. <code class="ic">--min-rate 1000</code> acelera. <code class="ic">-oA</code> guarda el resultado en tres formatos: <b>guardar siempre</b>, nunca escanees sin dejar registro.</p>
-    <pre>PORT   STATE SERVICE
+    <div class="hint"><b>PISTA</b>Identifica los puertos abiertos, sus servicios y versiones. Anota una hipótesis de entrada por cada servicio.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">Barrido de todos los puertos</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">cd</span> ~/htb/cap
+<span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.103.82</code></pre>
+    </figure><p class="f"><code class="ic">-p-</code> escanea los <b>65535</b> puertos, no solo los comunes. <code class="ic">--min-rate 1000</code> acelera. <code class="ic">-oA</code> guarda el resultado en tres formatos: <b>guardar siempre</b>, nunca escanees sin dejar registro.</p>
+    <figure class="code-block" data-code-kind="output"><figcaption><span>Salida de ejemplo</span></figcaption><pre tabindex="0" aria-label="Salida de ejemplo; desplazamiento horizontal disponible"><code>PORT   STATE SERVICE
 21/tcp open  ftp
 22/tcp open  ssh
-80/tcp open  http</pre>
+80/tcp open  http</code></pre>
 
-    <h3 class="step">Escaneo detallado de los abiertos</h3>
-    <pre><span class="k">nmap</span> -sCV -p 21,22,80 -oA nmap/detail 10.129.103.82</pre>
-    <p class="f"><code class="ic">-sCV</code> = <code class="ic">-sV</code> (versión de cada servicio) + <code class="ic">-sC</code> (scripts básicos de reconocimiento). Tu radar inicial.</p>
+    </figure><h3 class="step">Escaneo detallado de los abiertos</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">nmap</span> -sCV -p 21,22,80 -oA nmap/detail 10.129.103.82</code></pre>
+    </figure><p class="f"><code class="ic">-sCV</code> = <code class="ic">-sV</code> (versión de cada servicio) + <code class="ic">-sC</code> (scripts básicos de reconocimiento). Tu radar inicial.</p>
 
     <h3 class="step">Interpretar: elegir por dónde entrar</h3>
     <p class="f">Piensa en cada puerto como una <b>puerta</b> y pregúntate cuánta superficie ofrece:</p>
     <div class="tblwrap"><table>
-      <tr><th>Puerto</th><th>Servicio</th><th>Lectura del pentester</th></tr>
+      <tr><th scope="col">Puerto</th><th scope="col">Servicio</th><th scope="col">Lectura del pentester</th></tr>
       <tr><td><code>22</code></td><td>SSH</td><td>Control remoto por terminal cifrada, <b>pero pide credenciales que aún no tienes</b>. Puerta cerrada con llave. Más "salida" que "entrada": el sitio a donde llegas <em>después</em>.</td></tr>
       <tr><td><code>21</code></td><td>FTP</td><td>Transferencia de archivos. A veces permite <code>anonymous</code> sin credenciales. Buen segundo lugar.</td></tr>
       <tr><td><code>80</code></td><td>HTTP</td><td><b>La superficie más grande y rica:</b> páginas, formularios, funciones, código, rutas, parámetros. Cada una es una posible vía.</td></tr>
     </table></div>
     <p class="f"><b>Decisión:</b> empezamos por <b>HTTP</b>. No por corazonada, sino por criterio: la web casi siempre ofrece más por dónde tirar.</p>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== WEB + IDOR ===================== -->
-<section id="idor" style="--acc:var(--magenta)">
+<section id="idor">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · EXPLORAR LA WEB · IDOR</h2></div>
     <div class="sec-focus">Antes de cualquier herramienta sofisticada, se mira con los ojos.</div>
 
-    <h3 class="step">Reconocimiento web tranquilo</h3>
+    <div class="hint"><b>PISTA</b>Observa cómo cambia la URL al abrir una captura. ¿El servidor comprueba que ese recurso te pertenece?</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">Reconocimiento web tranquilo</h3>
     <p class="f">Abre Firefox en Kali y navega a <code class="ic">http://10.129.103.82</code>. Explora como un usuario curioso, sin buscar todavía "la vulnerabilidad". Primero entiende <b>qué es la aplicación</b>:</p>
     <p class="f">→ Es un <b>"Security Dashboard"</b>.<br>→ <b>Ya estás logueado como un usuario llamado Nathan</b> (arriba a la derecha), sin haber puesto contraseña. Eso significa algo: hay usuarios, y la app te trata como uno.<br>→ En el menú hay una función que llama la atención: <b>"Security Snapshot (5 Second PCAP + Analysis)"</b>.</p>
     <div class="why"><b>REGLA</b>La fase de reconocimiento tranquilo es el 80% del trabajo. Casi nadie la explica. No busques la vulnerabilidad: entiende primero qué hace la aplicación.</div>
 
     <h3 class="step">Vigila la URL</h3>
     <p class="f">Haz click en <b>Security Snapshot</b>. La página trabaja y <b>te redirige</b>. Mira la barra de direcciones:</p>
-    <pre>http://10.129.103.82/data/1</pre>
-    <p class="f">Esa forma, una ruta que termina en <code class="ic">/algo/&lt;número&gt;</code>, es <b>una de las cosas más jugosas que un pentester puede encontrar en una web</b>. El <code class="ic">data</code> es la sección; el <code class="ic">1</code> es el <b>ID de tu scan</b>.</p>
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code>http://10.129.103.82/data/1</code></pre>
+    </figure><p class="f">Esa forma, una ruta que termina en <code class="ic">/algo/&lt;número&gt;</code>, es <b>una de las cosas más jugosas que un pentester puede encontrar en una web</b>. El <code class="ic">data</code> es la sección; el <code class="ic">1</code> es el <b>ID de tu scan</b>.</p>
 
     <h3 class="step">La hipótesis y la prueba</h3>
     <p class="f">La app te asignó a <b>ti</b> el ID <code class="ic">1</code>. Pregunta del pentester: <em>ese 1 es mío. ¿Y si lo cambio por otro número?</em> Nada te impide editarlo a mano en la barra de direcciones.</p>
     <div class="tblwrap"><table>
-      <tr><th>URL</th><th>Resultado</th><th>Interpretación</th></tr>
+      <tr><th scope="col">URL</th><th scope="col">Resultado</th><th scope="col">Interpretación</th></tr>
       <tr><td><code>/data/1</code></td><td>0 paquetes</td><td>Tu scan. Vacío porque en tus 5 s no hubo tráfico.</td></tr>
       <tr><td><code>/data/2</code></td><td>"No existe"</td><td>Nadie generó ese scan todavía.</td></tr>
       <tr><td><code>/data/0</code></td><td><b>72 paquetes, 69 TCP</b></td><td><b>Un scan que NO generaste tú.</b> Datos de otra persona.</td></tr>
@@ -178,16 +131,15 @@
     </div>
 
     <div class="why"><b>MATIZ: ACCESO ≠ SUPLANTACIÓN</b>Al ver <code class="ic">/data/0</code> sigues siendo Nathan (tu sesión no cambia). Eso <b>no contradice</b> la vulnerabilidad: <b>es</b> la vulnerabilidad. No necesitas convertirte en otro usuario para robar su información: basta con pedir su objeto por el ID. Confundir "ver lo de otro" con "ser otro" es un error clásico de principiante.</div>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== PCAP ===================== -->
-<section id="pcap" style="--acc:var(--amber)">
+<section id="pcap">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · ANÁLISIS DEL PCAP</h2></div>
     <div class="sec-focus">Wireshark asusta la primera vez, pero es más simple de lo que parece.</div>
 
-    <div class="fcard cyan">
+    <div class="hint"><b>PISTA</b>Piensa qué protocolos transportan credenciales sin cifrado y qué filtros permiten encontrar esas conversaciones.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard cyan">
       <h4>▚ ¿Qué es un PCAP?</h4>
       <p><b>PCAP = Packet Capture</b> (captura de paquetes). Es una <b>grabación de todo el tráfico de red</b> que pasó por una máquina durante un período: quién habló con quién, por qué puerto y, lo crucial, <b>el contenido de esas comunicaciones</b>.</p>
       <p>¿Por qué es oro para un pentester? Porque <b>muchos protocolos viejos envían la información sin cifrar, en texto plano</b>. Si un usuario se autenticó con uno de ellos mientras la captura corría, su <b>usuario y contraseña quedaron grabados dentro del PCAP</b>, legibles.</p>
@@ -199,87 +151,84 @@
     <h3 class="step">Descargar y filtrar</h3>
     <p class="f">En la página de <code class="ic">/data/0</code>, busca el botón de <b>descarga</b> del archivo de captura (el <code class="ic">.pcap</code> crudo, no el resumen de números). En Kali suele abrirse directo en <b>Wireshark</b>, que muestra una fila por paquete.</p>
     <p class="f">No leas las 72 filas una por una. <b>Piensa qué protocolo, de los abiertos, envía credenciales en texto plano.</b> SSH va cifrado (ahí no lees nada), pero <b>FTP no cifra nada</b>. En la barra de filtros de Wireshark, escribe:</p>
-    <pre>ftp</pre>
-    <p class="f">y Enter. La lista se reduce solo al tráfico FTP.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code>ftp</code></pre>
+    </figure><p class="f">y Enter. La lista se reduce solo al tráfico FTP.</p>
 
     <h3 class="step">Leer las credenciales</h3>
     <p class="f">Mira la columna <b>Info</b>. En FTP cada acción aparece casi como lenguaje humano. Busca <code class="ic">Request: USER</code> (el nombre de usuario) y <code class="ic">Request: PASS</code> (la contraseña):</p>
-    <pre>Request: USER nathan
-Request: PASS Buck3tH4TF0RM3!</pre>
-    <div class="why"><b>TRUCO DE WIRESHARK</b>Click derecho en cualquier paquete FTP → <b>Follow → TCP Stream</b>. Wireshark arma toda la conversación FTP completa en una ventana, ordenada y legible de corrido. Una de las funciones más útiles del programa; anótala.</div>
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code>Request: USER nathan
+Request: PASS Buck3tH4TF0RM3!</code></pre>
+    </figure><div class="why"><b>TRUCO DE WIRESHARK</b>Click derecho en cualquier paquete FTP → <b>Follow → TCP Stream</b>. Wireshark arma toda la conversación FTP completa en una ventana, ordenada y legible de corrido. Una de las funciones más útiles del programa; anótala.</div>
     <p class="f"><b>Credenciales obtenidas:</b> <code class="ic">nathan</code> / <code class="ic">Buck3tH4TF0RM3!</code></p>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== ACCESO ===================== -->
-<section id="access" style="--acc:var(--green)">
+<section id="access">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · ACCESO INICIAL</h2></div>
     <div class="sec-focus">Password reuse: el eslabón que convierte una fuga en un shell.</div>
 
-    <h3 class="step">La pregunta clave</h3>
+    <div class="hint"><b>PISTA</b>Revisa qué información has obtenido y en qué otros servicios puedes validarla.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">La pregunta clave</h3>
     <p class="f">Tienes credenciales de <b>FTP</b>. La pregunta del pentester: <em>cuando encuentro un usuario/contraseña en un servicio, ¿los pruebo en los OTROS servicios de la misma máquina?</em> Muchísima gente <b>reutiliza la misma contraseña en todos lados</b>. SSH estaba abierto (puerto 22) y solo necesitaba credenciales. Ahora las tenemos.</p>
 
     <h3 class="step">Conectarse por SSH</h3>
-    <pre><span class="k">ssh</span> nathan@10.129.103.82</pre>
-    <p class="f">La primera vez pregunta por la autenticidad del host → escribe <code class="ic">yes</code>. Luego pide la contraseña: <code class="ic">Buck3tH4TF0RM3!</code>. <b>No verás nada al escribir</b> (ni asteriscos ni puntos): es normal en Linux. Escríbela completa y Enter a ciegas.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">ssh</span> nathan@10.129.103.82</code></pre>
+    </figure><p class="f">La primera vez pregunta por la autenticidad del host → escribe <code class="ic">yes</code>. Luego pide la contraseña: <code class="ic">Buck3tH4TF0RM3!</code>. <b>No verás nada al escribir</b> (ni asteriscos ni puntos): es normal en Linux. Escríbela completa y Enter a ciegas.</p>
     <p class="f">Si funciona, el prompt cambia de <code class="ic">iphobiuss@kali</code> a <code class="ic">nathan@cap:~$</code>. Eso significa que <b>estás dentro de la máquina víctima</b>. A eso se le llama conseguir un <b>shell</b>.</p>
 
     <h3 class="step">La user flag</h3>
-    <pre><span class="k">ls</span>
-<span class="k">cat</span> user.txt   <span class="cmt"># -&gt; 64c77ba6f9da29d6e022e470a40f2a67</span></pre>
-    <p class="f">Esa es la <b>user flag</b>. Pero nathan es un usuario <em>normal</em>, sin privilegios de administrador. El objetivo final es llegar a <b>root</b>.</p>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">ls</span>
+<span class="k">cat</span> user.txt   <span class="cmt"># -&gt; 64c77ba6f9da29d6e022e470a40f2a67</span></code></pre>
+    </figure><p class="f">Esa es la <b>user flag</b>. Pero nathan es un usuario <em>normal</em>, sin privilegios de administrador. El objetivo final es llegar a <b>root</b>.</p>
+  </details></div>
 </section>
 
-<!-- ===================== PRIVESC ===================== -->
-<section id="privesc" style="--acc:var(--violet)">
+<section id="privesc">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · ESCALADA DE PRIVILEGIOS</h2></div>
     <div class="sec-focus">De usuario común a root: capabilities + GTFOBins.</div>
 
-    <div class="fcard">
+    <div class="hint"><b>PISTA</b>Compara los permisos habituales del sistema con los que tiene esta cuenta. Investiga los binarios que destacan.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard">
       <h4>▚ ¿Qué son las capabilities?</h4>
       <p>En Linux, en vez de ejecutar un programa con <em>todo</em> el poder de root (peligroso), se le puede dar un <b>permiso especial y acotado</b>: una <b>capability</b>. El problema es que algunas, en el binario equivocado, se pueden <b>abusar para escalar a root</b>. La más peligrosa es <b><code class="ic">cap_setuid</code></b>, que permite a un programa <b>cambiar su identidad de usuario</b>, incluso a root.</p>
     </div>
 
     <h3 class="step">Buscar binarios con capabilities</h3>
-    <pre><span class="k">getcap</span> -r / 2&gt;/dev/null</pre>
-    <p class="f"><code class="ic">getcap</code> lista capabilities; <code class="ic">-r /</code> busca recursivo desde la raíz (toda la máquina); <code class="ic">2&gt;/dev/null</code> manda a la basura los miles de errores "Permission denied" para que solo veas lo útil. Lo vas a usar muchísimo.</p>
-    <pre><span class="o">/usr/bin/python3.8</span> = cap_setuid,cap_net_bind_service+eip
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">getcap</span> -r / 2&gt;/dev/null</code></pre>
+    </figure><p class="f"><code class="ic">getcap</code> lista capabilities; <code class="ic">-r /</code> busca recursivo desde la raíz (toda la máquina); <code class="ic">2&gt;/dev/null</code> manda a la basura los miles de errores "Permission denied" para que solo veas lo útil. Lo vas a usar muchísimo.</p>
+    <figure class="code-block" data-code-kind="output"><figcaption><span>Salida de ejemplo</span></figcaption><pre tabindex="0" aria-label="Salida de ejemplo; desplazamiento horizontal disponible"><code><span class="o">/usr/bin/python3.8</span> = cap_setuid,cap_net_bind_service+eip
 /usr/bin/ping = cap_net_raw+ep
 /usr/bin/traceroute6.iputils = cap_net_raw+ep
 /usr/bin/mtr-packet = cap_net_raw+ep
-/usr/lib/.../gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep</pre>
-    <p class="f">Las de <code class="ic">cap_net_raw</code> / <code class="ic">cap_net_bind_service</code> son de red, no sirven para root. <b>La única con <code class="ic">cap_setuid</code> es Python:</b> <code class="ic">/usr/bin/python3.8</code>. Un binario que <b>puede convertirse en root</b> y que además <b>ejecuta cualquier código que le escribas</b>: una llave maestra que te deja escribir tus propias órdenes.</p>
+/usr/lib/.../gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep</code></pre>
+    </figure><p class="f">Las de <code class="ic">cap_net_raw</code> / <code class="ic">cap_net_bind_service</code> son de red, no sirven para root. <b>La única con <code class="ic">cap_setuid</code> es Python:</b> <code class="ic">/usr/bin/python3.8</code>. Un binario que <b>puede convertirse en root</b> y que además <b>ejecuta cualquier código que le escribas</b>: una llave maestra que te deja escribir tus propias órdenes.</p>
 
     <h3 class="step">GTFOBins: la referencia obligatoria</h3>
-    <p class="f">No hace falta memorizar la sintaxis. <a href="https://gtfobins.github.io" target="_blank" rel="noopener">GTFOBins</a> cataloga binarios de Linux y <b>exactamente cómo abusar de cada uno</b> según el permiso que tenga (SUID, Sudo, Capabilities…).</p>
+    <p class="f">No hace falta memorizar la sintaxis. <a href="https://gtfobins.github.io" target="_blank" rel="noopener noreferrer">GTFOBins</a> cataloga binarios de Linux y <b>exactamente cómo abusar de cada uno</b> según el permiso que tenga (SUID, Sudo, Capabilities…).</p>
     <div class="why"><b>ERROR DE NOVATO MÁS COMÚN</b>GTFOBins tiene <b>varias secciones por binario, una por tipo de permiso</b>. Usa la que corresponde a <b>TU</b> permiso. Tú tienes una <b>capability</b> → usa la sección <b>Capabilities</b>, no la primera que veas.</div>
     <p class="f">La sección <b>Capabilities</b> de <code class="ic">python</code> muestra:</p>
-    <pre>python -c 'import os; os.setuid(0); os.execl("/bin/sh", "sh")'</pre>
-    <p class="f">Léelo: hace justo las dos cosas que predijimos. <code class="ic">os.setuid(0)</code> → "conviértete en el usuario 0" (el <b>UID 0 es root</b>; solo funciona porque Python tiene <code class="ic">cap_setuid</code>). <code class="ic">os.execl("/bin/sh","sh")</code> → "ábreme una shell".</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code>python -c 'import os; os.setuid(0); os.execl("/bin/sh", "sh")'</code></pre>
+    </figure><p class="f">Léelo: hace justo las dos cosas que predijimos. <code class="ic">os.setuid(0)</code> → "conviértete en el usuario 0" (el <b>UID 0 es root</b>; solo funciona porque Python tiene <code class="ic">cap_setuid</code>). <code class="ic">os.execl("/bin/sh","sh")</code> → "ábreme una shell".</p>
 
     <h3 class="step">Ejecutar (con la ruta real)</h3>
     <p class="f">El binario con la capability es <code class="ic">python3.8</code>, así que usa la ruta exacta. <b>En la terminal de nathan:</b></p>
-    <pre><span class="o">/usr/bin/python3.8</span> -c 'import os; os.setuid(0); os.execl("/bin/sh", "sh")'</pre>
-    <p class="f">El prompt cambia de <code class="ic">$</code> (usuario normal) a <code class="ic">#</code> (superusuario). El <code class="ic">#</code> es, en el mundo Linux, el símbolo de <b>root</b>. Confírmalo:</p>
-    <pre><span class="k">whoami</span>   <span class="cmt"># -&gt; root</span>
-<span class="k">id</span>       <span class="cmt"># -&gt; uid=0(root) ...</span></pre>
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code><span class="o">/usr/bin/python3.8</span> -c 'import os; os.setuid(0); os.execl("/bin/sh", "sh")'</code></pre>
+    </figure><p class="f">El prompt cambia de <code class="ic">$</code> (usuario normal) a <code class="ic">#</code> (superusuario). El <code class="ic">#</code> es, en el mundo Linux, el símbolo de <b>root</b>. Confírmalo:</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">whoami</span>   <span class="cmt"># -&gt; root</span>
+<span class="k">id</span>       <span class="cmt"># -&gt; uid=0(root) ...</span></code></pre>
 
-    <h3 class="step">La root flag</h3>
-    <pre><span class="k">cat</span> /root/root.txt   <span class="cmt"># -&gt; 268ae2e96af7256c928d718f8717f1b9</span></pre>
-    <p class="f"><b>Máquina comprometida por completo.</b> User flag + root flag.</p>
-  </div>
+    </figure><h3 class="step">La root flag</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">cat</span> /root/root.txt   <span class="cmt"># -&gt; 268ae2e96af7256c928d718f8717f1b9</span></code></pre>
+    </figure><p class="f"><b>Máquina comprometida por completo.</b> User flag + root flag.</p>
+  </details></div>
 </section>
 
-<!-- ===================== TASKS ===================== -->
-<section id="tasks" style="--acc:var(--amber)">
+<section id="tasks">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
     <div class="sec-focus">Las respuestas de una instancia concreta. En tu máquina, las flags serán distintas.</div>
-    <div class="tblwrap"><table>
-      <tr><th>Task</th><th>Respuesta</th></tr>
+    <details class="spoiler"><summary>Mostrar respuestas del laboratorio</summary><div class="tblwrap"><table>
+      <tr><th scope="col">Task</th><th scope="col">Respuesta</th></tr>
       <tr><td>¿Cuántos puertos TCP abiertos?</td><td class="ans">3</td></tr>
       <tr><td>El <code>[something]</code> de la redirección <code>/[something]/[id]</code></td><td class="ans">data</td></tr>
       <tr><td>¿Puedes acceder a scans de otros usuarios?</td><td class="ans">Yes</td></tr>
@@ -290,11 +239,10 @@ Request: PASS Buck3tH4TF0RM3!</pre>
       <tr><td>User flag</td><td><code>64c77ba6f9da29d6e022e470a40f2a67</code></td></tr>
       <tr><td>Root flag</td><td><code>268ae2e96af7256c928d718f8717f1b9</code></td></tr>
     </table></div>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== TAKEAWAYS ===================== -->
-<section id="takeaways" style="--acc:var(--green)">
+<section id="takeaways">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS TRANSFERIBLES</h2></div>
     <div class="sec-focus">Cap es solo el vehículo. Esto sirve para cualquier máquina.</div>
@@ -312,17 +260,4 @@ Request: PASS Buck3tH4TF0RM3!</pre>
     </ul>
   </div>
 </section>
-</main>
-
-<footer>
-  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "si razonaste el porqué, no memorizaste Cap: entrenaste el proceso."</span></div>
-  <div>Cap · Hack The Box · máquina retirada · guía para principiantes</div>
-  <div>
-    <a href="index.html">Knowledge base</a> ·
-    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
-    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
-</footer>
-</body>
-</html>
+<nav class="series-nav" aria-label="Navegación por la serie"><a href="setup.html"><small>ANTERIOR · GUÍA 00</small><span>← Fundamentos &amp; setup</span></a><a href="knife.html"><small>SIGUIENTE · GUÍA 02</small><span>Knife →</span></a></nav></div></div></main><footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a><p>Sebastián Latorre Muñoz · Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener noreferrer" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" rel="noopener noreferrer" target="_blank">LinkedIn</a><button class="small-button js-only" data-retro-toggle aria-pressed="false" type="button" hidden>Efectos retro</button></div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p></body></html>

