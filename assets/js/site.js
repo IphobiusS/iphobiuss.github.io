@@ -38,18 +38,30 @@
     menu.addEventListener('click', () => {
       const open = menu.getAttribute('aria-expanded') !== 'true';
       menu.setAttribute('aria-expanded', String(open)); nav.classList.toggle('is-open', open);
+      if (open) $('a', nav)?.focus();
     });
     nav.addEventListener('click', event => { if (event.target.closest('a')) closeMenu(); });
+    document.addEventListener('click', event => {
+      if (!header.contains(event.target)) closeMenu();
+    });
   }
   const retroButtons = $$('[data-retro-toggle]');
   function setRetro(enabled) {
     html.dataset.retro = enabled ? 'on' : 'off';
-    retroButtons.forEach(button => button.setAttribute('aria-pressed', String(enabled)));
+    retroButtons.forEach(button => {
+      button.setAttribute('aria-pressed', String(enabled));
+      const state = $('[data-retro-state]', button);
+      if (state) state.textContent = enabled ? 'ON' : 'OFF';
+    });
   }
   setRetro(storage.get('retro') === 'on');
   retroButtons.forEach(button => button.addEventListener('click', () => {
     const enabled = html.dataset.retro !== 'on'; setRetro(enabled); storage.set('retro', enabled ? 'on' : 'off');
+    announce(enabled ? 'Modo retro activado: paleta verde, cuadrícula y líneas CRT estáticas.' : 'Modo retro desactivado.');
   }));
+  window.addEventListener('storage', event => {
+    if (event.key === 'iphobiuss:retro' || event.key === null) setRetro(storage.get('retro') === 'on');
+  });
 
   // Filtering operates only in the catalogue. Search never hides page sections.
   const subject = $('#subject-filter'), cert = $('#cert-filter');
