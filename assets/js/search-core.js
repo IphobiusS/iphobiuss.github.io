@@ -35,7 +35,8 @@
     const q = normalize(query).slice(0, 200);
     if (!q) return [];
     const tokens = q.split(/\s+/);
-    const groups = synonyms[q] ? [synonyms[q]] : tokens.map(token => synonyms[token] || [token]);
+    const termsFor = term => Object.prototype.hasOwnProperty.call(synonyms, term) && Array.isArray(synonyms[term]) ? synonyms[term] : [term];
+    const groups = Object.prototype.hasOwnProperty.call(synonyms, q) ? [termsFor(q)] : tokens.map(termsFor);
     return records.map(record => {
       const title = record._title ?? normalize(record.title);
       const category = record._category ?? normalize(record.category || '');
