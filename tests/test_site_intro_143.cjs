@@ -204,19 +204,33 @@ async function dismiss(page) {
     const { context, page, errors } = await fresh({ width: 390 });
     const route = language === 'en' ? '/english.html' : '/index.html';
     await page.goto(base + route); await closed(page); expectOneCycle(await state(page));
+    await page.evaluate(axeSource);
     await page.locator('[data-appearance]>summary').click();
     const preference = page.locator('[data-intro-preference]');
+    const preferenceAxeStates = [];
+    const inspectOpenPanel = async state => {
+      assert.equal(await page.locator('[data-appearance]').getAttribute('open'), '', 'audit the actually opened appearance panel');
+      const result = await page.evaluate(async () => {
+        const panel = document.querySelector('[data-appearance]');
+        const result = await window.axe.run(panel, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } });
+        return { violations: result.violations.map(issue => ({ id: issue.id, targets: issue.nodes.map(node => node.target) })), incomplete: result.incomplete.map(issue => issue.id) };
+      });
+      assert.deepEqual(result.violations, [], 'appearance panel ' + language + '/' + state + ' includes its visible state in the accessible button name');
+      preferenceAxeStates.push({ state, ...result });
+    };
     assert.equal(await preference.getAttribute('aria-pressed'), 'true');
     const enabledText = await page.locator('[data-intro-preference-state]').innerText();
+    await inspectOpenPanel('enabled');
     await preference.click(); assert.equal(await preference.getAttribute('aria-pressed'), 'false');
     assert.notEqual(await page.locator('[data-intro-preference-state]').innerText(), enabledText);
+    await inspectOpenPanel('disabled');
     assert.equal(await page.evaluate(() => localStorage.getItem('iphobiuss:intro')), 'off');
     await page.reload(); await noOpening(page);
     await page.locator('[data-appearance]>summary').click(); assert.equal(await preference.getAttribute('aria-pressed'), 'false');
     await preference.click(); assert.equal(await preference.getAttribute('aria-pressed'), 'true');
     assert.equal(await page.evaluate(() => localStorage.getItem('iphobiuss:intro')), 'on');
     await page.reload(); await closed(page); const result = expectOneCycle(await state(page));
-    await clean(page, errors); await context.close(); return { ...result, language, optOutPersists: true, optInPersists: true };
+    await clean(page, errors); await context.close(); return { ...result, language, optOutPersists: true, optInPersists: true, preferenceAxeStates };
   });
 
   await check('appearance option and explanation remain reachable at 320 px and 200% text', async () => {
