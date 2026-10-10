@@ -1,0 +1,1778 @@
+{
+  "schema_version": 1,
+  "lab_version": "1.0.0",
+  "transport": "observed_http_over_ipv4_loopback",
+  "external_targets": false,
+  "data": "synthetic",
+  "identities": [
+    "alice",
+    "bruno"
+  ],
+  "normalization": "Ephemeral port, Host, Date and Server are omitted. Request paths, application headers, statuses and complete response bodies are captured from actual HTTP exchanges.",
+  "source_sha256": {
+    "lab.py": "68399c59c901ea047998b4bb4adcee91bb51273904ec5e8447aea12882e7b285",
+    "fixtures.json": "0f1f75c14a154b701319fdef6bf5010e57240dc32ed6e1f4de5a664a9160855a"
+  },
+  "summary": {
+    "scenarios": 17,
+    "modes": 2,
+    "http_exchanges": 44,
+    "passed": 44,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "alice_own_read",
+      "label_es": "Alice lee su informe",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_own_read",
+      "label_es": "Bruno lee su informe",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Informe sintético B\"}",
+              "body_sha256": "cafdf49241341a3693853687120aa1ff9986529b5de2d0b4c8a56583433bfb19"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Informe sintético B\"}",
+              "body_sha256": "cafdf49241341a3693853687120aa1ff9986529b5de2d0b4c8a56583433bfb19"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_cross_read",
+      "label_es": "Alice intenta leer el informe de Bruno",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Informe sintético B\"}",
+              "body_sha256": "cafdf49241341a3693853687120aa1ff9986529b5de2d0b4c8a56583433bfb19"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_cross_read",
+      "label_es": "Bruno intenta leer el informe de Alice",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "anonymous",
+      "label_es": "Lectura sin sesión",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown_token",
+      "label_es": "Token sintético no reconocido",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-unknown"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-unknown"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown_object",
+      "label_es": "Identificador inexistente",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/999",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/999",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "client_owner_query",
+      "label_es": "Identidad propuesta en la URL",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202?owner=bruno",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "31",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"query_not_supported\"}",
+              "body_sha256": "4eb5d16adcb6b22efb9c42bdd99f13beccd6d71b4e6fb752569a1cd758350d56"
+            },
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202?owner=bruno",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "31",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"query_not_supported\"}",
+              "body_sha256": "4eb5d16adcb6b22efb9c42bdd99f13beccd6d71b4e6fb752569a1cd758350d56"
+            },
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "client_owner_header",
+      "label_es": "Identidad propuesta en una cabecera",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "X-Lab-User",
+                  "bruno"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Informe sintético B\"}",
+              "body_sha256": "cafdf49241341a3693853687120aa1ff9986529b5de2d0b4c8a56583433bfb19"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "X-Lab-User",
+                  "bruno"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_own_write",
+      "label_es": "Alice modifica su título y lo vuelve a leer",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "41"
+                ]
+              ],
+              "body": "{\"title\":\"Título actualizado por Alice\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Título actualizado por Alice\"}",
+              "body_sha256": "e08f56028154434294f3e6120f284a507bf74baf76dbcbc5cd976b52b8abf9f8"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Título actualizado por Alice\"}",
+              "body_sha256": "e08f56028154434294f3e6120f284a507bf74baf76dbcbc5cd976b52b8abf9f8"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "41"
+                ]
+              ],
+              "body": "{\"title\":\"Título actualizado por Alice\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Título actualizado por Alice\"}",
+              "body_sha256": "e08f56028154434294f3e6120f284a507bf74baf76dbcbc5cd976b52b8abf9f8"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Título actualizado por Alice\"}",
+              "body_sha256": "e08f56028154434294f3e6120f284a507bf74baf76dbcbc5cd976b52b8abf9f8"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_cross_write",
+      "label_es": "Alice intenta modificar el informe de Bruno",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "32"
+                ]
+              ],
+              "body": "{\"title\":\"Cambio no autorizado\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Cambio no autorizado\"}",
+              "body_sha256": "6041aa2669eb89a9e92bdf3cdb4813d2ec4102d3255473dcb1b38e4b67ef0bf6"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Cambio no autorizado\"}",
+              "body_sha256": "6041aa2669eb89a9e92bdf3cdb4813d2ec4102d3255473dcb1b38e4b67ef0bf6"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "32"
+                ]
+              ],
+              "body": "{\"title\":\"Cambio no autorizado\"}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Informe sintético B\"}",
+              "body_sha256": "cafdf49241341a3693853687120aa1ff9986529b5de2d0b4c8a56583433bfb19"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_cross_write",
+      "label_es": "Bruno intenta modificar el informe de Alice",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "32"
+                ]
+              ],
+              "body": "{\"title\":\"Cambio no autorizado\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Cambio no autorizado\"}",
+              "body_sha256": "7d0fd43b1de777f3c268d0be45c3789c85a958eb50ad7081c2784853ccdff2ff"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Cambio no autorizado\"}",
+              "body_sha256": "7d0fd43b1de777f3c268d0be45c3789c85a958eb50ad7081c2784853ccdff2ff"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "32"
+                ]
+              ],
+              "body": "{\"title\":\"Cambio no autorizado\"}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "invalid_json",
+      "label_es": "JSON inválido no cambia el informe",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "1"
+                ]
+              ],
+              "body": "{"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "1"
+                ]
+              ],
+              "body": "{"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "mass_assignment",
+      "label_es": "El cliente no puede cambiar al propietario",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "35"
+                ]
+              ],
+              "body": "{\"title\":\"Intento\",\"owner\":\"bruno\"}"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "35"
+                ]
+              ],
+              "body": "{\"title\":\"Intento\",\"owner\":\"bruno\"}"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "90",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"101\",\"marker\":\"SYNTHETIC_ALICE_101\",\"owner\":\"alice\",\"title\":\"Informe sintético A\"}",
+              "body_sha256": "08b5565f9e2e29f2af0fc0ab5d7a58b23ea7de105dbcf6a6a8106dd81daeff0b"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "malformed_identifier",
+      "label_es": "Ruta con identificador inválido",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/../202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/../202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "unsupported_method",
+      "label_es": "DELETE no está implementado",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "DELETE",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 405,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "30",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Allow": "GET, PATCH"
+              },
+              "body": "{\"error\":\"method_not_allowed\"}",
+              "body_sha256": "48ceae43089b9c26f0b2e5e53afe122639812aaa791c84f311d6b992f2332fef"
+            },
+            "expected": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "DELETE",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 405,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "30",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Allow": "GET, PATCH"
+              },
+              "body": "{\"error\":\"method_not_allowed\"}",
+              "body_sha256": "48ceae43089b9c26f0b2e5e53afe122639812aaa791c84f311d6b992f2332fef"
+            },
+            "expected": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambiguous_identity",
+      "label_es": "Dos cabeceras de sesión se rechazan",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/101",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-only"
+                ],
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    }
+  ]
+}
