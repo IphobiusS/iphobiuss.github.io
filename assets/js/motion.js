@@ -1,6 +1,6 @@
-/* La terminal es opcional: abrirla o pulsar Repetir inicia la secuencia. El fondo
-   acompaña mientras la portada está a la vista. El HTML conserva el estado final
-   sin JavaScript; la pausa persiste y se respeta la reducción de movimiento. */
+/* La terminal se abre completa; sólo Repetir inicia su secuencia local. La
+   presentación permanece legible. El HTML conserva el estado final sin JavaScript;
+   la pausa persiste y se respeta la reducción de movimiento. */
 (() => {
   'use strict';
   const html = document.documentElement;
@@ -30,8 +30,6 @@
 
   const session = document.querySelector('[data-session]'), stage = document.querySelector('[data-motion-stage]');
   const sessionDisclosure = session?.closest('details');
-  const intro = document.querySelector('[data-intro]'), skip = document.querySelector('[data-intro-skip]');
-  const name = document.querySelector('[data-scramble]'), finalName = name ? name.textContent : '';
   const glyphs = '01$#&%@/\\<>|*+=';
   const cmds = session ? [...session.querySelectorAll('[data-cmd]')].map(el => ({wrap: el, text: el.querySelector('.tcmd-text'), value: el.querySelector('.tcmd-text').textContent})) : [];
   const termLines = session ? [...session.querySelectorAll('.spane-term .tl')] : [];
@@ -42,8 +40,6 @@
   const pages = session ? session.querySelector('[data-pages]') : null, pageTotal = pages ? +pages.dataset.pages : 0, pagesText = pages ? pages.textContent : '';
   const panes = {};
   if (session) session.querySelectorAll('[data-pane]').forEach(p => { panes[p.dataset.pane] = p; });
-  const introLines = intro ? [...intro.querySelectorAll('.il')] : [];
-  let introOpen = false;
 
   function syncControls() {
     const reducedNow = systemReduced(), unsupported = !reduced, active = running() && onScreen;
@@ -73,12 +69,11 @@
     syncClock();
   }
   function finish() {
-    clearAll(); closeIntro(true);
+    clearAll();
     if (!session) return;
-    session.classList.remove('boot'); session.classList.add('done'); stage && stage.classList.remove('boot');
+    session.classList.remove('boot'); session.classList.add('done');
     Object.values(panes).forEach(p => p.classList.remove('active'));
     cmds.forEach(c => { c.wrap.classList.remove('typing'); c.text.textContent = c.value; });
-    if (name) name.textContent = finalName;
     if (pages) pages.textContent = pagesText;
     session.querySelectorAll('.on').forEach(el => el.classList.remove('on'));
   }
@@ -106,69 +101,12 @@
   }
   const activate = (which, at) => after(at, () => Object.entries(panes).forEach(([k, p]) => p.classList.toggle('active', k === which)));
 
-  // F01/F02: la intro es un diálogo real. Fondo inert, foco en Saltar, restauración al cerrar.
-  // R01/F15: la intro es un <dialog> nativo fuera de <main>. showModal() delega en el navegador el foco inicial,
-  // la modalidad (resto de la página inert para teclado y lector), el backdrop y el cierre con Escape. Así Saltar
-  // siempre recibe foco y activación, y no reinventamos el manejo de foco a mano.
-  const dialogSupported = intro && typeof intro.showModal === 'function';
-  let introState = 'closed', introExitTimer = null;
-  // introState: 'closed' | 'open' | 'closing'. introOpen (usado por el resto del ciclo) = no cerrado.
-  const setIntroOpen = v => { introOpen = v; };
-  // V12-01: cierre REALMENTE idempotente. No retorna por un flag: se guía por el estado real del diálogo y
-  // ejecuta la limpieza pendiente aunque se interrumpa la salida (reduce, pausa, impresión, visibilidad).
-  function finalizeIntroClose() {
-    if (introExitTimer) { clearTimeout(introExitTimer); timers.delete(introExitTimer); introExitTimer = null; }
-    if (!intro) { introState = 'closed'; setIntroOpen(false); return; }
-    intro.classList.remove('off');
-    if (dialogSupported && intro.open) intro.close();
-    introState = 'closed'; setIntroOpen(false);
-  }
-  function openIntro() {
-    if (!intro) return;
-    // F08: reiniciar el estado visible de la intro antes de arrancar (no heredar la ejecución anterior).
-    if (introExitTimer) { clearTimeout(introExitTimer); timers.delete(introExitTimer); introExitTimer = null; }
-    introLines.forEach(l => l.classList.remove('on'));
-    const bar = intro.querySelector('[data-ibar]'); if (bar) bar.classList.remove('on');
-    intro.classList.remove('off');
-    // V12-05: degradación segura. Sin <dialog> modal nativo (o si showModal lanza), no se muestra un overlay no
-    // modal que oculte el foco del fondo: se omite la intro y la portada arranca en su estado final.
-    if (!dialogSupported) { introState = 'closed'; setIntroOpen(false); return; }
-    let opened = false;
-    try { if (!intro.open) { intro.showModal(); } opened = true; } catch (e) { opened = false; }
-    if (!opened) { introState = 'closed'; setIntroOpen(false); return; }
-    introState = 'open'; setIntroOpen(true);
-    // Si la página se abre con un ancla (p.ej. index.html#casos), el navegador puede llevar el foco al
-    // destino del fragmento en lugar de al diálogo, incluso tras showModal(). Forzamos el foco en Saltar en
-    // este turno y en el siguiente frame (después del salto al fragmento) para que Espacio/Enter lo activen.
-    if (skip) {
-      const focusSkip = () => { if (introState === 'open') { try { skip.focus({preventScroll: true}); } catch { try { skip.focus(); } catch {} } } };
-      focusSkip();
-      requestAnimationFrame(focusSkip);
-    }
-    introLines.forEach((l, i) => after(140 + i * 170, () => l.classList.add('on')));
-    if (bar) after(260, () => bar.classList.add('on'));
-    after(1500, () => closeIntro(false));
-  }
-  function closeIntro(instant) {
-    if (introState === 'closed') { finalizeIntroClose(); return; }
-    // Interrumpir (instant) desde cualquier estado, incluida la salida en curso, cierra de inmediato.
-    if (instant || introState === 'closing') { finalizeIntroClose(); return; }
-    introState = 'closing';
-    intro.classList.add('off');
-    introExitTimer = after(520, () => { introExitTimer = null; finalizeIntroClose(); });
-  }
-  if (skip) skip.addEventListener('click', () => closeIntro(true));
-  // El dialog nativo cierra con Escape por su cuenta: sincronizamos nuestro estado cuando ocurre.
-  // El dialog nativo dispara 'close' tanto por Escape como por nuestro intro.close(): dejamos el estado coherente.
-  if (intro) intro.addEventListener('close', () => { if (introExitTimer) { clearTimeout(introExitTimer); timers.delete(introExitTimer); introExitTimer = null; } intro.classList.remove('off'); introState = 'closed'; setIntroOpen(false); });
-
   // F02: mientras la secuencia corre, si una fila oculta recibe foco por teclado, se muestra de inmediato.
   const bootFocusReveal = event => { const row = event.target.closest && event.target.closest('.tl.trow, .tl'); if (row && session.classList.contains('boot')) row.classList.add('on'); };
-  function playHero() {
+  function playSession() {
     if (!session) return;
-    if (!playHero.bound) { session.addEventListener('focusin', bootFocusReveal); playHero.bound = true; }
-    session.classList.remove('done'); session.classList.add('boot'); stage && stage.classList.add('boot');
-    if (name) after(60, () => scramble(name, finalName, 900));
+    if (!playSession.bound) { session.addEventListener('focusin', bootFocusReveal); playSession.bound = true; }
+    session.classList.remove('done'); session.classList.add('boot');
     activate('term', 0);
     const bannerLines = termLines.filter(el => el.classList.contains('tb') && visible(el));
     let t = cmds[0] ? typeInto(cmds[0], 220, 70) : 220;
@@ -195,13 +133,12 @@
     if (repLines[3]) after(p0 + 1150, () => repLines[3].classList.add('on'));
     if (repLines[4]) after(p0 + 1250, () => repLines[4].classList.add('on'));
     session.querySelectorAll('.sev .sbi').forEach((b, i) => after(p0 + 1350 + i * 140, () => b.classList.add('on')));
-    after(Math.max(nmapDone, p0 + 2050), () => { session.classList.remove('boot'); stage && stage.classList.remove('boot'); session.classList.add('done'); Object.values(panes).forEach(p => p.classList.remove('active')); session.querySelectorAll('.on').forEach(el => el.classList.remove('on')); });
+    after(Math.max(nmapDone, p0 + 2050), () => { session.classList.remove('boot'); session.classList.add('done'); Object.values(panes).forEach(p => p.classList.remove('active')); session.querySelectorAll('.on').forEach(el => el.classList.remove('on')); });
   }
-  function play(withIntro) {
+  function play() {
     finish();
-    if (!running() || !session) return;
-    session.classList.remove('done');
-    if (withIntro && intro && dialogSupported) { openIntro(); after(1900, playHero); } else playHero();
+    if (!running() || !session || (sessionDisclosure && !sessionDisclosure.open)) return;
+    playSession();
   }
 
   // Fondo: red de nodos y paquetes en canvas (solo en la portada), con los colores del tema vigente.
@@ -282,11 +219,11 @@
     if (preference === 'paused') { finish(); removeCrt(); cancelTitle(); }
   }));
   replays.forEach(button => button.addEventListener('click', () => {
-    // F09: si la portada está fuera de pantalla, traerla a la vista y no abrir el overlay sobre otro contenido.
-    if (!onScreen) { if (stage && stage.scrollIntoView) stage.scrollIntoView({block: 'start', behavior: 'auto'}); onScreen = true; }
-    syncControls(); play(true);
+    // Repetir pertenece a la sesión extensa; no desplaza ni anima la presentación.
+    if (!onScreen) { session?.scrollIntoView({block: 'start', behavior: 'auto'}); onScreen = true; }
+    syncControls(); play();
   }));
-  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if (!introOpen) { finish(); cancelTitle(); } /* el <dialog> nativo cierra solo y dispara 'close' */ syncControls(); });
+  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; finish(); cancelTitle(); syncControls(); });
   const listen = (m, fn) => { if (!m) return; if (m.addEventListener) m.addEventListener('change', fn); else if (m.addListener) m.addListener(fn); };
   listen(reduced, () => { if (systemReduced()) { finish(); cancelTitle(); } syncControls(); });
   listen(printMedia, event => { printing = event.matches; if (printing) { finish(); cancelTitle(); } syncControls(); });
@@ -338,8 +275,8 @@
       button.addEventListener('click', () => selectStep(button.dataset.gstep));
       button.addEventListener('focus', () => selectStep(button.dataset.gstep));
     });
-    // Escape restablece el resumen cuando hay un paso seleccionado (y no se está en la intro).
-    document.addEventListener('keydown', event => { if (event.key === 'Escape' && gcurrent && !introOpen) clearStep(); });
+    // Escape restablece el resumen cuando hay un paso seleccionado.
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && gcurrent) clearStep(); });
   }
   // R07: el título interior se descifra al cargar, pero el ciclo de la sesión no debe cancelarlo. Solo se
   // agenda si de verdad se va a animar (running()) y no se toca el timer de la sesión. Si no, queda el texto final.
@@ -405,10 +342,11 @@
   // Animación y Repetir ya están cableados y con estado: se revelan (reservaban su espacio pero estaban invisibles).
   // Si motion.js no llega a ejecutarse, siguen ocultos en vez de aparecer habilitados sin responder.
   html.classList.add('motion-ready');
-  // Opening the optional terminal is the user's cue. Landing on the portfolio never opens a modal.
+  // Abrir, cerrar o restaurar la sesión siempre conserva el contenido completo.
+  // La secuencia sólo se ejecuta mediante Repetir.
   if (sessionDisclosure) sessionDisclosure.addEventListener('toggle', () => {
-    if (sessionDisclosure.open && running()) play(false); else finish();
+    finish();
     syncControls();
   });
-  if (sessionDisclosure?.open && running()) play(false); else finish();
+  finish();
 })();

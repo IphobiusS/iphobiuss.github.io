@@ -120,11 +120,39 @@
       event.preventDefault(); event.stopPropagation(); appearance.open = false; $('summary', appearance).focus();
     });
   }
-  // The terminal starts folded. Remember an explicit choice only within this tab.
+  // La sesión extensa recuerda la elección de esta pestaña. Un enlace directo
+  // tiene prioridad sobre una preferencia cerrada; no depende del almacenamiento.
   const sessionShell = $('.session-shell');
   if (sessionShell) {
-    try { sessionShell.open = sessionStorage.getItem('iphobiuss:session') === 'open'; } catch {}
+    try {
+      const saved = sessionStorage.getItem('iphobiuss:session');
+      if (saved === 'open' || saved === 'closed') sessionShell.open = saved === 'open';
+    } catch { /* El control nativo sigue disponible. */ }
     sessionShell.addEventListener('toggle', () => { try { sessionStorage.setItem('iphobiuss:session', sessionShell.open ? 'open' : 'closed'); } catch {} });
+    const sessionHash = sessionShell.id ? '#' + sessionShell.id : '';
+    const focusSession = () => {
+      const summary = $('summary', sessionShell);
+      if (summary) summary.focus({preventScroll: true});
+    };
+    const restoreSession = () => {
+      if (!sessionHash || location.hash !== sessionHash) return;
+      sessionShell.open = true;
+      focusSession();
+      sessionShell.scrollIntoView({block: 'start', behavior: 'auto'});
+    };
+    $$('a[data-open-session]').forEach(anchor => anchor.addEventListener('click', event => {
+      if (!sessionHash || anchor.getAttribute('href') !== sessionHash || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      sessionShell.open = true;
+      // El enlace conserva el fragmento y el historial nativos, incluido Atrás.
+      // También funciona al repetir el mismo fragmento con la sesión cerrada.
+      requestAnimationFrame(() => { if (location.hash === sessionHash) focusSession(); });
+    }));
+    window.addEventListener('hashchange', restoreSession);
+    window.addEventListener('popstate', restoreSession);
+    // El salto inicial al fragmento puede ocurrir después de ejecutar el script.
+    // pageshow también restaura el foco cuando se vuelve desde la caché de navegación.
+    window.addEventListener('pageshow', restoreSession);
+    restoreSession();
   }
   // 404: la ruta que no existe, tal cual la pidió el navegador (como texto, nunca como HTML).
   $$('[data-missing-path]').forEach(el => {
