@@ -3,6 +3,7 @@
  */
 'use strict';
 const fs = require('node:fs'), path = require('node:path'), http = require('node:http'), assert = require('node:assert/strict');
+const crypto = require('node:crypto'), os = require('node:os');
 const playwright = require('playwright');
 const { axeSource } = require('./qa-deps.cjs');
 const root = path.resolve(process.env.SITE_COMPAT_DIST || path.join(__dirname, '../dist'));
@@ -13,6 +14,16 @@ const headed = process.env.SITE_COMPAT_HEADED === '1';
 assert.ok(engines.length && engines.every(name => ['chromium', 'firefox', 'webkit'].includes(name)), 'Unknown browser engine');
 const routes = fs.readdirSync(root).filter(file => file.endsWith('.html')).sort();
 assert.ok(routes.length, 'Build the website before running browser checks');
+const distributionFiles = {};
+function fingerprintDirectory(directory) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name, 'en'))) {
+    const file = path.join(directory, entry.name);
+    assert.ok(!entry.isSymbolicLink(), 'Published resources must not be symlinks');
+    if (entry.isDirectory()) fingerprintDirectory(file);
+    else if (entry.isFile()) distributionFiles[path.relative(root, file).split(path.sep).join('/')] = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  }
+}
+fingerprintDirectory(root);
 fs.mkdirSync(output, { recursive: true });
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.pdf': 'application/pdf', '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.json': 'application/json' };
 const fileFor = url => path.resolve(root, '.' + (new URL(url).pathname === '/' ? '/index.html' : decodeURIComponent(new URL(url).pathname)));
@@ -27,8 +38,12 @@ const server = http.createServer((request, response) => {
 });
 const results = [], versions = {}, completedEngines = []; let browser, engine, base;
 const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify({
+  sourceRevision: process.env.GITHUB_SHA || null,
+  operatingSystem: { platform: process.platform, release: os.release(), architecture: process.arch },
   requestedEngines: engines, versions, browserMode: headed ? 'headed' : 'headless', testedRoutes: routes, budgets: budget,
+  distribution: { fileCount: Object.keys(distributionFiles).length, files: distributionFiles },
   completedEngines,
+  completeRequestedEngineCoverage: engines.every(name => completedEngines.includes(name)),
   completeRequiredEngineCoverage: ['firefox', 'webkit'].every(name => completedEngines.includes(name)),
   limitations: ['WebKit is not native Safari.', 'Automated accessibility checks are not a human screen-reader evaluation.', 'Byte/request budgets are not field Web Vitals or network-time guarantees.'],
   passed: results.filter(result => result.passed).length, total: results.length, results,

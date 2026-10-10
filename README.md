@@ -46,7 +46,7 @@ Las tarjetas sociales se generan localmente. Los informes de ejemplo mantienen s
 
 ## Editar y publicar
 
-Trabaja sobre `source`. Un push a esa rama ejecuta `.github/workflows/site.yml`: instalación con dependencias fijadas, construcción desde cero, segunda reconstrucción idéntica, enlaces y pruebas de navegador. Sólo después de aprobarlas genera un commit en `main` con el contenido de `dist/`, conservando el historial y rechazando cambios concurrentes.
+Trabaja sobre `source`. Un push a esa rama ejecuta `.github/workflows/site.yml`: instalación con dependencias fijadas, construcción desde cero, segunda reconstrucción idéntica, enlaces y pruebas de navegador. Chromium y Firefox se validan en Ubuntu; WebKit ejecuta la misma batería de compatibilidad en macOS 15 sobre los archivos construidos en Linux. Sólo después de aprobar ambos trabajos genera un commit en `main` con el contenido de `dist/`, conservando el historial y rechazando cambios concurrentes.
 
 El workflow solicita expresamente la construcción de GitHub Pages y espera a que termine: los commits hechos con `GITHUB_TOKEN` no la disparan automáticamente. Finalmente compara los archivos públicos byte a byte. Usa los permisos `contents: write` y `pages: write` únicamente en el trabajo de publicación; no necesita un token personal. Las pull requests se validan y no publican.
 
@@ -86,11 +86,22 @@ Las comprobaciones automáticas no sustituyen una revisión humana de accesibili
 
 `test:performance` controla pesos estáticos; `test:compatibility` recorre Firefox y WebKit, comprueba entrada, teclado, temas, filtros, CV, 320 px con texto al 200 % y las rutas móviles. El presupuesto inicial por página es 1 MiB sin comprimir y 24 peticiones. Son medidas locales de recursos, no métricas de visitantes ni puntuaciones de velocidad. WebKit no acredita Safari nativo. La revisión humana con lector de pantalla sigue pendiente y debe registrar sistema, navegador, lector, tarea, resultado y evidencia.
 
-En CI, la batería de compatibilidad ejecuta ambos motores con ventana sobre Xvfb. Esto permite observar la composición de la entrada en el puerto GTK de WebKit para Linux; el modo headless usa el puerto WPE. Para reproducir esa configuración, instala también las dependencias del navegador y ejecuta:
+En CI, Firefox se ejecuta con ventana sobre Xvfb en Ubuntu y WebKit con ventana en macOS 15. WebKit conserva las mismas pruebas de transición, navegación, descargas y funcionamiento sin JavaScript; no se sustituye el motor ni se omiten recorridos. Esta ejecución de WebKit tampoco equivale a una revisión manual de Safari.
+
+Para reproducir Firefox en Linux:
 
 ```bash
-npx playwright install --with-deps chromium firefox webkit
-SITE_COMPAT_HEADED=1 xvfb-run -a npm run test:compatibility
+npx playwright install --with-deps chromium firefox
+SITE_COMPAT_BROWSERS=firefox SITE_COMPAT_HEADED=1 xvfb-run -a npm run test:compatibility
 ```
 
-La prueba conserva los mismos tiempos y exige una muestra real de ambas superficies desvaneciéndose después de «Bienvenido». `audit-v14.6/compatibility/results.json` registra el modo de ejecución y los motores completados; los archivos `*-intro-trace.json` conservan las muestras y eventos de la entrada. Ante un fallo, el diagnóstico completo también se imprime en el registro de CI. Esos resultados son temporales y no se publican con el sitio.
+Para reproducir WebKit en macOS sobre una distribución construida previamente:
+
+```bash
+npx playwright install webkit
+SITE_COMPAT_BROWSERS=webkit SITE_COMPAT_HEADED=1 npm run test:compatibility
+```
+
+El trabajo de macOS descarga el `dist/` aprobado en Linux, incluido `.nojekyll`, y comprueba cada archivo por SHA-256 antes de probarlo. La publicación exige que ambos trabajos terminen correctamente, que sus recibos pertenezcan al mismo commit y que los archivos reconstruidos coincidan con los probados por ambos motores.
+
+`audit-v14.6/compatibility/results.json` registra sistema, modo de ejecución, inventario de archivos y motores completados. Cada trabajo acredita únicamente su motor; la cobertura conjunta se verifica antes de publicar y queda resumida en GitHub Actions. Los archivos `*-intro-trace.json` conservan muestras y eventos reales del desvanecimiento. Ante un fallo, el diagnóstico también se imprime en CI. Los artefactos de distribución y evidencia se conservan siete días en esa ejecución, separados de los archivos públicos del sitio.
