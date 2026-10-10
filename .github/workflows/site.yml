@@ -41,14 +41,24 @@ jobs:
           npm run test:publish
           npm run test:links
           npm run test:report-assets
-      - name: Browser regressions
+      - name: Verify Matrix entrance
+        run: npm run test:intro
+      - name: Verify portfolio and reporting evidence
         run: |
-          npm run test:intro
-          npm run test:evolution
-          npm run test:home-actions
-          npm run test:journey
-          npm run test:graphs
-          npm run test:layout
+          npm run test:portfolio
+          npm run test:report-status
+      - name: Verify search filters
+        run: npm run test:search-filters
+      - name: Verify exercise and English routes
+        run: npm run test:evolution
+      - name: Verify homepage actions
+        run: npm run test:home-actions
+      - name: Verify guided journey
+        run: npm run test:journey
+      - name: Verify case graphs
+        run: npm run test:graphs
+      - name: Audit all layouts and accessibility
+        run: npm run test:layout
 
   publish:
     if: github.ref == 'refs/heads/source' && github.event_name != 'pull_request'

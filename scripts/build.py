@@ -8,6 +8,9 @@ from copy import deepcopy
 import site_evolution as evolution
 import site_evolution_142 as evolution_142
 import site_intro
+import site_portfolio_144
+import site_search_144
+import site_report_status_144
 import ai_boundary_case
 from site_assets import prepare_assets
 import re, json, hashlib, base64, unicodedata, math, datetime
@@ -23,7 +26,7 @@ BASE='https://iphobiuss.github.io/'
 # Las rutas utilitarias se pueden rastrear para leer el noindex, pero no son páginas de contenido.
 NOINDEX_PAGES=frozenset({'404.html','buscar.html','cuaderno.html'})
 DATE='2026-10-05'
-PAGE_EDITIONS={'cap-caso.html':'2026-10-09','forest-caso.html':'2026-10-09','index.html':'2026-10-10','proyectos.html':'2026-10-09','forest.html':'2026-10-08','sauna.html':'2026-10-08','cascade.html':'2026-10-08','tecnicas.html':'2026-10-08'}
+PAGE_EDITIONS={'cap-caso.html':'2026-10-10','forest-caso.html':'2026-10-10','index.html':'2026-10-10','proyectos.html':'2026-10-10','forest.html':'2026-10-08','sauna.html':'2026-10-08','cascade.html':'2026-10-08','tecnicas.html':'2026-10-08'}
 EDITION='5 oct 2026'
 NAME='Sebastián Latorre Muñoz'
 LINKEDIN='https://www.linkedin.com/in/sebastian-latorre-munoz/'
@@ -215,9 +218,9 @@ def document(filename,title,description,body,active='',article=False,social=None
  # de forma intermitente al navegar con el movimiento en pausa).
  js_class_script='(()=>{const h=document.documentElement;h.classList.add("js");try{if(localStorage.getItem("iphobiuss:motion")==="paused")h.setAttribute("data-paused","");const r=localStorage.getItem("iphobiuss:retro")==="on",p=localStorage.getItem("iphobiuss:theme")==="paper"&&!r;if(r)h.setAttribute("data-retro","on");if(p)h.setAttribute("data-theme","paper");const m=document.querySelector("meta[name=theme-color]");if(m)m.content=p?"#f4f1e8":r?"#091109":"#0a0d0b"}catch(e){}})();'
  if filename=='buscar.html':
-  # Reserve only URL-query hydration; a normal empty search has no artificial gap.
+  # Reserve result hydration for shared query/filter URLs; an empty search has no artificial gap.
   # Recover the native catalog even when site.js, the index or search-core fails.
-  js_class_script+='(()=>{const h=document.documentElement;if((new URLSearchParams(location.search).get("q")||"").trim())h.classList.add("search-pending-query");addEventListener("load",()=>{if(!h.classList.contains("search-ready"))h.classList.add("search-unavailable")},{once:true})})();'
+  js_class_script+='(()=>{const h=document.documentElement;const p=new URLSearchParams(location.search);if((p.get("q")||"").trim()||["casos","guias","herramientas","tecnicas","fundamentos","proyectos","portafolio"].includes(p.get("tipo"))||["es","en"].includes(p.get("idioma")))h.classList.add("search-pending-query");addEventListener("load",()=>{if(!h.classList.contains("search-ready"))h.classList.add("search-unavailable")},{once:true})})();'
  jh=base64.b64encode(hashlib.sha256(js_class_script.encode()).digest()).decode()
  social_meta=''
  if image:
@@ -277,6 +280,9 @@ def document(filename,title,description,body,active='',article=False,social=None
  for t in tree.xpath('//*[@style]'):
   if t.tag!='svg':del t.attrib['style']
  evolution_142.enhance_document(filename,tree)
+ site_portfolio_144.enhance_document(filename,tree)
+ site_search_144.enhance_document(filename,tree)
+ site_report_status_144.enhance_document(filename,tree)
  site_intro.enhance_document(filename,tree)
  decorate_code(tree,title)
  result='<!doctype html>\n'+serialize(tree)
@@ -943,6 +949,7 @@ def main():
  build_cases();build_bank_case();evolution.build_routes(document,page_head,record,REPORT,ROOT);build_home()
  ai_boundary_case.build_case(document,page_head,record,ROOT)
  evolution_142.build_routes(document,page_head,record,REPORT,ROOT)
+ site_portfolio_144.build_routes(document,page_head,record,ROOT)
  build_search();build_feed()
  document('404.html','Página no encontrada','La página solicitada no existe. Busca en la base de conocimiento de iphobiuss.',page_head('Página no encontrada','Puedes buscar el contenido o volver al laboratorio.',folder='readme',path='404')+'<div class="shell narrow"><div class="tty tty-404"><p class="prompt"><span class="tph">┌──(iphobiuss@lab)-[~/iphobiuss]\n└─$ </span><span class="tcmd">cat <span data-missing-path>la-ruta-solicitada</span></span></p><p class="prompt-output">cat: <span data-missing-path>la-ruta-solicitada</span>: No existe el archivo o el directorio</p><p class="prompt"><span class="tph">┌──(iphobiuss@lab)-[~/iphobiuss]\n└─$ </span><span class="tcmd">ls</span></p><p class="prompt-ls">guias/  tecnicas/  herramientas/  proyectos/  README.md</p></div><p class="lead">Prueba el buscador o vuelve al laboratorio.</p>'+search_form('404')+'<div class="actions"><a class="button primary" href="index.html">Volver al laboratorio</a></div></div>')
  (OUT/'.nojekyll').write_text('',encoding='utf-8')

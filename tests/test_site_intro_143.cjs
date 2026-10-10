@@ -4,7 +4,7 @@ const fs = require('node:fs'), path = require('node:path'), http = require('node
 const { chromium } = require('playwright');
 const { axeSource } = require('./qa-deps.cjs');
 const root = path.resolve(process.env.SITE_INTRO_DIST || path.join(__dirname, '../dist'));
-const output = path.resolve(process.env.SITE_INTRO_OUTPUT || path.join(__dirname, '../audit-v14.3/intro'));
+const output = path.resolve(process.env.SITE_INTRO_OUTPUT || path.join(__dirname, '../audit-v14.4/intro'));
 fs.mkdirSync(output, { recursive: true });
 const checks = []; let browser, base;
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp' };
@@ -78,9 +78,9 @@ async function clean(page, errors) {
 function expectOneCycle(audit) {
   assert.deepEqual(audit.events.map(event => event.open), [true, false]);
   const duration = audit.events[1].at - audit.events[0].at;
-  // The product closes after 1120 ms. Allow 680 ms of scheduler delay on CI;
+  // The product closes after 2500 ms. Allow 700 ms of scheduler delay on CI;
   // the separate 1800 ms navigation guard controls whether it may open at all.
-  assert.ok(duration <= 1800, 'intro must promptly release the page; measured ' + duration + ' ms');
+  assert.ok(duration <= 3200, 'intro must promptly release the page; measured ' + duration + ' ms');
   return { durationMs: Math.round(duration), navigation: audit.navigation };
 }
 async function noOpening(page) {
@@ -104,9 +104,14 @@ async function dismiss(page) {
 
   await check('first arrival opens once and releases the page automatically', async () => {
     const { context, page, errors } = await fresh();
-    await page.goto(base + '/index.html'); await closed(page);
+    await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' }); await opened(page);
+    const rainBefore = await page.locator('.intro-rain>span').first().evaluate(node => getComputedStyle(node).transform);
+    await page.waitForTimeout(140);
+    const rainAfter = await page.locator('.intro-rain>span').first().evaluate(node => getComputedStyle(node).transform);
+    assert.notEqual(rainAfter, rainBefore, 'the decorative symbols visibly move down while the terminal is open');
+    await closed(page);
     const result = expectOneCycle(await state(page));
-    assert.ok(result.durationMs >= 900, 'the intended intro actually played');
+    assert.ok(result.durationMs >= 2400, 'the intended intro actually played');
     assert.equal(await page.evaluate(() => sessionStorage.getItem('iphobiuss:intro')), '1');
     await clean(page, errors); await context.close(); return result;
   });
@@ -263,11 +268,16 @@ async function dismiss(page) {
     const geometry = await page.locator('[data-site-intro]').evaluate(dialog => {
       const box = dialog.getBoundingClientRect(), skip = dialog.querySelector('[data-intro-skip]'), button = skip.getBoundingClientRect();
       const titlebar = dialog.querySelector('.intro-titlebar').getBoundingClientRect();
+      const rain = dialog.querySelector('.intro-rain');
+      const backdrop = getComputedStyle(dialog, '::backdrop');
+      const opacity = { dialog: getComputedStyle(dialog).backgroundColor, backdrop: backdrop.backgroundColor, backdropOpacity: backdrop.opacity };
+      const cornerTargets = [[1, 1], [innerWidth - 1, 1], [1, innerHeight - 1], [innerWidth - 1, innerHeight - 1]].map(([x, y]) => document.elementFromPoint(x, y) === dialog);
+      const matrix = { count: rain.children.length, decorative: rain.getAttribute('aria-hidden') === 'true', animation: getComputedStyle(rain.firstElementChild).animationName, movement: getComputedStyle(rain.firstElementChild).transform };
       const clipped = [];
       const walker = document.createTreeWalker(dialog, NodeFilter.SHOW_TEXT);
       while (walker.nextNode()) {
         const text = walker.currentNode;
-        if (!text.textContent.trim() || text.parentElement.closest('.sr-only')) continue;
+        if (!text.textContent.trim() || text.parentElement.closest('.sr-only,.intro-rain')) continue;
         const style = getComputedStyle(text.parentElement);
         if (style.visibility === 'hidden' || style.display === 'none') continue;
         const range = document.createRange(); range.selectNodeContents(text);
@@ -293,9 +303,13 @@ async function dismiss(page) {
         const a = luminance(rgb(foreground)), b = luminance(rgb(background));
         return { selector: node.className || node.tagName, foreground, background, ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) };
       });
-      return { open: dialog.open, dialog: { left: box.left, right: box.right, top: box.top, bottom: box.bottom, scrollTop: dialog.scrollTop }, titlebar: { top: titlebar.top, bottom: titlebar.bottom }, button: { width: button.width, height: button.height, top: button.top, bottom: button.bottom }, viewport: { width: innerWidth, height: innerHeight }, horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1, clipped, finalStateContrast: contrast };
+      return { open: dialog.open, opacity, cornerTargets, matrix, dialog: { left: box.left, right: box.right, top: box.top, bottom: box.bottom, scrollTop: dialog.scrollTop }, titlebar: { top: titlebar.top, bottom: titlebar.bottom }, button: { width: button.width, height: button.height, top: button.top, bottom: button.bottom }, viewport: { width: innerWidth, height: innerHeight }, horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1, clipped, finalStateContrast: contrast };
     });
     assert.equal(geometry.open, true, 'geometry measured while the intro is visible');
+    assert.deepEqual(geometry.opacity, { dialog: 'rgb(2, 8, 6)', backdrop: 'rgb(2, 8, 6)', backdropOpacity: '1' }, 'both fullscreen dialog and native backdrop are completely opaque');
+    assert.deepEqual(geometry.cornerTargets, [true, true, true, true], 'the intro covers every viewport corner');
+    assert.equal(geometry.matrix.decorative, true); assert.equal(geometry.matrix.count, 30);
+    assert.equal(geometry.matrix.animation, 'intro-rain'); assert.notEqual(geometry.matrix.movement, 'none');
     assert.equal(geometry.horizontalOverflow, false); assert.deepEqual(geometry.clipped, []);
     assert.ok(geometry.dialog.left >= -1 && geometry.dialog.right <= width + 1, 'dialog fits viewport width');
     assert.ok(geometry.dialog.top >= -1 && geometry.dialog.bottom <= 901, 'dialog fits viewport height');
@@ -316,7 +330,7 @@ async function dismiss(page) {
     if ((textScale === 100 && ((width === 1440 && ['dark', 'paper'].includes(theme)) || (width === 320 && theme === 'dark'))) || (textScale === 200 && width === 320 && theme === 'dark')) {
       screenshot = `intro-${theme}-${width}${textScale === 200 ? '-text200' : ''}.png`;
       // Capture the completed decorative lines, without extending the real intro.
-      const remaining = await page.evaluate(() => 900 - (performance.now() - window.__introAudit.events[0].at));
+      const remaining = await page.evaluate(() => 1750 - (performance.now() - window.__introAudit.events[0].at));
       if (remaining > 0) await page.waitForTimeout(remaining);
       assert.ok(await page.locator('[data-site-intro]').evaluate(dialog => dialog.open));
       await page.screenshot({ path: path.join(output, screenshot), fullPage: false });

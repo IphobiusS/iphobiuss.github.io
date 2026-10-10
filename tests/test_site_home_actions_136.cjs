@@ -15,8 +15,8 @@ const check = async (name, action) => { console.log(name); try { const detail = 
 const ready = async page => { await page.evaluate(() => document.fonts.ready); const skip = page.locator('[data-intro][open] [data-intro-skip]'); if (await skip.count()) await skip.click(); };
 const expectActions = async page => {
  assert.deepEqual(await page.locator('.welcome-actions .button').evaluateAll(nodes => nodes.map(node => [node.textContent.trim(), node.getAttribute('href')])), [['Ver proyectos', 'proyectos.html#report-gen'], ['Ver casos', '#casos']]);
- const secondary = page.locator('.welcome-links a'); assert.equal(await secondary.count(), 2);
- assert.deepEqual(await secondary.evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['#contacto', 'recorrido.html']);
+ const secondary = page.locator('.welcome-links a'); assert.equal(await secondary.count(), 3);
+ assert.deepEqual(await secondary.evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['#contacto', 'recorrido.html', 'downloads/cv-sebastian-latorre.pdf']);
  const external = page.locator('.home-contact a[href*="linkedin.com"]');
  assert.equal(await external.getAttribute('target'), '_blank'); assert.match(await external.getAttribute('rel'), /\bnoopener\b/);
  assert.match(await external.textContent(), /abre otra pestaña/);
@@ -39,7 +39,7 @@ const expectActions = async page => {
   return { label: node.innerText, x: rect.x, width: rect.width, height: rect.height, clipped: ranges.some(box => box.left < rect.left - 1 || box.right > rect.right + 1 || box.top < rect.top - 1 || box.bottom > rect.bottom + 1), underline: style.textDecorationLine };
  }));
  for (const item of bounds) { assert.ok(item.height >= 44, item.label + ': small target'); assert.ok(!item.clipped, item.label + ': text clipped'); assert.ok(item.x >= -1 && item.x + item.width <= (await page.evaluate(() => innerWidth)) + 1, item.label + ': outside viewport'); }
- for (const item of bounds.slice(2, 4)) assert.match(item.underline, /underline/);
+ for (const item of bounds.slice(2, 5)) assert.match(item.underline, /underline/);
  return bounds;
 };
 const axe = async page => { await page.evaluate(axeSource); const result = await page.evaluate(() => axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(result => ({ violations: result.violations.map(item => ({ id: item.id, nodes: item.nodes.map(node => node.target) })) }))); assert.deepEqual(result.violations, []); return { executed: true, ...result }; };
@@ -53,8 +53,8 @@ const write = fatal => { fs.mkdirSync(path.dirname(output), { recursive: true })
    await context.addInitScript(theme => { sessionStorage.setItem('iphobiuss:intro', '1'); if (theme === 'paper') localStorage.setItem('iphobiuss:theme', 'paper'); if (theme === 'retro') localStorage.setItem('iphobiuss:retro', 'on'); }, theme);
    const page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message)); await page.goto(base + '/index.html');
    if (textScale === 200) await page.addStyleTag({ content: 'html{font-size:200%!important}' }); await ready(page); const bounds = await expectActions(page);
-   const links = page.locator(heroLinks); assert.equal(await links.count(), 8); await links.first().focus();
-   for (let index = 0; index < 8; index++) { assert.ok(await links.nth(index).evaluate(node => node === document.activeElement), 'keyboard order ' + index); assert.ok(await links.nth(index).evaluate(node => node.matches(':focus-visible')), 'visible keyboard focus ' + index); assert.ok(await links.nth(index).evaluate(node => { const r = node.getBoundingClientRect(), header = document.querySelector('.site-header')?.getBoundingClientRect(); return r.top >= (header?.bottom || 0) - 1 && r.bottom <= innerHeight + 1; }), 'focused target remains fully visible ' + index); if (index < 7) await page.keyboard.press('Tab'); }
+   const links = page.locator(heroLinks); assert.equal(await links.count(), 9); await links.first().focus();
+   for (let index = 0; index < 9; index++) { assert.ok(await links.nth(index).evaluate(node => node === document.activeElement), 'keyboard order ' + index); assert.ok(await links.nth(index).evaluate(node => node.matches(':focus-visible')), 'visible keyboard focus ' + index); assert.ok(await links.nth(index).evaluate(node => { const r = node.getBoundingClientRect(), header = document.querySelector('.site-header')?.getBoundingClientRect(); return r.top >= (header?.bottom || 0) - 1 && r.bottom <= innerHeight + 1; }), 'focused target remains fully visible ' + index); if (index < 8) await page.keyboard.press('Tab'); }
    // Tab to the footer may leave an unfocused 48 px action partly beyond the viewport.
    // Measure the full document from a stable scroll position; no nodes or axe rules are excluded.
    await page.evaluate(() => { scrollTo(0, 0); return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); });

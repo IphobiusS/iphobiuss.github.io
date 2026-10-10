@@ -1,0 +1,36 @@
+/* The same dated evidence card in Spanish and English, readable without JavaScript. */
+.report-status,
+.professional-route>.report-status{
+  margin-block:2rem;
+  padding:1.5rem;
+  border:1px solid var(--line-strong);
+  border-radius:6px;
+  background:var(--surface);
+  scroll-margin-top:6rem;
+  overflow-wrap:anywhere;
+}
+.report-status h2{margin:0 0 .75rem;font:600 1.5rem/1.4 var(--sans)}
+.report-status .report-status-intro{margin:0;color:var(--dim);max-width:76ch}
+.report-status-facts{display:grid;grid-template-columns:minmax(5rem,.55fr) minmax(10rem,1fr) minmax(0,2fr);gap:1rem 1.5rem;margin:1.25rem 0;padding-bottom:1.25rem;border-bottom:1px solid var(--line-strong)}
+.report-status-facts>div{min-width:0}
+.report-status-facts dt{margin:0 0 .35rem;font:500 .8rem/1.5 var(--mono);color:var(--dim)}
+.report-status-facts dd{margin:0;font-weight:500}
+.report-status-facts code{padding:0;background:none;font-size:.8rem;overflow-wrap:anywhere;word-break:normal}
+.report-status-details{margin:0}
+.report-status-details>summary{cursor:pointer;font-weight:600;line-height:1.6;padding:.5rem 0}
+.report-status-details[open]>summary{margin-bottom:1rem}
+.report-status-checks{list-style:none;padding:0;margin:0;display:grid;gap:1.25rem}
+.report-status-checks>li{margin:0;padding:0;min-width:0}
+.report-status h3{margin:0 0 .4rem;font:600 1rem/1.5 var(--sans)}
+.report-status-checks p,.report-status-pending p{margin:0;max-width:85ch}
+.report-status-links{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;margin-top:.4rem}
+.report-status-links a{font-size:.9rem;text-underline-offset:.2em}
+.report-status-pending{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line-strong)}
+.report-status .report-status-limits{margin:1rem 0 0;color:var(--dim);font-size:.9rem;max-width:90ch}
+@media(max-width:700px){
+  .report-status,.professional-route>.report-status{padding:1rem;margin-block:1.5rem}
+  .report-status-facts{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem}
+  .report-status-revision{grid-column:1/-1}
+}
+@media(max-width:360px){.report-status-facts{grid-template-columns:minmax(0,1fr)}.report-status-revision{grid-column:auto}}
+@media print{.report-status,.professional-route>.report-status{padding:1rem;background:none;break-inside:auto}.report-status-checks>li,.report-status-pending{break-inside:avoid}}

@@ -23,8 +23,26 @@
     'sql injection': ['sql injection', 'sqli', 'sqlmap', 'inyeccion sql'],
     'inyeccion sql': ['inyeccion sql', 'sql injection', 'sqli', 'sqlmap']
   };
+  // These are actual translated routes, not guesses from keywords or suffixes.
+  const englishRoutes = new Set(['english.html', 'report-gen-en.html', 'cap-case-en.html', 'forest-case-en.html', 'engineering-notes.html']);
+  const routeTypes = {
+    'english.html': 'portafolio', 'report-gen-en.html': 'proyectos',
+    'cap-case-en.html': 'casos', 'forest-case-en.html': 'casos',
+    'engineering-notes.html': 'portafolio', 'bitacora.html': 'portafolio'
+  };
+  const kindTypes = {
+    'Caso': 'casos', 'Simulación': 'casos', 'Laboratorio': 'casos',
+    'Guía': 'guias', 'Herramienta': 'herramientas', 'Cheatsheet': 'herramientas',
+    'Técnica': 'tecnicas', 'Fundamento': 'fundamentos', 'Glosario': 'fundamentos',
+    'Proyecto': 'proyectos', 'Demo': 'proyectos'
+  };
   function prepare(records) {
-    return records.map((record, index) => ({...record, _i: index, _title: normalize(record.title), _category: normalize(record.category || ''), _text: normalize(record.text || '')}));
+    return records.map((record, index) => {
+      const route = String(record.url || '').split(/[?#]/)[0].replace(/^\.\//, '').replace(/^\//, '');
+      return {...record, _i: index, _type: routeTypes[route] || kindTypes[record.kind] || 'portafolio',
+        _language: englishRoutes.has(route) ? 'en' : 'es',
+        _title: normalize(record.title), _category: normalize(record.category || ''), _text: normalize(record.text || '')};
+    });
   }
   function termMatches(haystack, term) {
     if (!term) return false;

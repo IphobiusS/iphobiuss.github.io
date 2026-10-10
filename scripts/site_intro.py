@@ -2,6 +2,7 @@
 import base64
 import hashlib
 import re
+from html import escape
 
 from lxml import html
 
@@ -67,7 +68,7 @@ BOOTSTRAP = r'''(() => {
   window.__iphobiussIntro = {close};
   dialog.hidden = false;
   try { dialog.showModal(); } catch { close('unavailable'); return; }
-  timer = setTimeout(() => close('complete'), 1120);
+  timer = setTimeout(() => close('complete'), 2500);
 })();'''
 
 
@@ -98,7 +99,15 @@ def enhance_document(filename, tree):
         'note': ('On entry or reload. Respects paused and reduced motion.' if english else
                  'Al entrar o recargar. Respeta la pausa y el movimiento reducido.'),
     }
+    # Fixed, decorative symbols only: no network activity or user data.
+    alphabet = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789{}[]<>/=+*'
+    streams = ''.join(
+        '<span>' + escape('\n'.join(alphabet[(column * 13 + row * 7) % len(alphabet)] for row in range(48))) + '</span>'
+        for column in range(30)
+    )
     dialog = html.fragment_fromstring(f'''<dialog id="site-intro" class="site-intro" data-site-intro data-intro hidden aria-label="{labels['name']}" aria-describedby="intro-description">
+      <div class="intro-rain" aria-hidden="true">{streams}</div>
+      <div class="intro-card">
       <div class="intro-titlebar"><span class="intro-window-marks" aria-hidden="true"><i></i><i></i><i></i></span><span>iphobiuss:~</span></div>
       <div class="intro-terminal" aria-hidden="true">
         <div class="intro-command"><span class="intro-prompt">$</span><span class="intro-typed">./portfolio</span><span class="intro-cursor"></span></div>
@@ -107,6 +116,7 @@ def enhance_document(filename, tree):
         <div class="intro-line intro-line-ready"><span class="intro-prompt">&gt;</span> {labels['welcome']}</div>
       </div>
       <div class="intro-footer"><p id="intro-description">{labels['description']}</p><button class="button intro-skip" type="button" data-intro-skip autofocus>{labels['skip']}<span aria-hidden="true"> ↵</span></button></div>
+      </div>
     </dialog>''')
     body = tree.find('body')
     body.insert(0, dialog)

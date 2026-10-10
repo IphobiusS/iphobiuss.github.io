@@ -521,6 +521,34 @@
     const field = $('input[name=q]'), form = field.closest('form'), count = $('#search-count'), empty = $('#search-empty');
     const records = window.SiteSearch.prepare(window.SEARCH_INDEX);
     const list = $('#search-results');
+    const typeChoice = $('[data-search-type]'), languageChoice = $('[data-search-language]');
+    const clearFilters = $('[data-search-filters-clear]'), clearQuery = $('[data-search-reset-query]');
+    const hasFilters = () => !!(typeChoice?.value || languageChoice?.value);
+    const fits = (record, type = typeChoice?.value, language = languageChoice?.value) => (!type || record._type === type) && (!language || record._language === language);
+    const readUrl = () => {
+      const params = new URLSearchParams(location.search);
+      field.value = (params.get('q') || '').slice(0, 200);
+      for (const [control, key] of [[typeChoice, 'tipo'], [languageChoice, 'idioma']]) {
+        if (control) control.value = [...control.options].some(option => option.value === params.get(key)) ? params.get(key) : '';
+      }
+    };
+    function updateFacets(candidates) {
+      for (const [control, dimension] of [[typeChoice, 'type'], [languageChoice, 'language']]) {
+        if (!control) continue;
+        for (const option of control.options) {
+          const matches = candidates.filter(record => dimension === 'type' ? fits(record, option.value, languageChoice?.value) : fits(record, typeChoice?.value, option.value)).length;
+          option.textContent = `${option.dataset.label} (${matches})`;
+        }
+      }
+      // Native selects can truncate their displayed value with enlarged text.
+      // The mobile visual summary wraps; accessible native labels stay unchanged.
+      for (const [target, control, label] of [['[data-search-selected-type]', typeChoice, 'Tipo'], ['[data-search-selected-language]', languageChoice, 'Idioma']]) {
+        const summary = $(target);
+        if (summary && control) summary.textContent = `${label}: ${control.selectedOptions[0].textContent}`;
+      }
+      if (clearFilters) clearFilters.disabled = !hasFilters();
+      if (clearQuery) clearQuery.hidden = !query;
+    }
     const more = document.createElement('button'); more.type = 'button'; more.className = 'button'; more.textContent = 'Mostrar más resultados'; more.hidden = true; more.setAttribute('aria-controls', list.id); list.after(more);
     let results = [], shown = 0, query = '', timer;
     const companions = new Set(['prometeo', 'evaristo', 'prometeo y evaristo', 'sudo gracias', 'whoami companions']);
@@ -554,10 +582,11 @@
       let firstNewLink = null;
       for (const record of results.slice(shown, end)) {
         const li = document.createElement('li'); li.className = 'result-item';
-        const a = document.createElement('a'); a.href = record.url;
+        const a = document.createElement('a'); a.href = record.url; a.hreflang = record._language; a.lang = record._language;
         if (!firstNewLink) firstNewLink = a;
-        const meta = document.createElement('p'); meta.className = 'result-meta';
-        const type = document.createElement('span'); type.className = 'result-type'; type.textContent = record.kind; meta.appendChild(type);
+        const meta = document.createElement('p'); meta.className = 'result-meta'; meta.lang = 'es';
+        const type = document.createElement('span'); type.className = 'result-type'; type.textContent = record.kind === 'English' ? ({casos: 'Caso', proyectos: 'Proyecto', portafolio: 'Portafolio'}[record._type] || record.kind) : record.kind; meta.appendChild(type);
+        const language = document.createElement('span'); language.className = 'result-language'; language.lang = record._language; language.textContent = record._language === 'en' ? 'English' : 'Español'; meta.appendChild(language);
         if (record.category) { const category = document.createElement('span'); category.className = 'result-category'; category.textContent = record.category; meta.append(' ', category); }
         const title = document.createElement('h2'); addHighlighted(title, record.title);
         const text = document.createElement('p'); addHighlighted(text, snippet(record));
@@ -568,17 +597,23 @@
       if (report && end > previousShown) announce(`${end - previousShown} resultados añadidos. Mostrando ${end} de ${results.length}.`);
       if (firstNewLink && (focus || (report && more.hidden && document.activeElement === more))) firstNewLink.focus();
     }
-    function run(updateUrl = true) {
+    function run(updateUrl = 'replace') {
       query = field.value.trim().slice(0, 200); shown = 0; list.replaceChildren();
       const normalized = window.SiteSearch.normalize(query);
-      $('#egg').hidden = !companions.has(normalized); $('#lab').hidden = !challenges.has(normalized);
-      results = window.SiteSearch.search(records, query);
-      count.textContent = query ? `${results.length} ${results.length === 1 ? 'resultado' : 'resultados'}` : 'Escribe un término para buscar.';
-      empty.hidden = !query || !!results.length || !$('#egg').hidden || !$('#lab').hidden;
+      // Easter eggs remain available in ordinary search, but never bypass facets.
+      $('#egg').hidden = hasFilters() || !companions.has(normalized); $('#lab').hidden = hasFilters() || !challenges.has(normalized);
+      const candidates = query ? window.SiteSearch.search(records, query) : records;
+      results = query || hasFilters() ? candidates.filter(record => fits(record)) : [];
+      updateFacets(candidates);
+      count.textContent = query || hasFilters() ? `${results.length} ${results.length === 1 ? 'resultado' : 'resultados'}` : 'Escribe un término para buscar.';
+      empty.hidden = (!query && !hasFilters()) || !!results.length || !$('#egg').hidden || !$('#lab').hidden;
       renderNext();
       if (updateUrl) {
-        const url = new URL(location.href); query ? url.searchParams.set('q', query) : url.searchParams.delete('q');
-        try { history.replaceState(null, '', url); } catch { /* file:// */ }
+        const url = new URL(location.href);
+        for (const [key, value] of [['q', query], ['tipo', typeChoice?.value], ['idioma', languageChoice?.value]]) value ? url.searchParams.set(key, value) : url.searchParams.delete(key);
+        if (url.href !== location.href) {
+          try { history[updateUrl === 'push' ? 'pushState' : 'replaceState'](null, '', url); } catch { /* file:// */ }
+        }
       }
     }
     // Recents are an explicit local choice. Typing, URL hydration and popstate never record queries.
@@ -619,11 +654,14 @@
     });
     recentClear?.addEventListener('click', () => { recentTerms = []; let removed = true; try { localStorage.removeItem(recentKey); } catch { removed = false; recentPersistent = false; } renderRecents(); recentMessage(removed ? 'Búsquedas recientes eliminadas de este navegador. El historial del navegador permanece.' : 'Se vaciaron los recientes de esta página. No pudo confirmarse el borrado del almacenamiento del navegador.'); });
     window.addEventListener('storage', event => { if (event.key === recentKey || event.key === consentKey || event.key === null) { loadRecents(); renderRecents(); recentMessage(recentPersistent ? 'Búsquedas recientes actualizadas desde otra pestaña.' : 'No se pudieron leer las búsquedas recientes de otra pestaña.'); } });
-    field.value = (new URLSearchParams(location.search).get('q') || '').slice(0, 200); field.maxLength = 200; run(false);
-    form.addEventListener('submit', event => { event.preventDefault(); clearTimeout(timer); run(); rememberQuery(); });
+    readUrl(); field.maxLength = 200; run(false);
+    form.addEventListener('submit', event => { event.preventDefault(); clearTimeout(timer); run('push'); rememberQuery(); });
     field.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 100); });
+    for (const control of [typeChoice, languageChoice]) control?.addEventListener('change', () => { clearTimeout(timer); run('push'); });
+    clearFilters?.addEventListener('click', () => { clearTimeout(timer); typeChoice.value = ''; languageChoice.value = ''; run('push'); typeChoice.focus(); });
+    clearQuery?.addEventListener('click', () => { clearTimeout(timer); field.value = ''; run('push'); field.focus(); });
     more.addEventListener('click', event => renderNext({focus: event.detail === 0, report: true}));
-    window.addEventListener('popstate', () => { field.value = (new URLSearchParams(location.search).get('q') || '').slice(0, 200); run(false); });
+    window.addEventListener('popstate', () => { clearTimeout(timer); readUrl(); run(false); });
     // Search has independent readiness: missing index/core resources must never expose dead controls.
     html.classList.add('search-ready');
     html.classList.remove('search-pending-query', 'search-unavailable');
