@@ -9,6 +9,8 @@ import site_evolution as evolution
 import site_evolution_142 as evolution_142
 import site_intro
 import site_portfolio_144
+import site_skills_map
+import site_http_access
 import site_search_144
 import site_report_status_144
 import ai_boundary_case
@@ -281,6 +283,8 @@ def document(filename,title,description,body,active='',article=False,social=None
   if t.tag!='svg':del t.attrib['style']
  evolution_142.enhance_document(filename,tree)
  site_portfolio_144.enhance_document(filename,tree)
+ site_skills_map.enhance_document(filename,tree)
+ site_http_access.enhance_document(filename,tree)
  site_search_144.enhance_document(filename,tree)
  site_report_status_144.enhance_document(filename,tree)
  site_intro.enhance_document(filename,tree)
@@ -948,6 +952,7 @@ def main():
  for n in SERIES:build_guide(n)
  build_cases();build_bank_case();evolution.build_routes(document,page_head,record,REPORT,ROOT);build_home()
  ai_boundary_case.build_case(document,page_head,record,ROOT)
+ site_http_access.build_case(document,page_head,record,ROOT)
  evolution_142.build_routes(document,page_head,record,REPORT,ROOT)
  site_portfolio_144.build_routes(document,page_head,record,ROOT)
  build_search();build_feed()

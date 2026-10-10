@@ -15,6 +15,11 @@ def snapshot():
     """Fail the build if the card no longer describes the linked download."""
     data = json.loads((ROOT / 'content/report-gen-status.json').read_text(encoding='utf-8'))
     report = json.loads((ROOT / 'content/report-gen.json').read_text(encoding='utf-8'))
+    return validate_snapshot(data, report)
+
+
+def validate_snapshot(data, report):
+    """Validate a proposed update before either source file is written."""
     sha = data['source_commit']
     if data['schema_version'] != 1 or not re.fullmatch(r'[0-9a-f]{40}', sha):
         raise ValueError('Invalid report-gen verification snapshot')

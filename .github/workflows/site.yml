@@ -33,7 +33,7 @@ jobs:
           cache: npm
       - run: python -m pip install -r requirements-build.txt
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
       - name: Build from source and prove repeatability
         run: |
           npm run build:all
@@ -42,6 +42,17 @@ jobs:
           npm run test:links
           npm run test:report-assets
           npm run test:public-cv
+          npm run test:performance
+          npm run test:release-sync
+          npm run test:skills
+      - name: Verify isolated HTTP authorization lab in Docker
+        run: |
+          python tests/test_http_access_lab.py
+          docker build -t iphobiuss-http-access:1.0.0 content/labs/http-access
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 128m --cpus 1 iphobiuss-http-access:1.0.0
+      - name: Verify Firefox, WebKit and mobile resource budgets
+        timeout-minutes: 8
+        run: npm run test:compatibility
       - name: Verify Matrix entrance
         run: npm run test:intro
       - name: Verify portfolio and reporting evidence

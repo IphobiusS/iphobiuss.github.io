@@ -1,49 +1,51 @@
 {
   "schema_version": 1,
-  "version": "0.27.0",
-  "source_commit": "3596d3f55597f9ebb9437139f7437990a352df16",
+  "version": "0.28.0",
+  "source_commit": "4b7b588681bb0105203ae3443e75e85960a4a356",
   "reviewed_on": "2026-10-10",
   "repository": "https://github.com/IphobiusS/report-gen",
   "checks": [
     {
       "key": "tests",
-      "run_id": 38030266157,
+      "run_id": 38062888440,
       "workflow": ".github/workflows/tests.yml",
-      "head_sha": "3596d3f55597f9ebb9437139f7437990a352df16",
+      "head_sha": "4b7b588681bb0105203ae3443e75e85960a4a356",
       "conclusion": "success",
-      "completed_at": "2026-10-10T06:19:31Z",
+      "completed_at": "2026-10-10T15:20:34Z",
       "environment": "Ubuntu 24.04; Python 3.12; Chromium"
     },
     {
       "key": "browsers",
-      "run_id": 38030266156,
+      "run_id": 38062888461,
       "workflow": ".github/workflows/browser-acceptance.yml",
-      "head_sha": "3596d3f55597f9ebb9437139f7437990a352df16",
+      "head_sha": "4b7b588681bb0105203ae3443e75e85960a4a356",
       "conclusion": "success",
-      "completed_at": "2026-10-10T06:17:22Z",
+      "completed_at": "2026-10-10T15:18:10Z",
       "environment": "Ubuntu 24.04; Python 3.12; Chromium and Firefox"
     },
     {
       "key": "windows",
-      "run_id": 38030266146,
+      "run_id": 38062888385,
       "workflow": ".github/workflows/windows.yml",
-      "head_sha": "3596d3f55597f9ebb9437139f7437990a352df16",
+      "head_sha": "4b7b588681bb0105203ae3443e75e85960a4a356",
       "conclusion": "success",
-      "completed_at": "2026-10-10T06:24:37Z",
-      "environment": "Windows Server 2025; Python 3.12; Chromium",
-      "runner_evidence_job": 114149534822
+      "completed_at": "2026-10-10T15:26:12Z",
+      "environment": "Windows Server 2025; Python 3.12; Chromium"
     },
     {
       "key": "source",
-      "run_id": 38030266153,
+      "run_id": 38062888655,
       "workflow": ".github/workflows/source-package.yml",
-      "head_sha": "3596d3f55597f9ebb9437139f7437990a352df16",
+      "head_sha": "4b7b588681bb0105203ae3443e75e85960a4a356",
       "conclusion": "success",
-      "completed_at": "2026-10-10T06:15:05Z",
+      "completed_at": "2026-10-10T15:15:58Z",
       "environment": "Ubuntu 24.04; Python 3.12"
     }
   ],
-  "pending": ["native_microsoft_word", "five_human_usability_sessions"],
+  "pending": [
+    "native_microsoft_word",
+    "five_human_usability_sessions"
+  ],
   "limits_source": "docs/guide.es.md#materiales-para-las-comprobaciones-externas",
-  "verification_method": "GitHub run and job results, workflow files pinned to source_commit, Windows runner log, and README/guide at the same commit. This is a dated snapshot, not a live monitor."
+  "verification_method": "GitHub workflow run receipts for this immutable commit; native Word and human usability remain pending. Not a live monitor."
 }

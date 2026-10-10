@@ -1,0 +1,72 @@
+AUTORIZACIÓN POR OBJETO: API HTTP LOCAL 1.0.0
+
+17 escenarios, 2 modos y 44 intercambios HTTP realmente ejecutados.
+Datos e identidades completamente sintéticos. Ningún objetivo externo.
+Requisitos sin Docker: Python 3.10 o posterior; biblioteca estándar solamente.
+
+REPRODUCIR EN PYTHON
+Desde la carpeta descomprimida:
+  python3 lab.py --verify resultados.json
+
+Salida esperada:
+  PASS: 44/44 HTTP checks; complete evidence identical
+
+Cada escenario inicia una API nueva en 127.0.0.1 y un puerto efímero. Un cliente
+HTTP real envía las solicitudes, conserva estados/cabeceras/cuerpos completos y
+comprueba las expectativas. El servidor se cierra al terminar cada escenario.
+No se mockean las respuestas. Las pruebas de escritura leen el objeto después
+con su propietario para comprobar el cambio permitido o la ausencia de cambios.
+
+REPRODUCIR EN DOCKER
+Desde la carpeta descomprimida (Docker Engine disponible):
+  docker build -t iphobiuss-http-access:1.0.0 .
+  docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 128m --cpus 1 iphobiuss-http-access:1.0.0
+
+No se publica ningún puerto ni se necesita conectividad durante las pruebas.
+Cliente y API se comunican por loopback dentro del mismo contenedor. El proceso
+corre como usuario no root; --rm elimina el contenedor al terminar. La API se
+inicia y se cierra dentro del runner, sin espera arbitraria ni servicio residual.
+docker build sí requiere descargar la imagen base si no existe localmente.
+El tag de Python fija una versión pero no es una garantía de imagen idéntica:
+para reproducibilidad binaria de la imagen, registra también su digest resuelto.
+
+EXPLORAR MANUALMENTE
+En una primera terminal:
+  python3 lab.py --serve fixed --port 8765
+
+En otra terminal, leer el informe propio:
+  curl -i -H 'Authorization: Bearer lab-alice-only' http://127.0.0.1:8765/reports/101
+
+Cambiar únicamente el identificador al informe ajeno:
+  curl -i -H 'Authorization: Bearer lab-alice-only' http://127.0.0.1:8765/reports/202
+
+El primer caso devuelve 200. El segundo devuelve 404 y {"error":"not_found"},
+sin campos del informe de Bruno. Detén con Ctrl+C. Repite con --serve vulnerable
+para observar el fallo deliberado: la segunda petición devuelve el informe.
+Los tokens lab-alice-only y lab-bruno-only son datos públicos de esta demo;
+no son credenciales reutilizables ni un sistema de autenticación de producción.
+La CLI solo enlaza 127.0.0.1. No admite hosts o destinos remotos.
+
+EVIDENCIA
+  python3 lab.py --write nueva-ejecucion.json
+
+resultados.json registra todos los intercambios, expectativas y huellas SHA-256
+de lab.py y fixtures.json. Se omiten puerto efímero, Host y cabeceras Date/Server
+para comparar ejecuciones sin diferencias ajenas al control evaluado. Esta
+normalización figura explícitamente en la evidencia. No es una captura PCAP.
+--verify compara el JSON completo, no solo el número de pruebas aprobadas.
+Una expectativa cumplida en modo vulnerable puede demostrar una fuga: no indica
+que la versión vulnerable sea segura. MANIFEST.sha256 cubre el ZIP descargable.
+
+PARCHE Y LÍMITES
+La sesión selecciona una identidad a partir del token del servidor. El parche
+comprueba item["owner"] == identity antes de leer o escribir. Los objetos ajenos
+y los inexistentes devuelven el mismo estado/cuerpo. La API rechaza sesiones
+ambiguas, argumentos no admitidos y cambios al propietario desde el JSON.
+Las respuestas usan Cache-Control: no-store. No hay archivos ni datos privados.
+
+Esta API usa http.server para una demostración local. No es un servicio listo
+para producción y no implementa TLS, login, expiración/revocación de tokens,
+base de datos, autorización multirrol ni control de concurrencia de escrituras.
+El retest cubre los escenarios publicados y no demuestra ausencia universal de
+fallos. Docker ejecuta exactamente la misma batería, sin ampliar su alcance.

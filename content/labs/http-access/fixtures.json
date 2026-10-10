@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "id": "alice_own_read",
+      "label_es": "Alice lee su informe",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bruno_own_read",
+      "label_es": "Bruno lee su informe",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/202",
+          "token": "lab-bruno-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "alice_cross_read",
+      "label_es": "Alice intenta leer el informe de Bruno",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/202",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bruno_cross_read",
+      "label_es": "Bruno intenta leer el informe de Alice",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-bruno-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "anonymous",
+      "label_es": "Lectura sin sesión",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": null,
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "unknown_token",
+      "label_es": "Token sintético no reconocido",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-unknown",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "unknown_object",
+      "label_es": "Identificador inexistente",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/999",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "client_owner_query",
+      "label_es": "Identidad propuesta en la URL",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/202?owner=bruno",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "client_owner_header",
+      "label_es": "Identidad propuesta en una cabecera",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/202",
+          "token": "lab-alice-only",
+          "headers": [
+            [
+              "X-Lab-User",
+              "bruno"
+            ]
+          ],
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "alice_own_write",
+      "label_es": "Alice modifica su título y lo vuelve a leer",
+      "steps": [
+        {
+          "method": "PATCH",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "body": "{\"title\":\"Título actualizado por Alice\"}",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Título actualizado por Alice",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "alice_cross_write",
+      "label_es": "Alice intenta modificar el informe de Bruno",
+      "steps": [
+        {
+          "method": "PATCH",
+          "path": "/reports/202",
+          "token": "lab-alice-only",
+          "body": "{\"title\":\"Cambio no autorizado\"}",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/202",
+          "token": "lab-bruno-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Informe sintético B",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bruno_cross_write",
+      "label_es": "Bruno intenta modificar el informe de Alice",
+      "steps": [
+        {
+          "method": "PATCH",
+          "path": "/reports/101",
+          "token": "lab-bruno-only",
+          "body": "{\"title\":\"Cambio no autorizado\"}",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Cambio no autorizado",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "invalid_json",
+      "label_es": "JSON inválido no cambia el informe",
+      "steps": [
+        {
+          "method": "PATCH",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "body": "{",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "mass_assignment",
+      "label_es": "El cliente no puede cambiar al propietario",
+      "steps": [
+        {
+          "method": "PATCH",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "body": "{\"title\":\"Intento\",\"owner\":\"bruno\"}",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "101",
+                "owner": "alice",
+                "title": "Informe sintético A",
+                "marker": "SYNTHETIC_ALICE_101"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "malformed_identifier",
+      "label_es": "Ruta con identificador inválido",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/../202",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "unsupported_method",
+      "label_es": "DELETE no está implementado",
+      "steps": [
+        {
+          "method": "DELETE",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "expected": {
+            "vulnerable": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            },
+            "fixed": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ambiguous_identity",
+      "label_es": "Dos cabeceras de sesión se rechazan",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/101",
+          "token": "lab-alice-only",
+          "headers": [
+            [
+              "Authorization",
+              "Bearer lab-bruno-only"
+            ]
+          ],
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

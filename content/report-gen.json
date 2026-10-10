@@ -1,7 +1,7 @@
 {
-  "version": "0.27.0",
-  "download": "https://github.com/IphobiusS/report-gen/archive/3596d3f55597f9ebb9437139f7437990a352df16.zip",
-  "guide": "https://github.com/IphobiusS/report-gen/blob/3596d3f55597f9ebb9437139f7437990a352df16/docs/guide.es.md",
+  "version": "0.28.0",
+  "download": "https://github.com/IphobiusS/report-gen/archive/4b7b588681bb0105203ae3443e75e85960a4a356.zip",
+  "guide": "https://github.com/IphobiusS/report-gen/blob/4b7b588681bb0105203ae3443e75e85960a4a356/docs/guide.es.md",
   "formats": [
     "PDF",
     "DOCX",
@@ -39,8 +39,8 @@
       "text": "Comparte un informe autónomo con búsqueda, filtros por tipo y severidad, vista ejecutiva e impresión; la lectura completa funciona sin JavaScript."
     },
     {
-      "title": "Remediación y retest",
-      "text": "Documenta responsables, plazos, cobertura y nuevas evidencias de comprobación, separando el estado del trabajo de su valoración técnica."
+      "title": "Causas raíz, tareas y retest",
+      "text": "Agrupa hallazgos por corrección común y conserva sus evidencias y retests. Exporta tareas revisadas con responsable, plazo y criterio de cierre en CSV o fichas."
     },
     {
       "title": "Recuperación y respaldo privado",
@@ -56,8 +56,8 @@
   "sample_banca_html_historical": "downloads/report-gen-informe-banco-lumbre.html",
   "sample_banca_html_historical_export_version": "0.23.0",
   "sample_banca_html_historical_source_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f",
-  "download_name": "report-gen-0.27.0.zip",
+  "download_name": "report-gen-0.28.0.zip",
   "guide_name": "Guía de uso",
   "distribution": "github-immutable-commit",
-  "source_commit": "3596d3f55597f9ebb9437139f7437990a352df16"
+  "source_commit": "4b7b588681bb0105203ae3443e75e85960a4a356"
 }

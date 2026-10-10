@@ -1,0 +1,25 @@
+/* A small evidence map using the existing site palette and native links. */
+.skills-map{scroll-margin-top:calc(var(--nav-height) + 1rem)}
+.skills-map-heading{margin-bottom:1rem}
+.skills-map-heading h2{margin:0 0 .5rem}
+.skills-map-heading p{max-width:72ch;margin:0;color:var(--dim)}
+.skills-map-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.skill-evidence-card{display:flex;flex-direction:column;min-width:0;padding:1.25rem;border:1px solid var(--line);background:var(--surface);overflow-wrap:anywhere}
+.skill-context{font:.75rem/1.65 var(--mono);color:var(--dim);margin:0 0 .5rem}
+.skill-evidence-card h3{font:600 1.2rem/1.45 var(--sans);margin:0 0 .75rem}
+.skill-contribution{margin:0 0 .75rem}
+.skill-scope{font-size:.9rem;line-height:1.65;color:var(--dim);margin:0 0 1rem}
+.skill-sources{display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;align-items:center;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--line)}
+.skill-sources a{display:inline-flex;align-items:center;min-height:44px;max-width:100%;font-size:.9rem;line-height:1.6;text-underline-offset:.2em}
+.skill-sources a:focus-visible{outline:3px solid var(--acc);outline-offset:4px}
+@media(max-width:760px){
+ .skills-map{padding-inline:min(var(--s4),5vw)}
+ .skills-map-heading h2{font-size:1.25rem}
+ .skills-map-grid{grid-template-columns:minmax(0,1fr)}
+ .skill-evidence-card{padding:min(1rem,4vw)}
+ .skill-evidence-card h3{font-size:1.125rem}
+}
+@media print{
+ .skills-map{margin-block:1rem}
+ .skill-evidence-card{break-inside:avoid}
+}

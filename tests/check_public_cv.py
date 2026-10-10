@@ -15,6 +15,8 @@ def check(path):
     texts = [page.extract_text() or "" for page in reader.pages]
     assert len(texts) == 2 and all(len(text) > 500 for text in texts), "CV must retain searchable content"
     assert "Santiago, Chile" in texts[0], "Location line must remain legible"
+    report = json.loads((ROOT / 'content/report-gen.json').read_text())
+    assert re.findall(r'\bv(\d+\.\d+\.\d+)\b', '\n'.join(texts)) == [report['version']], "CV and published report-gen version differ"
     seen = set()
     strings = list(texts)
 

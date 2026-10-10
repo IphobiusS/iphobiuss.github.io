@@ -1,0 +1,12 @@
+{
+  "description": "Deterministic byte/request budgets; not field Web Vitals or timing scores. Sizes use uncompressed local files, independent of CDN compression.",
+  "html_bytes": 196608,
+  "javascript_file_bytes": 245760,
+  "javascript_total_bytes": 393216,
+  "stylesheet_file_bytes": 81920,
+  "stylesheet_total_bytes": 196608,
+  "page_code_bytes": 491520,
+  "public_cv_bytes": 131072,
+  "mobile_initial_bytes": 1048576,
+  "mobile_initial_requests": 24
+}

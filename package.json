@@ -1,6 +1,6 @@
 {
   "name": "iphobiuss-retro",
-  "version": "14.5.0",
+  "version": "14.6.0",
   "private": true,
   "description": "Scripts de construcción del sitio estático.",
   "scripts": {
@@ -26,7 +26,12 @@
     "test:portfolio": "node tests/test_site_portfolio_144.cjs",
     "test:report-status": "node tests/test_site_report_status_144.cjs",
     "test:search-filters": "node tests/test_site_search_filters_144.cjs",
-    "test:public-cv": "python tests/check_public_cv.py"
+    "test:public-cv": "python tests/check_public_cv.py",
+    "test:compatibility": "node tests/test_site_compatibility_146.cjs",
+    "test:performance": "python tests/check_performance_budget.py",
+    "test:skills": "node tests/test_site_skills_map.cjs",
+    "test:release-sync": "python tests/test_release_sync.py",
+    "sync:report-release": "python scripts/sync-report-release.py"
   },
   "devDependencies": {
     "axe-core": "4.14.0",
