@@ -1,0 +1,109 @@
+/* Reading components: professional routes, reporting exercise, case disclosures and journal.
+   Loaded once after identity.css. Theme colours and shared geometry come from site.css. */
+
+/* Professional routes */
+.welcome-specialties{display:flex;flex-wrap:wrap;gap:.1rem .85rem;margin:0 0 .5rem}
+.welcome-specialties a{display:inline-flex;align-items:center;min-height:var(--control-min-height);font:.76rem/1.5 var(--mono);color:var(--acc);text-underline-offset:.3em}
+.welcome-titlebar .welcome-language{margin-left:auto;display:inline-flex;align-items:center;min-height:var(--control-min-height);max-width:100%;color:var(--ink);font:.75rem/1.5 var(--mono);text-underline-offset:.2em}
+.welcome-titlebar:has(.welcome-language){padding-block:.15rem}
+.welcome-titlebar:has(.welcome-language) .terminal-window-label{display:none}
+.language-link{margin:var(--s2) 0 0}.language-link a{display:inline-flex;align-items:center;min-height:var(--control-min-height)}
+.professional-route{padding-bottom:var(--s6);overflow-wrap:anywhere}
+.professional-route>section{margin-block:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line-strong);scroll-margin-top:6rem}
+.professional-route h2{font:600 1.5rem/1.4 var(--sans);margin:0 0 .8rem}
+.professional-route h3{font:600 1.15rem/1.4 var(--sans);margin:.4rem 0 .65rem}
+.professional-route .lead{max-width:65ch}
+.route-kicker{font:.76rem/1.6 var(--mono);letter-spacing:.04em;color:var(--dim)}
+:where(html[lang=en]) .edition-line{font:.8rem/1.6 var(--mono);color:var(--dim)}
+.route-index,.route-source-links{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-block:var(--s2)}
+.route-index a,.route-source-links a{display:inline-flex;align-items:center;min-height:var(--control-min-height);text-underline-offset:.25em}
+.route-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2)}
+.route-cards article{display:flex;flex-direction:column;min-width:0;padding:1.25rem;border:1px solid var(--line-strong);border-radius:var(--panel-radius);background:var(--surface)}
+.route-cards article:last-child:nth-child(odd){grid-column:1/-1}
+.route-cards article p{margin:.5rem 0}.route-cards article>a{display:flex;align-items:center;min-height:var(--control-min-height);margin-top:auto;padding-top:.65rem;text-underline-offset:.25em}
+.route-steps{padding-left:1.3rem}.route-steps li{padding-left:.35rem;margin-block:.9rem}
+.route-notice{border-left:3px solid var(--acc);padding:var(--s2) 1.25rem;margin-block:var(--s3);background:var(--surface)}
+/* Reporting exercise */
+.finding-exercise{border-block:1px solid var(--line-strong);padding-block:var(--s3);margin-block:var(--s4);overflow-wrap:anywhere;scroll-margin-top:6rem}
+.finding-exercise h2{font:600 1.5rem/1.4 var(--sans);margin:0 0 .85rem}
+.finding-exercise h3{font:600 1.1rem/1.5 var(--sans);margin:var(--s3) 0 .75rem}
+.finding-exercise fieldset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--s2);min-width:0;border:1px solid var(--line-strong);padding:var(--s2);margin:1.25rem 0 0;border-radius:var(--panel-radius)}
+.finding-exercise fieldset>.finding-field-title,.finding-exercise fieldset>.finding-field-remedy,.finding-exercise fieldset>.actions{grid-column:1/-1}
+.finding-exercise legend{font-weight:600;padding-inline:.4rem}
+.finding-field{display:flex;flex-direction:column;gap:.4rem;margin-block:0 var(--s2);min-width:0}
+.finding-field label{font-weight:600;font-size:.9rem}
+.finding-field input,.finding-field textarea,.finding-field select{box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:var(--control-min-height);padding:.7rem .8rem;color:var(--ink);background:var(--bg);border:1px solid var(--line-strong);border-radius:4px;font:1rem/1.55 var(--sans);resize:vertical}
+.finding-field textarea{min-height:7rem}
+.finding-field small{font-size:.8rem;line-height:1.5;color:var(--dim)}
+.finding-exercise .actions{margin-block:var(--s2) 0;gap:.75rem}
+.finding-exercise button{min-height:var(--control-min-height);white-space:normal}
+.finding-exercise fieldset:disabled{opacity:.8}
+.finding-exercise :focus-visible{outline:var(--focus-width) solid var(--acc);outline-offset:var(--focus-offset)}
+.finding-state,.finding-privacy{font-size:.86rem;color:var(--dim);line-height:1.6}
+.finding-state{min-height:1.6em;margin-block:var(--s2)}
+.finding-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2)}
+.finding-preview{min-width:0;display:flex;flex-direction:column;padding:1.2rem;border:1px solid var(--line-strong);border-radius:var(--panel-radius);background:var(--surface)}
+.finding-preview h4{font:600 1.12rem/1.5 var(--sans);margin:.4rem 0}
+.finding-audience{font:.8rem/1.5 var(--mono);color:var(--acc);margin:0}
+.finding-asset{font-size:.86rem;color:var(--dim);margin:.4rem 0 .7rem}
+.finding-preview dl{margin:.5rem 0 var(--s2)}.finding-preview dt{font-weight:600;font-size:.85rem;margin-top:.7rem}.finding-preview dd{margin:0}.finding-preview dd p{margin:.3rem 0 .9rem}
+.finding-preview [data-finding-output]{white-space:pre-wrap;overflow-wrap:anywhere}
+.finding-limit{margin:auto 0 0;padding-top:.8rem;border-top:1px solid var(--line-strong);font:.76rem/1.6 var(--mono);color:var(--dim)}
+@media(max-width:640px){.finding-exercise fieldset{grid-template-columns:minmax(0,1fr)}.finding-exercise fieldset>.finding-field-title,.finding-exercise fieldset>.finding-field-remedy,.finding-exercise fieldset>.actions{grid-column:auto}.route-cards,.finding-comparison{grid-template-columns:minmax(0,1fr)}.route-cards article:last-child:nth-child(odd){grid-column:auto}.finding-preview{padding:var(--s2)}.welcome-titlebar{flex-wrap:wrap}.welcome-specialties{column-gap:.7rem}.welcome-specialties a{font-size:.69rem}.professional-route>section{margin-block:var(--s3)}.finding-exercise fieldset{padding:.8rem}}
+@media print{.welcome-language,.route-index,.finding-exercise form,.finding-state,.finding-privacy{display:none}.finding-comparison{display:block}.finding-preview{break-inside:avoid;margin-bottom:var(--s2)}.professional-route>section{margin-block:var(--s2)}.route-cards{display:block}.route-cards article{margin-bottom:.8rem}}
+
+/* Portfolio entry links and case disclosures */
+.welcome-terminal .welcome-links{display:flex;flex-wrap:wrap;gap:.25rem 1.2rem;max-width:100%}
+.welcome-terminal .welcome-links a{flex:0 1 auto;min-width:fit-content;overflow-wrap:normal;word-break:normal}
+.portfolio-entry-links{display:flex;flex-wrap:wrap;gap:.25rem var(--s3);margin:var(--s2) 0}
+.portfolio-entry-links a,.portfolio-journal-link a,.portfolio-language a{display:inline-flex;align-items:center;min-height:var(--control-min-height);max-width:100%;text-underline-offset:.2em;overflow-wrap:anywhere}
+.portfolio-entry-links a{font:600 .9rem/1.5 var(--mono)}
+.portfolio-journal-link{margin:var(--s2) 0 0}
+.portfolio-language{margin:.75rem 0 0}
+.case-overview{margin:0 0 var(--s3)}
+.case-overview h2{font:600 1.3rem/1.4 var(--sans);margin:0 0 .8rem}
+.case-overview .case-synthesis{margin:0;gap:.1rem}
+[data-portfolio-case]>.dossier{margin-block:var(--s3)}
+[data-portfolio-case]>.case-graph{margin-block:var(--s3)}
+.case-support{margin-block:var(--s2);border:1px solid var(--line-strong);border-radius:var(--panel-radius);background:var(--surface);scroll-margin-top:calc(var(--nav-height) + var(--s2))}
+.case-support>summary{display:flex;align-items:center;gap:var(--s2);min-height:52px;padding:.9rem var(--s2);cursor:pointer;list-style:none;overflow-wrap:anywhere}
+.case-support>summary::-webkit-details-marker{display:none}
+.case-support>summary::after{content:'+';margin-left:auto;flex:none;color:var(--acc);font:600 1.2rem/1 var(--mono)}
+.case-support[open]>summary::after{content:'−'}
+.case-support[open]>summary{border-bottom:1px solid var(--line-strong)}
+.case-support>summary>h2{font:600 1.1rem/1.5 var(--sans);margin:0;min-width:0}
+.case-support-body{padding:var(--s2);overflow-wrap:anywhere}
+.case-support-body>:first-child{margin-top:0}
+.case-support-body>:last-child{margin-bottom:0}
+.case-support>summary:focus-visible,.journal-index a:focus-visible{outline:var(--focus-width) solid var(--acc);outline-offset:var(--focus-offset)}
+.case-reading-nav{display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;margin-bottom:var(--s2)}
+.case-reading-nav a{display:inline-flex;align-items:center;min-height:var(--control-min-height);max-width:100%;text-underline-offset:.2em}
+/* Engineering journal */
+.journal-page{padding-bottom:var(--s6);overflow-wrap:anywhere}
+.journal-scope{color:var(--dim);max-width:76ch}
+.journal-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem var(--s3);margin-block:var(--s3)}
+.journal-index a{display:flex;align-items:center;min-height:var(--control-min-height);padding:.35rem 0;text-underline-offset:.2em}
+.journal-group{margin-top:var(--s4)}
+.journal-group>h2{font:600 1.5rem/1.4 var(--sans);margin:0 0 var(--s2)}
+.journal-entry{padding:1.25rem;margin-block:var(--s2);border:1px solid var(--line-strong);border-radius:var(--panel-radius);background:var(--surface);scroll-margin-top:calc(var(--nav-height) + var(--s2))}
+.journal-context{font:.78rem/1.6 var(--mono);color:var(--dim);margin:0 0 .5rem}
+.journal-entry h3{font:600 1.2rem/1.45 var(--sans);margin:0 0 var(--s2)}
+.journal-entry dl{margin:0}
+.journal-entry dl>div{display:grid;grid-template-columns:6rem minmax(0,1fr);gap:.35rem var(--s2);margin-block:.8rem}
+.journal-entry dt{font-weight:600;color:var(--ink-bright)}
+.journal-entry dd{margin:0}
+.journal-sources{display:flex;flex-wrap:wrap;gap:.25rem var(--s2);border-top:1px solid var(--line-strong);padding-top:.75rem;margin-top:var(--s2)}
+.journal-sources a{display:inline-flex;align-items:center;min-height:var(--control-min-height);max-width:100%;font-size:.9rem;text-underline-offset:.2em}
+@media(max-width:640px){
+ .welcome-terminal .welcome-links{width:100%;column-gap:.75rem}
+ .welcome-terminal .welcome-links a{font-size:.75rem}
+ .journal-index{grid-template-columns:minmax(0,1fr)}
+ .journal-entry{padding:var(--s2)}
+ .journal-entry dl>div{grid-template-columns:minmax(0,1fr)}
+}
+@media print{
+ .case-reading-nav,.journal-index,.portfolio-language{display:none}
+ .case-support{break-inside:auto}
+ .case-support>summary::after{content:''}
+ .journal-entry{break-inside:avoid}
+}

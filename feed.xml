@@ -1,1 +1,155 @@
-<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Guías de laboratorio de iphobiuss</title><link>https://iphobiuss.github.io/guias.html</link><atom:link href="https://iphobiuss.github.io/feed.xml" rel="self" type="application/rss+xml"/><description>Máquinas de Hack The Box explicadas paso a paso, de la VPN a Active Directory.</description><language>es</language><lastBuildDate>Sat, 10 Oct 2026 00:00:00 GMT</lastBuildDate><item><title>Guía 00: Fundamentos &amp; setup</title><link>https://iphobiuss.github.io/setup.html</link><guid isPermaLink="true">https://iphobiuss.github.io/setup.html</guid><description>Prepara Kali, conecta la VPN y aprende a interpretar lo que devuelve cada herramienta.</description><category>Entorno</category></item><item><title>Guía 01: Cap</title><link>https://iphobiuss.github.io/cap.html</link><guid isPermaLink="true">https://iphobiuss.github.io/cap.html</guid><description>De un control de acceso incorrecto a credenciales FTP y una capability de Python.</description><category>Linux</category></item><item><title>Guía 02: Knife</title><link>https://iphobiuss.github.io/knife.html</link><guid isPermaLink="true">https://iphobiuss.github.io/knife.html</guid><description>Una cabecera revela una versión comprometida de PHP. El siguiente paso es entender por qué.</description><category>Linux</category></item><item><title>Guía 03: Forest</title><link>https://iphobiuss.github.io/forest.html</link><guid isPermaLink="true">https://iphobiuss.github.io/forest.html</guid><description>Primer recorrido por Active Directory: usuarios, Kerberos, relaciones de permisos y replicación.</description><category>Windows / AD</category></item><item><title>Guía 04: Vaccine</title><link>https://iphobiuss.github.io/vaccine.html</link><guid isPermaLink="true">https://iphobiuss.github.io/vaccine.html</guid><description>Un backup expuesto conecta FTP, hashes, una aplicación web y PostgreSQL.</description><category>Linux</category></item><item><title>Guía 05: Sauna</title><link>https://iphobiuss.github.io/sauna.html</link><guid isPermaLink="true">https://iphobiuss.github.io/sauna.html</guid><description>Usa la información pública de la web y sigue el rastro de las credenciales en Windows.</description><category>Windows / AD</category></item><item><title>Guía 06: Cascade</title><link>https://iphobiuss.github.io/cascade.html</link><guid isPermaLink="true">https://iphobiuss.github.io/cascade.html</guid><description>Una cadena de ocho eslabones que combina directorio, cifrado y objetos eliminados.</description><category>Windows / AD</category></item></channel></rss>
+<?xml version='1.0' encoding='UTF-8'?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dcterms="http://purl.org/dc/terms/" version="2.0">
+  <channel>
+    <title>Proyectos, bitácora y guías de iphobiuss</title>
+    <link>https://iphobiuss.github.io/</link>
+    <description>Casos reproducibles, decisiones técnicas, novedades de report-gen y guías de laboratorio de Sebastián Latorre Muñoz.</description>
+    <language>es</language>
+    <lastBuildDate>Sat, 10 Oct 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://iphobiuss.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Cerrar una sesión debe revocar su acceso</title>
+      <link>https://iphobiuss.github.io/sesiones-seguras.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/sesiones-seguras.html</guid>
+      <description>Caso propio de laboratorio: cierre de sesión, cambio de contraseña, revocación de dispositivo y caducidad. Compara el estado del servidor y repite solicitudes con identidades sintéticas.</description>
+      <category>Caso propio</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>La autorización pertenece al ejecutor, no al modelo</title>
+      <link>https://iphobiuss.github.io/ia-limites.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/ia-limites.html</guid>
+      <description>Ejercicio local reproducible: un adaptador determinista propone acciones y el servidor comprueba identidad, alcance y permisos antes de ejecutarlas. No evalúa un modelo de IA real.</description>
+      <category>Caso propio</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>Mantener la lectura disponible sin JavaScript</title>
+      <link>https://iphobiuss.github.io/bitacora.html#native-web</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/bitacora.html#native-web</guid>
+      <description>Decisión del sitio: contenido y enlaces HTML, detalles nativos y mejoras progresivas con límites explícitos.</description>
+      <category>Bitácora</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>Una observación importada no es un hallazgo verificado</title>
+      <link>https://iphobiuss.github.io/bitacora.html#imports</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/bitacora.html#imports</guid>
+      <description>Por qué report-gen incorpora observaciones de escáneres con procedencia y deja pendiente su verificación.</description>
+      <category>Bitácora</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>Derechos de replicación y membresía de grupos</title>
+      <link>https://iphobiuss.github.io/bitacora.html#forest-rights</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/bitacora.html#forest-rights</guid>
+      <description>Retrospectiva HTB: explicar DCSync y el acceso obtenido sin confundirlos con pertenencia a Domain Admins.</description>
+      <category>Bitácora</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>Credenciales expuestas: una hipótesis para otro servicio</title>
+      <link>https://iphobiuss.github.io/bitacora.html#cap-credentials</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/bitacora.html#cap-credentials</guid>
+      <description>Retrospectiva HTB: distinguir el dato en una captura de la autenticación posterior documentada.</description>
+      <category>Bitácora</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>Una sesión no autoriza todos los objetos</title>
+      <link>https://iphobiuss.github.io/api-acceso.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/api-acceso.html</guid>
+      <description>API propia, dos identidades y un fallo deliberado de autorización. Código, intercambios HTTP, parche y retest de lectura y escritura.</description>
+      <category>Caso propio</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>report-gen 0.31.0: respaldos verificados y editor modular</title>
+      <link>https://github.com/IphobiusS/report-gen/releases/tag/v0.31.0</link>
+      <guid isPermaLink="true">https://github.com/IphobiusS/report-gen/releases/tag/v0.31.0</guid>
+      <description>Copias locales opcionales con comprobación de restauración, validación estricta de CVSS 3.1 y preparación de entregas sin recomprimir imágenes. Incluye ensayos reproducibles con cientos de hallazgos y rechaza imágenes truncadas.</description>
+      <category>report-gen</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>report-gen 0.30.0: edición por lotes, entregas y actualización guiada</title>
+      <link>https://github.com/IphobiusS/report-gen/releases/tag/v0.30.0</link>
+      <guid isPermaLink="true">https://github.com/IphobiusS/report-gen/releases/tag/v0.30.0</guid>
+      <description>Editar responsables y plazos con revisión previa, preparar entregas por responsable y verificar una actualización oficial con respaldo recuperable. Herramienta local; release y código verificables en GitHub.</description>
+      <category>report-gen</category>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-10</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 05: Sauna</title>
+      <link>https://iphobiuss.github.io/sauna.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/sauna.html</guid>
+      <description>Usa la información pública de la web y sigue el rastro de las credenciales en Windows.</description>
+      <category>Guía de laboratorio</category>
+      <category>Windows / AD</category>
+      <dcterms:modified>2026-10-08</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 03: Forest</title>
+      <link>https://iphobiuss.github.io/forest.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/forest.html</guid>
+      <description>Primer recorrido por Active Directory: usuarios, Kerberos, relaciones de permisos y replicación.</description>
+      <category>Guía de laboratorio</category>
+      <category>Windows / AD</category>
+      <dcterms:modified>2026-10-08</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 06: Cascade</title>
+      <link>https://iphobiuss.github.io/cascade.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/cascade.html</guid>
+      <description>Una cadena de ocho eslabones que combina directorio, cifrado y objetos eliminados.</description>
+      <category>Guía de laboratorio</category>
+      <category>Windows / AD</category>
+      <dcterms:modified>2026-10-08</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 04: Vaccine</title>
+      <link>https://iphobiuss.github.io/vaccine.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/vaccine.html</guid>
+      <description>Un backup expuesto conecta FTP, hashes, una aplicación web y PostgreSQL.</description>
+      <category>Guía de laboratorio</category>
+      <category>Linux</category>
+      <dcterms:modified>2026-10-05</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 00: Fundamentos &amp; setup</title>
+      <link>https://iphobiuss.github.io/setup.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/setup.html</guid>
+      <description>Prepara Kali, conecta la VPN y aprende a interpretar lo que devuelve cada herramienta.</description>
+      <category>Guía de laboratorio</category>
+      <category>Entorno</category>
+      <dcterms:modified>2026-10-05</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 02: Knife</title>
+      <link>https://iphobiuss.github.io/knife.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/knife.html</guid>
+      <description>Una cabecera revela una versión comprometida de PHP. El siguiente paso es entender por qué.</description>
+      <category>Guía de laboratorio</category>
+      <category>Linux</category>
+      <dcterms:modified>2026-10-05</dcterms:modified>
+    </item>
+    <item>
+      <title>Guía 01: Cap</title>
+      <link>https://iphobiuss.github.io/cap.html</link>
+      <guid isPermaLink="true">https://iphobiuss.github.io/cap.html</guid>
+      <description>De un control de acceso incorrecto a credenciales FTP y una capability de Python.</description>
+      <category>Guía de laboratorio</category>
+      <category>Linux</category>
+      <dcterms:modified>2026-10-05</dcterms:modified>
+    </item>
+  </channel>
+</rss>

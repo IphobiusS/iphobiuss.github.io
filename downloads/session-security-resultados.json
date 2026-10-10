@@ -1,0 +1,5733 @@
+{
+  "schema_version": 1,
+  "lab_version": "1.0.0",
+  "transport": "observed_http_over_ipv4_loopback",
+  "data": "synthetic",
+  "external_targets": false,
+  "identities": [
+    "alice",
+    "bruno"
+  ],
+  "clock": "Controlled elapsed seconds advanced in-process only; expiry checks send real HTTP but do not measure wall-clock delay.",
+  "normalization": "Ephemeral port, Host, Date and Server omitted; complete response bodies and application headers captured from HTTP.",
+  "source_sha256": {
+    "lab.py": "8a7b3c8bda5f1ad4dcd99ab30ca9c5f744b98f60940231c35485783bdc2844d2",
+    "fixtures.json": "aaa3504e4aa47cbcf3e74b2d9f8e13f5fc190fe35450eda664da6f726c3b54c8"
+  },
+  "summary": {
+    "scenarios": 24,
+    "modes": 2,
+    "http_exchanges": 154,
+    "passed": 154,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "alice_logout",
+      "label_es": "Alice: cerrar sesión invalida solo el token actual",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "19",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"signed_out\":true}",
+              "body_sha256": "6c273d4477b7ffe05e6d9436e7c1db583a5d1ee9c78d9f5a526ffa5a9eea0598"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "19",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"signed_out\":true}",
+              "body_sha256": "6c273d4477b7ffe05e6d9436e7c1db583a5d1ee9c78d9f5a526ffa5a9eea0598"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_password",
+      "label_es": "Alice: cambiar la contraseña invalida sus dos dispositivos",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "77"
+                ]
+              ],
+              "body": "{\"current_password\":\"demo-alice-initial\",\"new_password\":\"demo-alice-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "59",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"changed\":true,\"scope\":\"all_sessions_of_current_identity\"}",
+              "body_sha256": "c91f8500cc8e5b1724079dbf8b52fdba06af2407f86c14c939352c2be4fbe8d5"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "77"
+                ]
+              ],
+              "body": "{\"current_password\":\"demo-alice-initial\",\"new_password\":\"demo-alice-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "59",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"changed\":true,\"scope\":\"all_sessions_of_current_identity\"}",
+              "body_sha256": "c91f8500cc8e5b1724079dbf8b52fdba06af2407f86c14c939352c2be4fbe8d5"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_device",
+      "label_es": "Alice: revocar el teléfono conserva las otras sesiones",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "33",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"alice-phone\"}",
+              "body_sha256": "9b5f068a34699dd386bce4b8c14368311a229e6c7a2589a0f2ab7459840b4988"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-phone"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "33",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"alice-phone\"}",
+              "body_sha256": "9b5f068a34699dd386bce4b8c14368311a229e6c7a2589a0f2ab7459840b4988"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-phone"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_cross_device",
+      "label_es": "Alice: no puede revocar el dispositivo ajeno",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/bruno-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/bruno-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "alice_expiry",
+      "label_es": "Alice: activo antes del límite, rechazado al cumplirse 60 segundos",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 59,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 59,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_logout",
+      "label_es": "Bruno: cerrar sesión invalida solo el token actual",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "19",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"signed_out\":true}",
+              "body_sha256": "6c273d4477b7ffe05e6d9436e7c1db583a5d1ee9c78d9f5a526ffa5a9eea0598"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "19",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"signed_out\":true}",
+              "body_sha256": "6c273d4477b7ffe05e6d9436e7c1db583a5d1ee9c78d9f5a526ffa5a9eea0598"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_password",
+      "label_es": "Bruno: cambiar la contraseña invalida sus dos dispositivos",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "77"
+                ]
+              ],
+              "body": "{\"current_password\":\"demo-bruno-initial\",\"new_password\":\"demo-bruno-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "59",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"changed\":true,\"scope\":\"all_sessions_of_current_identity\"}",
+              "body_sha256": "c91f8500cc8e5b1724079dbf8b52fdba06af2407f86c14c939352c2be4fbe8d5"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-initial\"}"
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"bruno-new-1\",\"token\":\"lab-bruno-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "74e0bb9e759ded16d370cfcbfac2e04b1501904513f60ce92273964609b07833"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "77"
+                ]
+              ],
+              "body": "{\"current_password\":\"demo-bruno-initial\",\"new_password\":\"demo-bruno-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "59",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"changed\":true,\"scope\":\"all_sessions_of_current_identity\"}",
+              "body_sha256": "c91f8500cc8e5b1724079dbf8b52fdba06af2407f86c14c939352c2be4fbe8d5"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-initial\"}"
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-changed\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"bruno-new-1\",\"token\":\"lab-bruno-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "74e0bb9e759ded16d370cfcbfac2e04b1501904513f60ce92273964609b07833"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_device",
+      "label_es": "Bruno: revocar el teléfono conserva las otras sesiones",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/bruno-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "33",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"bruno-phone\"}",
+              "body_sha256": "6bdf0332b4c78df5a1878b2dc0968fa50177f9a7a481fbdfd427f1432fcbb926"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "bruno-phone"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/bruno-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "33",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"bruno-phone\"}",
+              "body_sha256": "6bdf0332b4c78df5a1878b2dc0968fa50177f9a7a481fbdfd427f1432fcbb926"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "bruno-phone"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_cross_device",
+      "label_es": "Bruno: no puede revocar el dispositivo ajeno",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_expiry",
+      "label_es": "Bruno: activo antes del límite, rechazado al cumplirse 60 segundos",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 59,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"bruno-new-1\",\"token\":\"lab-bruno-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "74e0bb9e759ded16d370cfcbfac2e04b1501904513f60ce92273964609b07833"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 59,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"bruno-new-1\",\"token\":\"lab-bruno-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "74e0bb9e759ded16d370cfcbfac2e04b1501904513f60ce92273964609b07833"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "wrong_current_password",
+      "label_es": "Una contraseña actual incorrecta no cambia ni invalida nada",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "63"
+                ]
+              ],
+              "body": "{\"current_password\":\"incorrect-demo\",\"new_password\":\"demo-new\"}"
+            },
+            "response": {
+              "status": 403,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "37",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"current_password_mismatch\"}",
+              "body_sha256": "f35589bc966c33dd5bbed4311633c520cbfe9656afa428c397dc60f4617b8524"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 403,
+              "body": {
+                "error": "current_password_mismatch"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "63"
+                ]
+              ],
+              "body": "{\"current_password\":\"incorrect-demo\",\"new_password\":\"demo-new\"}"
+            },
+            "response": {
+              "status": 403,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "37",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"current_password_mismatch\"}",
+              "body_sha256": "f35589bc966c33dd5bbed4311633c520cbfe9656afa428c397dc60f4617b8524"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 403,
+              "body": {
+                "error": "current_password_mismatch"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "unchanged_password",
+      "label_es": "Rechazar una contraseña idéntica conserva la sesión",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "77"
+                ]
+              ],
+              "body": "{\"current_password\":\"demo-alice-initial\",\"new_password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "30",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"password_unchanged\"}",
+              "body_sha256": "1eae4b0888114b128344cb23935d487fbe59e1f35f56a5dfc06c9805afa94cfd"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "password_unchanged"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "77"
+                ]
+              ],
+              "body": "{\"current_password\":\"demo-alice-initial\",\"new_password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "30",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"password_unchanged\"}",
+              "body_sha256": "1eae4b0888114b128344cb23935d487fbe59e1f35f56a5dfc06c9805afa94cfd"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "password_unchanged"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "anonymous",
+      "label_es": "Una solicitud anónima no obtiene identidad",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown_token",
+      "label_es": "Un token inventado no obtiene identidad",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-unknown"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-unknown"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "duplicate_authorization",
+      "label_es": "Dos cabeceras de autenticación se rechazan",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "forged_identity",
+      "label_es": "Una cabecera declarada por el cliente no cambia al propietario",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/bruno-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "X-Lab-User",
+                  "bruno"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/bruno-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "X-Lab-User",
+                  "bruno"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"bruno\",\"marker\":\"SYNTHETIC_BRUNO\"}",
+              "body_sha256": "db6352faa2f7987f124e8dfcb4cf9bbf35e63c9bdc43c84935dd1d368aa978b7"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing_device",
+      "label_es": "Un identificador inexistente responde igual que uno ajeno",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/unknown-device/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/unknown-device/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 404,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "21",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"not_found\"}",
+              "body_sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "invalid_body",
+      "label_es": "Un JSON inválido no cambia la contraseña ni la sesión",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "1"
+                ]
+              ],
+              "body": "{"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/password",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "1"
+                ]
+              ],
+              "body": "{"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "client_token_injection",
+      "label_es": "Login rechaza campos adicionales y no adopta un token del cliente",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "75"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\",\"token\":\"chosen-by-client\"}"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer chosen-by-client"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "75"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\",\"token\":\"chosen-by-client\"}"
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"invalid_body\"}",
+              "body_sha256": "e85091908a158f33e71b8df8ae493cd9a9f9139725dc0cd9b204ca2398b43b0f"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer chosen-by-client"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "get_cannot_logout",
+      "label_es": "GET no puede cerrar una sesión",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 405,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "30",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Allow": "POST"
+              },
+              "body": "{\"error\":\"method_not_allowed\"}",
+              "body_sha256": "48ceae43089b9c26f0b2e5e53afe122639812aaa791c84f311d6b992f2332fef"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 405,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "30",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Allow": "POST"
+              },
+              "body": "{\"error\":\"method_not_allowed\"}",
+              "body_sha256": "48ceae43089b9c26f0b2e5e53afe122639812aaa791c84f311d6b992f2332fef"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "revoked_cannot_mutate",
+      "label_es": "Una sesión revocada no puede revocar otro dispositivo",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "19",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"signed_out\":true}",
+              "body_sha256": "6c273d4477b7ffe05e6d9436e7c1db583a5d1ee9c78d9f5a526ffa5a9eea0598"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "33",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"alice-phone\"}",
+              "body_sha256": "9b5f068a34699dd386bce4b8c14368311a229e6c7a2589a0f2ab7459840b4988"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-phone"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/logout",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "19",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"signed_out\":true}",
+              "body_sha256": "6c273d4477b7ffe05e6d9436e7c1db583a5d1ee9c78d9f5a526ffa5a9eea0598"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-phone/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "self_device_revocation",
+      "label_es": "Revocar el dispositivo actual invalida su token",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-laptop/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "34",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"alice-laptop\"}",
+              "body_sha256": "d26b25b7cdfe6d5836fd57d4ce18a0b689f2b078aedd8390ded6da08580e00fe"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-laptop"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/sessions/alice-laptop/revoke",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "2"
+                ]
+              ],
+              "body": "{}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "34",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"revoked_session\":\"alice-laptop\"}",
+              "body_sha256": "d26b25b7cdfe6d5836fd57d4ce18a0b689f2b078aedd8390ded6da08580e00fe"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-laptop"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-phone"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 0,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "new_session_expiry",
+      "label_es": "Una sesión nueva también respeta su propio límite de vida",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 30,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 89,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 90,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "POST",
+              "path": "/login",
+              "headers": [
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "48"
+                ]
+              ],
+              "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "74",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"session_id\":\"alice-new-1\",\"token\":\"lab-alice-issued-1\",\"ttl_seconds\":60}",
+              "body_sha256": "5150d85f1996158818586359c9079fe9ab2e305fd0593c79fec125c6042cfbdb"
+            },
+            "clock_seconds": 30,
+            "expected": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 89,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-issued-1"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 90,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "query_rejected",
+      "label_es": "El reloj no se controla con un parámetro HTTP",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me?clock=0",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "31",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"query_not_supported\"}",
+              "body_sha256": "4eb5d16adcb6b22efb9c42bdd99f13beccd6d71b4e6fb752569a1cd758350d56"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "47",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"identity\":\"alice\",\"marker\":\"SYNTHETIC_ALICE\"}",
+              "body_sha256": "4810d7760eca7c754fe8f52e519aa5b56939b7d917ab8f69c7be88271a60818e"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me?clock=0",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 400,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "31",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"query_not_supported\"}",
+              "body_sha256": "4eb5d16adcb6b22efb9c42bdd99f13beccd6d71b4e6fb752569a1cd758350d56"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/me",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-alice-laptop"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 401,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "24",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"error\":\"unauthorized\"}",
+              "body_sha256": "782eeaa7f1915f6783146f8180751785584f0f24bd4e503165c7fc4a597da600"
+            },
+            "clock_seconds": 60,
+            "expected": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    }
+  ]
+}

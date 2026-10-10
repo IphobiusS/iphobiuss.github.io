@@ -1,0 +1,6 @@
+/* Native disclosure markers preserve heading width at narrow/zoomed sizes. */
+@media screen {
+  .entry-details[data-session-scenario]>summary{display:list-item;list-style:revert;padding-inline:min(1rem,4vw)}
+  .entry-details[data-session-scenario]>summary::after{content:none}
+  .entry-details[data-session-scenario]>summary::-webkit-details-marker{display:inline}
+}
