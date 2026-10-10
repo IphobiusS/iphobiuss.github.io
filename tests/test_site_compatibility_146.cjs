@@ -35,7 +35,7 @@ const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
 }, null, 2) + '\n');
 const check = async (name, action) => {
   try { const detail = await action(); results.push({ engine, name, passed: true, ...detail }); console.log(`PASS ${engine}: ${name}`); }
-  catch (error) { results.push({ engine, name, passed: false, error: error.message }); throw error; }
+  catch (error) { results.push({ engine, name, passed: false, error: error.message, ...(error.evidence ? { evidence: error.evidence } : {}) }); throw error; }
 };
 async function fresh(options = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', ...options });
@@ -68,6 +68,70 @@ async function audit(page) {
   assert.deepEqual(result.violations, [], 'Automated accessibility violation');
   return result;
 }
+// Observe the complete native intro inside the page, before product scripts run.
+// No driver round trip is required during the 500 ms fade, and no clock, style,
+// timer or transition is altered. If no intermediate frame exists, this fails.
+function observeNativeIntro() {
+  const trace = window.__compatIntro = { openedAt: null, closedAt: null, frames: [], events: [] };
+  let active = null, frame = null;
+  const number = value => Number(Number(value).toFixed(6));
+  const snapshot = origin => {
+    if (!active) return null;
+    const style = getComputedStyle(active), backdrop = getComputedStyle(active, '::backdrop');
+    const welcome = active.querySelector('.intro-line-ready');
+    const sample = {
+      at: number(performance.now()), origin, open: active.open,
+      modal: active.matches(':modal'), leaving: active.hasAttribute('data-intro-leaving'),
+      opacity: number(style.opacity), backdrop: number(backdrop.opacity),
+      welcome: welcome ? number(getComputedStyle(welcome).opacity) : null,
+      focusInside: active.contains(document.activeElement), visibility: document.visibilityState
+    };
+    trace.frames.push(sample);
+    return sample;
+  };
+  const sampleFrame = () => {
+    frame = null;
+    snapshot('animation-frame');
+    if (active?.open) frame = requestAnimationFrame(sampleFrame);
+  };
+  const nativeShow = HTMLDialogElement.prototype.showModal;
+  HTMLDialogElement.prototype.showModal = function (...args) {
+    const result = nativeShow.apply(this, args);
+    if (this.matches('[data-site-intro]')) {
+      active = this;
+      trace.openedAt = number(performance.now());
+      trace.events.push({ type: 'showModal', at: trace.openedAt });
+      snapshot('showModal');
+      if (frame === null) frame = requestAnimationFrame(sampleFrame);
+    }
+    return result;
+  };
+  const nativeClose = HTMLDialogElement.prototype.close;
+  HTMLDialogElement.prototype.close = function (...args) {
+    const isIntro = this === active, wasOpen = this.open;
+    if (isIntro) snapshot('before-close');
+    const result = nativeClose.apply(this, args);
+    if (isIntro && wasOpen) {
+      trace.closedAt = number(performance.now());
+      trace.events.push({ type: 'close', at: trace.closedAt });
+      snapshot('after-close');
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = null;
+    }
+    return result;
+  };
+  for (const type of ['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel', 'cancel']) {
+    document.addEventListener(type, event => {
+      if (!active || event.target !== active) return;
+      trace.events.push({ type, at: number(performance.now()), property: event.propertyName || null,
+        pseudoElement: event.pseudoElement || '', elapsedTime: event.elapsedTime ?? null });
+      snapshot(type);
+    }, true);
+  }
+  new MutationObserver(mutations => {
+    if (active && mutations.some(mutation => mutation.target === active)) snapshot('attribute-change');
+  }).observe(document, { subtree: true, attributes: true, attributeFilter: ['open', 'data-intro-leaving', 'hidden'] });
+}
 (async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   base = 'http://127.0.0.1:' + server.address().port;
@@ -77,22 +141,38 @@ async function audit(page) {
     versions[engine] = browser.version();
     await check('Matrix modal opens, reveals the page and releases keyboard focus', async () => {
       const state = await fresh({ reducedMotion: 'no-preference' }); const { page, context } = state;
-      await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => document.querySelector('[data-site-intro]')?.open);
-      assert.ok(await page.locator('[data-site-intro]').evaluate(dialog => dialog.matches(':modal') && dialog.contains(document.activeElement)));
-      await page.waitForFunction(() => { const dialog = document.querySelector('[data-site-intro]'); const opacity = Number(getComputedStyle(dialog).opacity), backdrop = Number(getComputedStyle(dialog, '::backdrop').opacity); return dialog.open && dialog.hasAttribute('data-intro-leaving') && opacity > 0 && opacity < 1 && backdrop > 0 && backdrop < 1; });
-      const fade = await page.locator('[data-site-intro]').evaluate(dialog => ({ welcome: getComputedStyle(dialog.querySelector('.intro-line-ready')).opacity, backdrop: getComputedStyle(dialog, '::backdrop').opacity }));
-      assert.equal(fade.welcome, '1');
-      await page.waitForFunction(() => !document.querySelector('[data-site-intro]').open);
-      assert.equal(await page.locator('main h1').isVisible(), true);
-      assert.equal(await page.evaluate(() => !!document.activeElement?.closest('[data-site-intro]')), false);
-      await settled(page);
-      await page.reload({ waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => document.querySelector('[data-site-intro]')?.open);
-      await page.keyboard.press('Escape');
-      assert.equal(await page.locator('[data-site-intro]').evaluate(dialog => dialog.open), false);
-      assert.equal(await page.locator('a.skip').evaluate(link => link === document.activeElement), true);
-      await settled(page); await healthy(state); await context.close(); return { automaticReveal: true, escapeDismissal: true, fade };
+      await context.addInitScript(observeNativeIntro);
+      let automaticTrace;
+      try {
+        await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' });
+        // The stored terminal state can be read after closure without missing the
+        // visual evidence that the observer collected from the first rendered frame.
+        await page.waitForFunction(() => typeof window.__compatIntro?.closedAt === 'number');
+        automaticTrace = await page.evaluate(() => window.__compatIntro);
+        assert.deepEqual(automaticTrace.events.filter(event => ['showModal', 'close'].includes(event.type)).map(event => event.type), ['showModal', 'close']);
+        assert.ok(automaticTrace.frames.some(frame => frame.origin === 'showModal' && frame.open && frame.modal && frame.focusInside), 'Native opening must actually capture keyboard focus');
+        assert.ok(automaticTrace.frames.some(frame => frame.open && !frame.leaving && frame.opacity === 1 && frame.backdrop === 1), 'The site must remain opaque before the reveal');
+        const fade = automaticTrace.frames.find(frame => frame.origin === 'animation-frame' && frame.open && frame.modal && frame.leaving && frame.opacity > 0 && frame.opacity < 1 && frame.backdrop > 0 && frame.backdrop < 1 && frame.welcome === 1);
+        assert.ok(fade, 'No rendered frame shows both intro surfaces fading together after Bienvenido');
+        assert.equal(await page.locator('main h1').isVisible(), true);
+        assert.equal(await page.evaluate(() => !!document.activeElement?.closest('[data-site-intro]')), false);
+        await settled(page);
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(() => document.querySelector('[data-site-intro]')?.open);
+        await page.keyboard.press('Escape');
+        assert.equal(await page.locator('[data-site-intro]').evaluate(dialog => dialog.open), false);
+        assert.equal(await page.locator('a.skip').evaluate(link => link === document.activeElement), true);
+        await settled(page); await healthy(state);
+        fs.writeFileSync(path.join(output, engine + '-intro-trace.json'), JSON.stringify(automaticTrace, null, 2) + '\n');
+        console.log(JSON.stringify({ engine, introSamples: automaticTrace.frames.length, fadeWitness: fade, closedAt: automaticTrace.closedAt }));
+        await context.close(); return { automaticReveal: true, escapeDismissal: true, fade, introTrace: automaticTrace };
+      } catch (error) {
+        const currentTrace = await page.evaluate(() => window.__compatIntro).catch(failure => ({ unavailable: failure.message }));
+        error.evidence = { automaticTrace: automaticTrace || null, currentTrace };
+        fs.writeFileSync(path.join(output, engine + '-intro-trace.json'), JSON.stringify(error.evidence, null, 2) + '\n');
+        console.error('INTRO DIAGNOSTIC ' + JSON.stringify(error.evidence));
+        throw error;
+      }
     });
     await check('Keyboard menu, native links, theme controls and persisted appearance', async () => {
       const state = await fresh(); const { page, context } = state;
