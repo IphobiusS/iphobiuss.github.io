@@ -46,7 +46,7 @@ Las tarjetas sociales se generan localmente. Los informes de ejemplo mantienen s
 
 ## Editar y publicar
 
-Trabaja sobre `source`. Un push a esa rama ejecuta `.github/workflows/site.yml`: instalación con dependencias fijadas, construcción desde cero, segunda reconstrucción idéntica, enlaces y pruebas de navegador. Chromium y Firefox se validan en Ubuntu; WebKit ejecuta la misma batería de compatibilidad en macOS 15 sobre los archivos construidos en Linux. Sólo después de aprobar ambos trabajos genera un commit en `main` con el contenido de `dist/`, conservando el historial y rechazando cambios concurrentes.
+Trabaja sobre `source`. Un push a esa rama ejecuta `.github/workflows/site.yml`: instala las dependencias fijadas y construye una distribución compartida desde cero. Después valida en paralelo Chromium y Firefox en Ubuntu y la misma batería de compatibilidad de WebKit en macOS 15. Linux comprueba también reconstrucciones idénticas, enlaces y el resto de las pruebas. Sólo después de aprobar ambos trabajos genera un commit en `main` con los archivos probados de `dist/`, conservando el historial y rechazando cambios concurrentes.
 
 El workflow solicita expresamente la construcción de GitHub Pages y espera a que termine: los commits hechos con `GITHUB_TOKEN` no la disparan automáticamente. Finalmente compara los archivos públicos byte a byte. Usa los permisos `contents: write` y `pages: write` únicamente en el trabajo de publicación; no necesita un token personal. Las pull requests se validan y no publican.
 
@@ -102,6 +102,6 @@ npx playwright install webkit
 SITE_COMPAT_BROWSERS=webkit SITE_COMPAT_HEADED=1 npm run test:compatibility
 ```
 
-El trabajo de macOS descarga el `dist/` aprobado en Linux, incluido `.nojekyll`, y comprueba cada archivo por SHA-256 antes de probarlo. La publicación exige que ambos trabajos terminen correctamente, que sus recibos pertenezcan al mismo commit y que los archivos reconstruidos coincidan con los probados por ambos motores.
+Los trabajos de Linux y macOS descargan el mismo `dist/`, incluido `.nojekyll`, y comprueban cada archivo por SHA-256 contra el manifiesto de la construcción antes de probarlo. La publicación descarga esa misma distribución y exige que ambos trabajos terminen correctamente, que sus recibos pertenezcan al mismo commit y que todos los archivos coincidan con el manifiesto y con los probados por ambos motores.
 
 `audit-v14.6/compatibility/results.json` registra sistema, modo de ejecución, inventario de archivos y motores completados. Cada trabajo acredita únicamente su motor; la cobertura conjunta se verifica antes de publicar y queda resumida en GitHub Actions. Los archivos `*-intro-trace.json` conservan muestras y eventos reales del desvanecimiento. Ante un fallo, el diagnóstico también se imprime en CI. Los artefactos de distribución y evidencia se conservan siete días en esa ejecución, separados de los archivos públicos del sitio.

@@ -15,7 +15,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  distribution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: requirements-build.txt
+      - run: python -m pip install -r requirements-build.txt
+      - name: Build the shared distribution and record every published byte
+        run: |
+          python scripts/build-site.py
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          paths = sorted(Path('dist').rglob('*'))
+          assert not any(path.is_symlink() for path in paths), 'Published resources must not be symlinks'
+          files = {p.relative_to('dist').as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                   for p in paths if p.is_file()}
+          assert 'index.html' in files and '.nojekyll' in files, 'Distribution is incomplete'
+          manifest = {'sourceRevision': os.environ['GITHUB_SHA'], 'fileCount': len(files), 'files': files}
+          Path('audit-v14.6').mkdir(exist_ok=True)
+          Path('audit-v14.6/distribution.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          print(f'Built {len(files)} files for {manifest["sourceRevision"]}.')
+          PY
+      - name: Preserve the shared distribution and its source manifest
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site-dist-${{ github.sha }}
+          path: |
+            dist/
+            audit-v14.6/distribution.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
   validate:
+    needs: distribution
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -34,9 +75,28 @@ jobs:
       - run: python -m pip install -r requirements-build.txt
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox
-      - name: Build from source and prove repeatability
+      - name: Download the shared distribution and source manifest
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: site-dist-${{ github.sha }}
+          path: .
+      - name: Verify Linux input against the shared source manifest
         run: |
-          npm run build:all
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          baseline = json.loads(Path('audit-v14.6/distribution.json').read_text())
+          assert baseline['sourceRevision'] == os.environ['GITHUB_SHA']
+          paths = list(Path('dist').rglob('*'))
+          assert not any(path.is_symlink() for path in paths)
+          actual = {p.relative_to('dist').as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                    for p in paths if p.is_file()}
+          assert actual == baseline['files'], 'Downloaded distribution differs from the shared build'
+          assert len(actual) == baseline['fileCount'] and '.nojekyll' in actual
+          print(f'Linux input: {len(actual)} files identical to the shared distribution.')
+          PY
+      - name: Prove clean rebuild repeatability and validate the shared distribution
+        run: |
           npm run test:build
           npm run test:publish
           npm run test:links
@@ -75,14 +135,6 @@ jobs:
       - name: Audit all layouts and accessibility
         run: npm run test:layout
 
-      - name: Preserve the exact distribution validated on Linux
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: site-dist-${{ github.sha }}
-          path: dist/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
       - name: Preserve Firefox evidence and failure diagnostics
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -93,7 +145,7 @@ jobs:
           retention-days: 7
 
   webkit:
-    needs: validate
+    needs: distribution
     runs-on: macos-15
     timeout-minutes: 15
     steps:
@@ -109,32 +161,25 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install webkit
-      - name: Download the Linux-validated distribution
+      - name: Download the shared distribution and source manifest
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: site-dist-${{ github.sha }}
-          path: dist/
-      - name: Download the Linux file manifest and Firefox receipt
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: site-compatibility-linux-${{ github.sha }}
-          path: audit-v14.6/linux-baseline/
-      - name: Prove WebKit will test the same commit and every published byte
+          path: .
+      - name: Verify WebKit input against the shared source manifest
         run: |
           python - <<'PY'
           import hashlib, json, os
           from pathlib import Path
-          baseline = json.loads(Path('audit-v14.6/linux-baseline/results.json').read_text())
+          baseline = json.loads(Path('audit-v14.6/distribution.json').read_text())
           assert baseline['sourceRevision'] == os.environ['GITHUB_SHA']
-          assert baseline['completedEngines'] == ['firefox']
-          assert baseline['completeRequestedEngineCoverage'] and 'fatal' not in baseline
-          assert baseline['passed'] == baseline['total'] and baseline['total'] > 0
-          expected = baseline['distribution']['files']
+          paths = list(Path('dist').rglob('*'))
+          assert not any(path.is_symlink() for path in paths)
           actual = {p.relative_to('dist').as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in Path('dist').rglob('*') if p.is_file()}
-          assert actual == expected, 'Downloaded distribution differs from the Linux-tested files'
-          assert '.nojekyll' in actual, 'Artifact must preserve hidden publication files'
-          print(f'WebKit input: {len(actual)} files identical to the Linux-validated distribution.')
+                    for p in paths if p.is_file()}
+          assert actual == baseline['files'], 'Downloaded distribution differs from the shared build'
+          assert len(actual) == baseline['fileCount'] and '.nojekyll' in actual
+          print(f'WebKit input: {len(actual)} files identical to the shared distribution.')
           PY
       - name: Verify WebKit on macOS with the complete compatibility journey
         timeout-minutes: 8
@@ -164,10 +209,11 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.13'
-          cache: pip
-          cache-dependency-path: requirements-build.txt
-      - run: python -m pip install -r requirements-build.txt
-      - run: python scripts/build-site.py
+      - name: Download the same distribution tested on both platforms
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: site-dist-${{ github.sha }}
+          path: .
       - name: Download Firefox completion evidence
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -183,8 +229,14 @@ jobs:
           python - <<'PY'
           import hashlib, json, os
           from pathlib import Path
+          baseline = json.loads(Path('audit-v14.6/distribution.json').read_text())
+          assert baseline['sourceRevision'] == os.environ['GITHUB_SHA'], 'Distribution is from another source commit'
+          paths = list(Path('dist').rglob('*'))
+          assert not any(path.is_symlink() for path in paths)
           actual = {p.relative_to('dist').as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in Path('dist').rglob('*') if p.is_file()}
+                    for p in paths if p.is_file()}
+          assert actual == baseline['files'], 'Publication differs from the shared build'
+          assert len(actual) == baseline['fileCount'] and '.nojekyll' in actual
           coverage = {}
           routes = None
           for folder, engine, platform in [('linux', 'firefox', 'linux'), ('macos', 'webkit', 'darwin')]:
@@ -196,7 +248,7 @@ jobs:
               assert result['completeRequestedEngineCoverage'] and 'fatal' not in result
               assert result['passed'] == result['total'] == len(result['results']) and result['total'] > 0
               assert all(check['passed'] and check['engine'] == engine for check in result['results'])
-              assert result['distribution']['files'] == actual, 'Rebuilt distribution differs from browser-tested files'
+              assert result['distribution']['files'] == actual, 'Publication differs from browser-tested files'
               assert result['distribution']['fileCount'] == len(actual)
               current_routes = sorted(result['testedRoutes'])
               assert current_routes == sorted(p.name for p in Path('dist').glob('*.html'))

@@ -84,6 +84,38 @@ async function audit(page) {
   assert.deepEqual(result.violations, [], 'Automated accessibility violation');
   return result;
 }
+// Start the first native WebView before measuring the site's first navigation.
+// Real frames and a normal screenshot warm the browser compositor on about:blank;
+// neither the product document nor its clocks, styles or timers are modified.
+async function prewarmFirstWebView(page) {
+  assert.equal(page.url(), 'about:blank', 'Prewarming must precede the first site navigation');
+  await page.bringToFront();
+  await page.evaluate(() => {
+    const trace = window.__compatPrewarm = {
+      url: location.href, startedAt: performance.now(), visibility: document.visibilityState,
+      focused: document.hasFocus(), frames: [], screenshotStartedAt: null, screenshotCompletedAt: null
+    };
+    const sample = timestamp => {
+      trace.frames.push({ at: performance.now(), timestamp, phase: 'before-paint',
+        visibility: document.visibilityState, focused: document.hasFocus() });
+      if (trace.frames.length < 2) requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  });
+  await page.waitForFunction(() => window.__compatPrewarm?.frames.length === 2);
+  await page.evaluate(() => { window.__compatPrewarm.screenshotStartedAt = performance.now(); });
+  await page.screenshot({ path: path.join(output, engine + '-webview-prewarm.png'), animations: 'allow' });
+  await page.evaluate(() => {
+    const trace = window.__compatPrewarm;
+    trace.screenshotCompletedAt = performance.now();
+    requestAnimationFrame(timestamp => trace.frames.push({ at: performance.now(), timestamp,
+      phase: 'after-paint', visibility: document.visibilityState, focused: document.hasFocus() }));
+  });
+  await page.waitForFunction(() => window.__compatPrewarm?.frames.length === 3);
+  const trace = await page.evaluate(() => window.__compatPrewarm);
+  fs.writeFileSync(path.join(output, engine + '-webview-prewarm.json'), JSON.stringify(trace, null, 2) + '\n');
+  return trace;
+}
 // Observe the complete native intro inside the page, before product scripts run.
 // No driver round trip is required during the 500 ms fade, and no clock, style,
 // timer or transition is altered. If no intermediate frame exists, this fails.
@@ -158,8 +190,9 @@ function observeNativeIntro() {
     await check('Matrix modal opens, reveals the page and releases keyboard focus', async () => {
       const state = await fresh({ reducedMotion: 'no-preference' }); const { page, context } = state;
       await context.addInitScript(observeNativeIntro);
-      let automaticTrace;
+      let automaticTrace, prewarm;
       try {
+        prewarm = await prewarmFirstWebView(page);
         await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' });
         // The stored terminal state can be read after closure without missing the
         // visual evidence that the observer collected from the first rendered frame.
@@ -180,11 +213,12 @@ function observeNativeIntro() {
         assert.equal(await page.locator('a.skip').evaluate(link => link === document.activeElement), true);
         await settled(page); await healthy(state);
         fs.writeFileSync(path.join(output, engine + '-intro-trace.json'), JSON.stringify(automaticTrace, null, 2) + '\n');
-        console.log(JSON.stringify({ engine, browserMode: headed ? 'headed' : 'headless', introSamples: automaticTrace.frames.length, fadeWitness: fade, closedAt: automaticTrace.closedAt }));
-        await context.close(); return { automaticReveal: true, escapeDismissal: true, fade, introTrace: automaticTrace };
+        console.log(JSON.stringify({ engine, browserMode: headed ? 'headed' : 'headless', prewarm, introSamples: automaticTrace.frames.length, fadeWitness: fade, closedAt: automaticTrace.closedAt }));
+        await context.close(); return { automaticReveal: true, escapeDismissal: true, prewarm, fade, introTrace: automaticTrace };
       } catch (error) {
         const currentTrace = await page.evaluate(() => window.__compatIntro).catch(failure => ({ unavailable: failure.message }));
-        error.evidence = { browserMode: headed ? 'headed' : 'headless', automaticTrace: automaticTrace || null, currentTrace };
+        prewarm ||= await page.evaluate(() => window.__compatPrewarm).catch(failure => ({ unavailable: failure.message }));
+        error.evidence = { browserMode: headed ? 'headed' : 'headless', prewarm: prewarm || null, automaticTrace: automaticTrace || null, currentTrace };
         fs.writeFileSync(path.join(output, engine + '-intro-trace.json'), JSON.stringify(error.evidence, null, 2) + '\n');
         console.error('INTRO DIAGNOSTIC ' + JSON.stringify(error.evidence));
         throw error;
