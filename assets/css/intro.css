@@ -1,0 +1,50 @@
+/* The hidden native dialog is an optional entrance, never a loading dependency. */
+.site-intro{
+  --site-intro-ready:1;
+  width:min(38rem,calc(100vw - 32px));max-width:calc(100vw - 32px);
+  max-height:calc(100dvh - 32px);margin:auto;padding:0;overflow:hidden;
+  border:1px solid var(--line-strong);border-radius:6px;
+  background:var(--bg);color:var(--ink);font:1rem/1.6 var(--mono);
+  box-shadow:0 1.5rem 5rem #0004;
+}
+.site-intro:not([open]){display:none}
+.site-intro[open]{display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.site-intro::backdrop{background:var(--bg);opacity:.94}
+.intro-titlebar{display:flex;align-items:center;gap:.8rem;padding:.75rem 1.2rem;border-bottom:1px solid var(--line);background:var(--surface);color:var(--dim);font-size:.8rem;overflow-wrap:anywhere}
+.intro-window-marks{display:flex;gap:.3rem;flex:none}
+.intro-window-marks i{width:.4rem;height:.4rem;border:1px solid var(--line-strong);border-radius:50%}
+.intro-terminal{min-height:0;overflow:auto;padding:1.5rem 1.3rem 1.15rem;font-size:1rem;line-height:1.85}
+.intro-command{display:flex;align-items:baseline;gap:.35ch;max-width:100%;margin-bottom:.7rem}
+.intro-prompt,.intro-marker{color:var(--acc)}
+.intro-typed{display:inline-block;flex:none;width:11ch;max-width:calc(100% - 2.3ch);overflow:hidden;white-space:nowrap;vertical-align:bottom}
+.intro-cursor{display:inline-block;flex:none;align-self:center;width:.55ch;height:1.1em;background:var(--acc)}
+.intro-line{padding-left:.1rem;overflow-wrap:anywhere}
+.intro-line-ready{margin-top:.7rem;color:var(--acc)}
+.intro-footer{display:flex;align-items:center;justify-content:space-between;gap:.75rem 1rem;padding:.85rem 1.2rem;border-top:1px solid var(--line);background:var(--surface)}
+.intro-footer p{margin:0;max-width:25ch;font:.8rem/1.6 var(--sans);color:var(--dim)}
+.intro-skip{flex:none;min-height:44px;padding:.6rem .85rem;font-size:.8rem;box-shadow:none}
+.intro-skip:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+.intro-preference .tgl-text{display:flex;flex-wrap:wrap;gap:.25rem .55rem;align-items:baseline}
+[data-intro-preference-state]{font-size:.75em;font-weight:400;color:var(--dim)}
+.appearance-panel>.intro-preference-note{font-size:.8rem;line-height:1.6;margin:.1rem 0 0}
+@media(prefers-reduced-motion:no-preference){
+  html:not([data-paused]) .site-intro[open] .intro-typed{animation:intro-type .36s steps(11,end) both}
+  html:not([data-paused]) .site-intro[open] .intro-line{animation:intro-line .12s linear both}
+  html:not([data-paused]) .site-intro[open] .intro-line-cases{animation-delay:.3s}
+  html:not([data-paused]) .site-intro[open] .intro-line-tools{animation-delay:.52s}
+  html:not([data-paused]) .site-intro[open] .intro-line-ready{animation-delay:.75s}
+  html:not([data-paused]) .site-intro[open] .intro-cursor{animation:intro-cursor .65s step-end 1}
+}
+@keyframes intro-type{from{width:0}to{width:11ch}}
+@keyframes intro-line{from{opacity:0}to{opacity:1}}
+@keyframes intro-cursor{0%,70%{opacity:1}71%,100%{opacity:0}}
+@media(max-width:420px){
+  .intro-titlebar{gap:.5rem;padding:.7rem .85rem}
+  .intro-window-marks{display:none}
+  .intro-terminal{padding:1.2rem .9rem;font-size:.875rem}
+  .intro-footer{flex-wrap:wrap;padding:.8rem .85rem}
+  .intro-footer p{max-width:none;flex:1 1 100%}
+  .intro-skip{margin-left:auto}
+  .intro-skip>span{display:none}
+}
+@media print{.site-intro,.site-intro::backdrop{display:none!important}}
