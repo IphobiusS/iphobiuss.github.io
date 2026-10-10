@@ -130,5 +130,5 @@ body[data-page=cuaderno] .dossier-page>section+section{margin-top:2rem}
 .search-history-choice input{flex:none;width:1.3rem;height:1.3rem;accent-color:var(--acc)}
 .recent-search-list{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:.65rem}
 .recent-search-list li{max-width:100%;min-width:0}.recent-search-list .button{min-height:44px;max-width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere}
-@media(max-width:500px){[data-notebook-import-file]::file-selector-button{display:block;margin:.3rem 0 .7rem}.notebook-item{padding:.85rem}.notebook-item .actions>.button{width:100%}}
+@media(max-width:500px){[data-notebook-import-file]::file-selector-button{display:block;margin:.3rem 0 .7rem}.notebook-item{padding:.85rem}.notebook-item .actions>.button{width:100%}[data-notebook-recovery],.notebook-item{padding-inline:min(.85rem,4vw)}}
 @media print{[data-notebook-import-panel],.search-recents,.guide-local-progress,[data-guide-progress-message]{display:none!important}}

@@ -11,13 +11,13 @@
   "normalization": "Ephemeral port, Host, Date and Server are omitted. Request paths, application headers, statuses and complete response bodies are captured from actual HTTP exchanges.",
   "source_sha256": {
     "lab.py": "77b0cc3b50497916f368bc214828a9dfdce2eb771f2d3a95034c119840aa21e4",
-    "fixtures.json": "0f1f75c14a154b701319fdef6bf5010e57240dc32ed6e1f4de5a664a9160855a"
+    "fixtures.json": "ccd78419f7ce69bfcb8b2bc902c36a11bb050efe727935a9068c47aea32970c2"
   },
   "summary": {
-    "scenarios": 17,
+    "scenarios": 18,
     "modes": 2,
-    "http_exchanges": 44,
-    "passed": 44,
+    "http_exchanges": 48,
+    "passed": 48,
     "failed": 0
   },
   "results": [
@@ -883,6 +883,172 @@
                 "owner": "alice",
                 "title": "Título actualizado por Alice",
                 "marker": "SYNTHETIC_ALICE_101"
+              }
+            },
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "bruno_own_write",
+      "label_es": "Bruno modifica su título y lo vuelve a leer",
+      "vulnerable": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "41"
+                ]
+              ],
+              "body": "{\"title\":\"Título actualizado por Bruno\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Título actualizado por Bruno\"}",
+              "body_sha256": "c781ae810120dff3c8bd8067d14ea4abb97d74871026b68f9a1c4176aa274774"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Título actualizado por Bruno\"}",
+              "body_sha256": "c781ae810120dff3c8bd8067d14ea4abb97d74871026b68f9a1c4176aa274774"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          }
+        ]
+      },
+      "fixed": {
+        "passed": true,
+        "trace": [
+          {
+            "request": {
+              "method": "PATCH",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ],
+                [
+                  "Content-Type",
+                  "application/json"
+                ],
+                [
+                  "Content-Length",
+                  "41"
+                ]
+              ],
+              "body": "{\"title\":\"Título actualizado por Bruno\"}"
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Título actualizado por Bruno\"}",
+              "body_sha256": "c781ae810120dff3c8bd8067d14ea4abb97d74871026b68f9a1c4176aa274774"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "passed": true
+          },
+          {
+            "request": {
+              "method": "GET",
+              "path": "/reports/202",
+              "headers": [
+                [
+                  "Authorization",
+                  "Bearer lab-bruno-only"
+                ]
+              ],
+              "body": ""
+            },
+            "response": {
+              "status": 200,
+              "headers": {
+                "Content-Type": "application/json; charset=utf-8",
+                "Content-Length": "99",
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff"
+              },
+              "body": "{\"id\":\"202\",\"marker\":\"SYNTHETIC_BRUNO_202\",\"owner\":\"bruno\",\"title\":\"Título actualizado por Bruno\"}",
+              "body_sha256": "c781ae810120dff3c8bd8067d14ea4abb97d74871026b68f9a1c4176aa274774"
+            },
+            "expected": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
               }
             },
             "passed": true

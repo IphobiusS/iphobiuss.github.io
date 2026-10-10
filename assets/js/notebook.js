@@ -36,15 +36,44 @@
    }
   }return result;
  };
- let persistent=true,data;
- try{const value=localStorage.getItem(KEY);data=value?validateImport(JSON.parse(value)):blank();}catch{persistent=false;data=blank();}
+ const parse=value=>{if(new TextEncoder().encode(value).length>MAX_BYTES)throw Error('El cuaderno supera 4 MiB.');return validateImport(JSON.parse(value));};
+ let persistent=true,data=blank(),recovery=null;
+ const preserveRaw=raw=>{persistent=false;if(typeof raw==='string'&&raw!==recovery?.raw){recovery={raw,reviewed:null};document.querySelector('[data-notebook-recovery]')?.remove();}};
+ try{const value=localStorage.getItem(KEY);if(value!==null){try{data=parse(value);}catch{preserveRaw(value);}}}catch{persistent=false;}
  const persistenceMessage='No se puede leer o guardar el cuaderno local. Este cuaderno solo durará durante esta página; exporta una copia antes de salir.';
- const save=message=>{try{if(persistent)localStorage.setItem(KEY,JSON.stringify(data));}catch{persistent=false;}if(!persistent)status(persistenceMessage);else if(message)status(message);};
  const now=()=>new Date().toISOString();
  const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
  const link=item=>{const a=node('a',item.title||item.url);a.href=item.url;return a;};
- const drafts=new Map();
- const captureDrafts=()=>document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>{if(input.value!==input.dataset.savedNote)drafts.set(input.dataset.notebookNote,input.value);else drafts.delete(input.dataset.notebookNote);});
+ const drafts=new Map(),orphans=new Map();
+ const captureDrafts=()=>document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>{
+  const url=input.dataset.notebookNote,previous=drafts.get(url);
+  if(input.value!==input.dataset.savedNote||previous?.conflict)drafts.set(url,{...previous,value:input.value,base:previous?.base??input.dataset.savedNote,item:previous?.item??{url,title:input.dataset.notebookTitle,note:input.dataset.savedNote,updated:input.dataset.updated}});
+  else drafts.delete(url);
+ });
+ const download=(text,filename,type='application/json;charset=utf-8')=>{const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=node('a');a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ const rawMessage='El original local no se puede abrir y permanece intacto. En «Mi cuaderno» puedes descargarlo y revisar una copia recuperable. ';
+ // Lock the read/modify/write sequence across tabs. Older browsers keep this
+ // notebook in memory instead of pretending their separate storage calls are atomic.
+ if(!navigator.locks?.request)persistent=false;
+ const locked=async task=>{
+  if(!navigator.locks?.request)return task();
+  let entered=false;
+  try{return await navigator.locks.request(KEY,()=>{entered=true;return task();});}
+  catch(error){if(entered)throw error;persistent=false;return task();}
+ };
+ const latest=()=>{
+  if(!persistent)return data;
+  let raw;try{raw=localStorage.getItem(KEY);}catch{persistent=false;return data;}
+  try{return raw===null?blank():parse(raw);}catch{preserveRaw(raw);throw Error(rawMessage);}
+ };
+ const mutate=async(change,message)=>locked(()=>{
+  captureDrafts();let result;
+  try{const base=latest();data=base;result=validateImport(change(structuredClone(base)));}
+  catch(error){render();status(error.message+' Los borradores permanecen disponibles.');return false;}
+  // Validate before changing either persistent data or the in-memory notebook.
+  if(persistent){try{localStorage.setItem(KEY,JSON.stringify(result));}catch{persistent=false;}}
+  data=result;if(message)status((recovery?rawMessage:'')+(persistent?message:persistenceMessage));return true;
+ });
  const markdown=item=>{
   const title=(item.title||item.url).replace(/[\r\n]/g,' ').replace(/([\\`*_{}\[\]<>#])/g,'\\$1');
   const url=new URL(item.url,'https://iphobiuss.github.io/').href.replace(/[()]/g,char=>'%'+char.charCodeAt(0).toString(16));
@@ -67,9 +96,50 @@
    message.textContent=persistent?'Aún no tienes puntos de lectura en estas guías.':'No se pueden consultar los puntos de lectura de este navegador.';
   }
  };
- const render=()=>{
+ const recoveryPanel=()=>{
+  const list=document.querySelector('[data-notebook-list]');if(!list)return;
+  let panel=document.querySelector('[data-notebook-recovery]');
+  if(!recovery){panel?.remove();return;}
+  if(panel)return;
+  panel=node('section',undefined,'notice');panel.dataset.notebookRecovery='';panel.setAttribute('aria-labelledby','notebook-recovery-title');
+  const title=node('h2','Revisar cuaderno');title.id='notebook-recovery-title';
+  const explanation=node('p','El original no se puede abrir, pero sigue intacto. Descárgalo antes de intentar repararlo. La revisión crea una copia con las entradas válidas sin cambiar el almacenamiento. Ambas copias pueden contener notas personales.');
+  const actions=node('div',undefined,'actions'),raw=node('button','Descargar original','button'),review=node('button','Revisar copia','button'),session=node('button','Descargar esta pestaña','button'),summary=node('p');summary.dataset.notebookRecoverySummary='';summary.setAttribute('role','status');
+  raw.type=review.type='button';raw.dataset.notebookRecoveryRaw='';review.dataset.notebookRecoveryReview='';
+  raw.addEventListener('click',()=>download(recovery.raw,'iphobiuss-cuaderno-original.json'));
+  session.type='button';session.dataset.notebookRecoverySession='';session.addEventListener('click',()=>download(JSON.stringify(data,null,2),'iphobiuss-cuaderno-pestana.json'));
+  review.addEventListener('click',()=>{
+   try{
+    if(new TextEncoder().encode(recovery.raw).length>MAX_BYTES)throw Error('El original supera 4 MiB. Descárgalo para revisarlo fuera del navegador.');
+    const source=JSON.parse(recovery.raw);
+    if(!source||source.version!==VERSION||!Array.isArray(source.items)||!Array.isArray(source.reading)||Object.keys(source).sort().join(',')!=='items,reading,version')throw Error('No se reconoce el formato versión 1. Descarga el original para revisarlo sin alterarlo.');
+    const result=blank();let rejected=0;
+    for(const key of ['items','reading']){const limit=key==='items'?200:40;rejected+=Math.max(0,source[key].length-limit);for(const item of source[key].slice(0,limit)){try{const candidate=structuredClone(result);candidate[key].push(item);validateImport(candidate);result[key].push(item);}catch{rejected++;}}}
+    recovery.reviewed=result;summary.textContent='Copia revisada: '+result.items.length+' favoritos y '+result.reading.length+' puntos de lectura válidos. '+rejected+' entradas excluidas por ser inválidas, duplicadas o exceder los límites. El original las conserva. Descarga y revisa ambas copias antes de sustituir el cuaderno mediante borrado e importación.';
+    let clean=actions.querySelector('[data-notebook-recovery-clean]');if(!clean){clean=node('button','Descargar copia revisada','button');clean.type='button';clean.dataset.notebookRecoveryClean='';clean.addEventListener('click',()=>download(JSON.stringify(recovery.reviewed,null,2),'iphobiuss-cuaderno-recuperable.json'));actions.append(clean);}
+   }catch(error){summary.textContent=error instanceof SyntaxError?'El original no es JSON válido. Descárgalo para revisarlo sin alterarlo.':error.message;}
+  });
+  actions.append(raw,review,session);panel.append(title,explanation,actions,summary);list.parentElement.before(panel);
+ };
+ const renderOrphans=()=>{
+  const list=document.querySelector('[data-notebook-list]');if(!list)return;
+  let panel=document.querySelector('[data-notebook-orphans]');if(!orphans.size){panel?.remove();return;}
+  if(!panel){panel=node('section');panel.dataset.notebookOrphans='';panel.setAttribute('aria-labelledby','notebook-orphans-title');list.parentElement.after(panel);}
+  panel.replaceChildren();const title=node('h2','Notas por recuperar');title.id='notebook-orphans-title';panel.append(title,node('p','Estos favoritos fueron retirados mientras tenías notas sin guardar. Los borradores permanecen en esta pestaña; restáuralos o descárgalos antes de salir.'));
+  for(const [url,draft] of orphans){
+   const article=node('article',undefined,'notebook-item'),h=node('h3',draft.item.title||url),label=node('label','Borrador conservado'),input=node('textarea');input.readOnly=true;input.rows=3;input.value=draft.value;input.dataset.notebookOrphan=url;input.id='orphan-'+[...orphans.keys()].indexOf(url);label.htmlFor=input.id;
+   const actions=node('div',undefined,'actions'),restore=node('button',data.items.some(item=>item.url===url)?'Revisar borrador en el favorito':'Restaurar favorito y borrador','button'),copy=node('button','Descargar borrador (JSON)','button');restore.type=copy.type='button';restore.dataset.notebookRestore=url;copy.dataset.notebookOrphanDownload=url;
+   restore.addEventListener('click',async()=>{
+    const ok=await mutate(base=>{if(!base.items.some(item=>item.url===url)){if(base.items.length>=200)throw Error('El cuaderno admite 200 favoritos; libera espacio antes de restaurar.');base.items.push({...draft.item,updated:now()});}return base;},'Favorito restaurado. Revisa y guarda su borrador para conservar la nota.');
+    if(ok){orphans.delete(url);drafts.set(url,draft);render(false);document.querySelector('textarea[data-notebook-note="'+CSS.escape(url)+'"]')?.focus();}
+   });
+   copy.addEventListener('click',()=>download(JSON.stringify({version:VERSION,items:[{...draft.item,note:draft.value}],reading:[]},null,2),'iphobiuss-borrador.json'));
+   actions.append(restore,copy);article.append(h,label,input,actions);panel.append(article);
+  }
+ };
+ const render=(capture=true)=>{
   const active=document.activeElement,focusedURL=active?.dataset.notebookNote,selection=focusedURL?[active.selectionStart,active.selectionEnd]:null;
-  captureDrafts();for(const url of drafts.keys()){if(!data.items.some(item=>item.url===url))drafts.delete(url);}
+  if(capture)captureDrafts();for(const [url,draft] of drafts){if(!data.items.some(item=>item.url===url)){orphans.set(url,draft);drafts.delete(url);}}
   for(const button of document.querySelectorAll('[data-bookmark]')){
    const saved=data.items.some(item=>item.url===button.dataset.bookmark);button.setAttribute('aria-pressed',String(saved));button.title=saved?'Pulsa de nuevo para quitar este favorito':'Guardar este enlace como favorito local';const mark=button.querySelector('[data-bookmark-mark]');if(mark)mark.textContent=saved?'✓':'';
   }
@@ -77,28 +147,39 @@
    list.replaceChildren();if(!data.items.length)list.append(node('p','Todavía no hay favoritos. Abre una guía, técnica o caso y pulsa «Guardar en mi cuaderno».'));
    for(const [index,item] of data.items.entries()){
     const article=node('article',undefined,'notebook-item'),h=node('h3');h.append(link(item));article.append(h);
-    const label=node('label','Nota personal'),input=node('textarea');input.rows=3;input.maxLength=2000;input.value=drafts.has(item.url)?drafts.get(item.url):item.note;input.dataset.notebookNote=item.url;input.dataset.savedNote=item.note;input.id='note-'+index;label.htmlFor=input.id;article.append(label,input);
-    const actions=node('div',undefined,'actions'),saveButton=node('button','Guardar nota','button');saveButton.type='button';saveButton.addEventListener('click',()=>{item.note=input.value;input.dataset.savedNote=item.note;drafts.delete(item.url);item.updated=now();save('Nota guardada en este navegador.');});
+    const draft=drafts.get(item.url),conflict=draft&&draft.base!==item.note;
+    if(draft)draft.conflict=Boolean(conflict);
+    const label=node('label','Nota personal'),input=node('textarea');input.rows=3;input.maxLength=2000;input.value=draft?draft.value:item.note;input.dataset.notebookNote=item.url;input.dataset.savedNote=item.note;input.dataset.notebookTitle=item.title;input.dataset.updated=item.updated;input.id='note-'+index;label.htmlFor=input.id;article.append(label,input);
+    const actions=node('div',undefined,'actions'),saveButton=node('button',conflict?'Guardar mi borrador sobre la versión revisada':'Guardar nota','button');saveButton.type='button';
+    if(conflict){const details=node('div'),savedLabel=node('label','Versión guardada en otra pestaña'),saved=node('textarea');saved.id='conflict-'+index;saved.readOnly=true;saved.rows=3;saved.value=item.note;saved.dataset.notebookConflict=item.url;savedLabel.htmlFor=saved.id;details.append(node('p','La nota guardada cambió en otra pestaña. Compara ambas versiones antes de guardar tu borrador sobre ella.'),savedLabel,saved);article.append(details);}
+    saveButton.addEventListener('click',async()=>{
+     const value=input.value,expected=item.note;
+     const ok=await mutate(base=>{const target=base.items.find(row=>row.url===item.url);if(!target)throw Error('Este favorito fue retirado desde otra pestaña. Puedes restaurar el borrador conservado.');if(target.note!==expected)throw Error('La nota cambió en otra pestaña. Revisa ambas versiones antes de guardar.');target.note=value;target.updated=now();return base;},'Nota guardada en este navegador.');
+     if(ok){input.dataset.savedNote=value;drafts.delete(item.url);render();}
+    });
     const copy=node('button','Copiar nota en Markdown','button');copy.type='button';copy.dataset.notebookCopy=item.url;
     const copyHint=node('p','La copia incluye el texto actual de la nota, aunque aún no lo hayas guardado.','muted');
     const fallback=node('div');fallback.hidden=true;const fallbackLabel=node('label','Markdown para copiar manualmente'),fallbackInput=node('textarea');fallbackInput.readOnly=true;fallbackInput.rows=6;fallbackInput.id='markdown-'+index;fallbackInput.dataset.notebookMarkdown=item.url;fallbackLabel.htmlFor=fallbackInput.id;fallback.append(fallbackLabel,fallbackInput);
     copy.addEventListener('click',async()=>{const text=markdown({...item,note:input.value});try{if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(text);fallback.hidden=true;status(input.value===item.note?'Nota copiada en Markdown.':'Texto actual copiado en Markdown; los cambios de la nota todavía no se han guardado.');}catch{fallbackInput.value=text;fallback.hidden=false;fallbackInput.focus();fallbackInput.select();status('No se pudo usar el portapapeles. El Markdown está seleccionado; cópialo con el menú del navegador o Ctrl+C / Command+C.');}});
-    const remove=node('button','Quitar favorito','button');remove.type='button';remove.addEventListener('click',()=>{data.items=data.items.filter(i=>i!==item);save('Favorito retirado; su nota también se eliminó.');render();const next=document.querySelector('[data-notebook-list] a')||document.querySelector('[data-notebook-export]');next?.focus();});actions.append(saveButton,copy,remove);article.append(actions,copyHint,fallback);list.append(article);
+    const remove=node('button','Quitar favorito','button');remove.type='button';remove.addEventListener('click',async()=>{const ok=await mutate(base=>{const target=base.items.find(row=>row.url===item.url);if(target&&JSON.stringify(target)!==JSON.stringify(item))throw Error('El favorito cambió en otra pestaña. Revisa su contenido antes de retirarlo.');base.items=base.items.filter(row=>row.url!==item.url);return base;},'Favorito retirado; cualquier borrador sin guardar sigue disponible para recuperarlo.');if(ok){render();const next=document.querySelector('[data-notebook-restore]')||document.querySelector('[data-notebook-list] a')||document.querySelector('[data-notebook-export]');next?.focus();}});actions.append(saveButton,copy,remove);article.append(actions,copyHint,fallback);list.append(article);
    }
   }
   if(focusedURL){const replacement=[...document.querySelectorAll('textarea[data-notebook-note]')].find(input=>input.dataset.notebookNote===focusedURL);if(replacement){replacement.focus({preventScroll:true});replacement.setSelectionRange(...selection);}}
   const resume=document.querySelector('[data-notebook-resume]');if(resume){resume.replaceChildren();if(!data.reading.length)resume.append(node('p','Aún no hay puntos de lectura. Se guardan al recorrer una guía o un caso con JavaScript activo.'));for(const item of [...data.reading].reverse()){const p=node('p');p.append(link(item));resume.append(p);}}
-  renderProgress();
+  recoveryPanel();renderOrphans();renderProgress();
  };
- document.querySelectorAll('[data-bookmark]').forEach(button=>button.addEventListener('click',()=>{
+ document.querySelectorAll('[data-bookmark]').forEach(button=>button.addEventListener('click',async()=>{
   const url=cleanURL(button.dataset.bookmark);if(!url)return;const found=data.items.find(item=>item.url===url);
-  if(found){data.items=data.items.filter(item=>item!==found);save('Favorito retirado de este navegador.');}
-  else{if(data.items.length>=200){status('El cuaderno admite 200 favoritos. Exporta una copia y retira algunos para añadir más.');return;}data.items.push({url,title:button.dataset.bookmarkTitle.slice(0,160),note:'',updated:now()});save('Favorito guardado en este navegador.');}render();
+  const ok=await mutate(base=>{const current=base.items.find(item=>item.url===url);
+   if(found){if(current&&JSON.stringify(current)!==JSON.stringify(found))throw Error('El favorito cambió en otra pestaña. Revísalo en Mi cuaderno antes de retirarlo.');base.items=base.items.filter(item=>item.url!==url);}
+   else if(!current){if(base.items.length>=200)throw Error('El cuaderno admite 200 favoritos. Exporta una copia y retira algunos para añadir más.');base.items.push({url,title:(button.dataset.bookmarkTitle||url).slice(0,160),note:'',updated:now()});}return base;
+  },found?'Favorito retirado de este navegador.':'Favorito guardado en este navegador.');if(ok)render();
  }));
  document.querySelectorAll('[data-notebook-export]').forEach(button=>button.addEventListener('click',()=>{
+  if(recovery&&button.dataset.notebookExport==='json'){download(recovery.raw,'iphobiuss-cuaderno-original.json');status('Se descargó el original sin modificar. Revisa su recuperación antes de importarlo; el almacenamiento sigue intacto.');return;}
   const links=button.dataset.notebookExport==='links';
   const text=links?['Cuaderno local de iphobiuss','Favoritos:',...data.items.map(item=>item.title+'\nhttps://iphobiuss.github.io/'+item.url),'Puntos de lectura:',...data.reading.map(item=>item.title+'\nhttps://iphobiuss.github.io/'+item.url)].join('\n\n'):JSON.stringify(data,null,2);
-  const blob=new Blob([text],{type:links?'text/plain;charset=utf-8':'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=node('a');a.href=url;a.download=links?'iphobiuss-cuaderno-enlaces.txt':'iphobiuss-cuaderno.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);status(links?'Enlaces exportados. El archivo TXT no contiene tus notas.':'Cuaderno exportado; el JSON incluye solo tus notas guardadas, que pueden ser personales.');
+  download(text,links?'iphobiuss-cuaderno-enlaces.txt':'iphobiuss-cuaderno.json',links?'text/plain;charset=utf-8':'application/json;charset=utf-8');status(links?'Enlaces exportados. El archivo TXT no contiene tus notas.':'Cuaderno exportado; el JSON incluye solo tus notas guardadas, que pueden ser personales.');
  }));
  const importButton=document.querySelector('[data-notebook-import]'),importPanel=document.querySelector('[data-notebook-import-panel]'),fileInput=document.querySelector('[data-notebook-import-file]'),apply=document.querySelector('[data-notebook-import-apply]'),preview=document.querySelector('[data-notebook-import-preview]');let staged=null,importGeneration=0;
  const merge=(imported,base=data)=>{
@@ -116,35 +197,47 @@
   try{if(file.size>MAX_BYTES)throw Error('El archivo supera 4 MiB. No se leyó ni añadió su contenido.');const text=await file.text();if(generation!==importGeneration)return;if(new TextEncoder().encode(text).length>MAX_BYTES)throw Error('El archivo supera 4 MiB.');const imported=validateImport(JSON.parse(text));const {added,conflicts}=merge(imported);staged=imported;preview.textContent='Revisión: '+added+' entradas nuevas y '+conflicts+' coincidencias que se conservarán como están en tu cuaderno. Los borradores sin guardar permanecen en pantalla.';apply.disabled=!added;apply.textContent='Añadir '+added+' entradas nuevas';}
   catch(error){if(generation!==importGeneration)return;preview.textContent=error instanceof SyntaxError?'El archivo no es un JSON válido. No se añadió ningún dato.':error.message;}
  });
- apply?.addEventListener('click',()=>{
-  if(!staged)return;captureDrafts();
+ apply?.addEventListener('click',async()=>{
+  if(!staged)return;const imported=staged,generation=importGeneration;apply.disabled=true;captureDrafts();
   try{
-   // Re-read at commit so a preview cannot overwrite another tab's newer notebook.
-   let base=data;
-   if(persistent){const latest=localStorage.getItem(KEY);base=latest?validateImport(JSON.parse(latest)):blank();}
-   const {result,added,conflicts}=merge(staged,base);
-   if(persistent)localStorage.setItem(KEY,JSON.stringify(result));
-   data=result;render();closeImport();status('Se añadieron '+added+' entradas; '+conflicts+' coincidencias conservaron su contenido.'+(!persistent?' '+persistenceMessage:''));
-  }catch(error){preview.textContent='No se pudo añadir el respaldo. Se conserva el cuaderno y los borradores. '+(error.name==='QuotaExceededError'?'El almacenamiento está lleno; exporta una copia y libera espacio.':error.message);apply.disabled=false;}
+   await locked(()=>{
+    // Cancelled/replaced reviews must never commit after waiting for another tab.
+    if(generation!==importGeneration)return;
+    const {result,added,conflicts}=merge(imported,latest());validateImport(result);
+    if(persistent)localStorage.setItem(KEY,JSON.stringify(result));
+    data=result;render();closeImport();status('Se añadieron '+added+' entradas; '+conflicts+' coincidencias conservaron su contenido.'+(!persistent?' '+persistenceMessage:''));
+   });
+  }catch(error){if(generation!==importGeneration)return;recoveryPanel();preview.textContent='No se pudo añadir el respaldo. Se conserva el cuaderno y los borradores. '+(error.name==='QuotaExceededError'?'El almacenamiento está lleno; exporta una copia y libera espacio.':error.message);apply.disabled=false;}
  });
- const clear=document.querySelector('[data-notebook-clear]'),confirm=document.querySelector('[data-notebook-clear-confirm]');
- clear?.addEventListener('click',()=>{confirm.hidden=false;clear.setAttribute('aria-expanded','true');document.querySelector('[data-notebook-clear-cancel]')?.focus();});
- document.querySelector('[data-notebook-clear-cancel]')?.addEventListener('click',()=>{confirm.hidden=true;clear.setAttribute('aria-expanded','false');clear.focus();});
- document.querySelector('[data-notebook-clear-yes]')?.addEventListener('click',()=>{data=blank();drafts.clear();document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>input.dataset.savedNote=input.value);let removed=true;try{localStorage.removeItem(KEY);persistent=true;}catch{removed=false;persistent=false;}confirm.hidden=true;clear.setAttribute('aria-expanded','false');render();status(removed?'Cuaderno eliminado de este navegador. Los archivos exportados permanecen en tu equipo.':'Se vació el cuaderno de esta página; no pudo confirmarse el borrado del almacenamiento del navegador.');clear.focus();});
- confirm?.addEventListener('keydown',event=>{if(event.key==='Escape'&&!confirm.hidden){event.stopPropagation();confirm.hidden=true;clear.setAttribute('aria-expanded','false');clear.focus();}});
+ const clear=document.querySelector('[data-notebook-clear]'),confirm=document.querySelector('[data-notebook-clear-confirm]');let clearGeneration=0;
+ const closeClear=()=>{clearGeneration++;confirm.hidden=true;clear.setAttribute('aria-expanded','false');clear.focus();};
+ clear?.addEventListener('click',()=>{clearGeneration++;confirm.hidden=false;clear.setAttribute('aria-expanded','true');document.querySelector('[data-notebook-clear-cancel]')?.focus();});
+ document.querySelector('[data-notebook-clear-cancel]')?.addEventListener('click',closeClear);
+ document.querySelector('[data-notebook-clear-yes]')?.addEventListener('click',async()=>{const generation=clearGeneration;await locked(()=>{if(generation!==clearGeneration)return;data=blank();drafts.clear();orphans.clear();document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>input.dataset.savedNote=input.value);let removed=true;try{localStorage.removeItem(KEY);persistent=Boolean(navigator.locks?.request);recovery=null;}catch{removed=false;persistent=false;}closeClear();render();status(removed?'Cuaderno eliminado de este navegador. Los archivos exportados permanecen en tu equipo.':'Se vació el cuaderno de esta página; no pudo confirmarse el borrado del almacenamiento del navegador.');});});
+ confirm?.addEventListener('keydown',event=>{if(event.key==='Escape'&&!confirm.hidden){event.stopPropagation();closeClear();}});
  const progress=document.querySelector('[data-reader-progress]');
  if(progress){
   const title=(document.querySelector('h1')?.getAttribute('aria-label')||document.querySelector('h1')?.textContent||page).slice(0,130);
   const headings=[...document.querySelectorAll('.article-content h2[id],.article-content section[id],.guide-body section[id]')].filter(el=>el.id&&!el.closest('[hidden]'));let timer=0,last='';
-  const update=()=>{
+  const update=async()=>{
    const available=headings.filter(el=>el.getClientRects().length>0);if(!available.length)return;
    let current=available[0];for(const el of available){if(el.getBoundingClientRect().top<=innerHeight*.45)current=el;else break;}
-   const url=page+'.html#'+current.id;if(url===last)return;last=url;
+   const url=page+'.html#'+current.id;if(url===last)return;
    const label=(current.querySelector('h2')?.textContent||current.textContent).trim().slice(0,100);
-   data.reading=data.reading.filter(item=>item.url.split('#')[0]!==page+'.html');data.reading.push({url,title:(title+' · '+label).slice(0,160),note:'',updated:now()});data.reading=data.reading.slice(-40);save(null);progress.textContent=persistent?'Punto de lectura guardado':'Punto de lectura disponible solo durante esta página';progress.title=label;
+   const ok=await mutate(base=>{base.reading=base.reading.filter(item=>item.url.split('#')[0]!==page+'.html');base.reading.push({url,title:(title+' · '+label).slice(0,160),note:'',updated:now()});base.reading=base.reading.slice(-40);return base;});
+   if(ok){last=url;progress.textContent=persistent?'Punto de lectura guardado':'Punto de lectura disponible solo durante esta página';progress.title=label;}
   };
   window.addEventListener('scroll',()=>{if(!timer)timer=setTimeout(()=>{timer=0;update();},650);},{passive:true});
  }
- window.addEventListener('storage',event=>{if(event.key!==KEY&&event.key!==null)return;try{data=event.key===null||!event.newValue?blank():validateImport(JSON.parse(event.newValue));render();status('Cuaderno actualizado desde otra pestaña.'+(drafts.size?' Las notas sin guardar permanecen en pantalla.':''));}catch{persistent=false;renderProgress();status('No se pudo leer la actualización de otra pestaña. Se conservan los datos de esta página sin sobrescribir el almacenamiento; exporta una copia antes de salir.');}});
- render();document.documentElement.classList.add('notebook-ready');status(persistent?'Favoritos y lectura guardados solo en este navegador.':persistenceMessage,false);
+ window.addEventListener('storage',event=>{
+  if(event.key!==KEY&&event.key!==null)return;
+  let raw;try{
+   if(event.storageArea!==localStorage)return;
+   // Read the latest value: queued events can describe an older state than our own write.
+   raw=localStorage.getItem(KEY);const next=raw===null?blank():parse(raw);
+   if(!persistent){status('El almacenamiento cambió en otra pestaña. Esta página conserva su cuaderno temporal; exporta una copia antes de recargar.');return;}
+   data=next;render();status('Cuaderno actualizado desde otra pestaña.'+(drafts.size||orphans.size?' Las notas sin guardar permanecen disponibles en esta pestaña.':''));
+  }catch{preserveRaw(raw);render();status('No se pudo leer la actualización de otra pestaña. Se conservan los datos de esta página sin sobrescribir el almacenamiento; exporta una copia antes de salir.');}
+ });
+ render();document.documentElement.classList.add('notebook-ready');status(persistent?'Favoritos y lectura guardados solo en este navegador.':(recovery?rawMessage:'')+persistenceMessage,false);
 })();
