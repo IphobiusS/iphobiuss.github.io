@@ -5,6 +5,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const html = document.documentElement;
   const page = document.body.dataset.page;
+  const english = html.lang === 'en';
   const storage = {
     get(key) { try { return localStorage.getItem('iphobiuss:' + key); } catch { return null; } },
     set(key, value) { try { localStorage.setItem('iphobiuss:' + key, value); } catch { /* Local preferences are optional. */ } }
@@ -73,7 +74,7 @@
     html.dataset.retro = enabled ? 'on' : 'off';
     retroButtons.forEach(button => {
       button.setAttribute('aria-pressed', String(enabled));
-      button.setAttribute('aria-label', `Retro ${enabled ? 'ON' : 'OFF'}: apariencia CRT`);
+      button.setAttribute('aria-label', `Retro ${enabled ? 'ON' : 'OFF'}: ${english ? 'CRT appearance' : 'apariencia CRT'}`);
       const state = $('[data-retro-state]', button);
       if (state) state.textContent = enabled ? 'ON' : 'OFF';
     });
@@ -83,7 +84,7 @@
     if (enabled) html.dataset.theme = 'paper'; else delete html.dataset.theme;
     paperButtons.forEach(button => {
       button.setAttribute('aria-pressed', String(enabled));
-      button.setAttribute('aria-label', `Papel ${enabled ? 'ON' : 'OFF'}: tema claro`);
+      button.setAttribute('aria-label', `${english ? 'Paper' : 'Papel'} ${enabled ? 'ON' : 'OFF'}: ${english ? 'light theme' : 'tema claro'}`);
       const state = $('[data-paper-state]', button);
       if (state) state.textContent = enabled ? 'ON' : 'OFF';
     });
@@ -95,13 +96,13 @@
     const enabled = html.dataset.retro !== 'on';
     if (enabled && html.dataset.theme === 'paper') { setPaper(false); storage.set('theme', ''); }
     setRetro(enabled); storage.set('retro', enabled ? 'on' : 'off');
-    announce(enabled ? (page === 'index' ? 'Retro activado: paleta verde y cuadrícula. Líneas CRT solo en portada, sin pausa ni movimiento reducido.' : 'Retro activado: paleta verde y cuadrícula. Esta lectura no tiene líneas CRT.') : 'Retro desactivado.');
+    announce(english ? (enabled ? 'Retro enabled: green palette and pixel borders. No CRT lines on this reading page.' : 'Retro disabled.') : enabled ? (page === 'index' ? 'Retro activado: paleta verde y cuadrícula. Líneas CRT solo en portada, sin pausa ni movimiento reducido.' : 'Retro activado: paleta verde y cuadrícula. Esta lectura no tiene líneas CRT.') : 'Retro desactivado.');
   }));
   paperButtons.forEach(button => button.addEventListener('click', () => {
     const enabled = html.dataset.theme !== 'paper';
     if (enabled && html.dataset.retro === 'on') { setRetro(false); storage.set('retro', 'off'); }
     setPaper(enabled); storage.set('theme', enabled ? 'paper' : '');
-    announce(enabled ? 'Papel activado: fondo claro para leer.' : 'Papel desactivado.');
+    announce(english ? (enabled ? 'Paper enabled: light background for reading.' : 'Paper disabled.') : (enabled ? 'Papel activado: fondo claro para leer.' : 'Papel desactivado.'));
   }));
   window.addEventListener('storage', event => {
     if (event.key === 'iphobiuss:retro' || event.key === 'iphobiuss:theme' || event.key === null) {

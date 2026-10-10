@@ -45,7 +45,9 @@
     const reducedNow = systemReduced(), unsupported = !reduced, active = running() && onScreen;
     html.dataset.motion = active ? 'running' : 'paused';
     reflectPaused();
-    const label = reducedNow ? 'Animación: reducida' : unsupported ? 'Animación: no disponible' : preference === 'paused' ? 'Animación: pausada' : active ? 'Animación: activa' : 'Animación: pausada automáticamente';
+    const english = html.lang === 'en';
+    const animationName = english ? 'Site animation' : 'Animación del sitio';
+    const label = english ? (reducedNow ? 'Animation: reduced' : unsupported ? 'Animation: unavailable' : preference === 'paused' ? 'Animation: paused' : active ? 'Animation: running' : 'Animation: automatically paused') : (reducedNow ? 'Animación: reducida' : unsupported ? 'Animación: no disponible' : preference === 'paused' ? 'Animación: pausada' : active ? 'Animación: activa' : 'Animación: pausada automáticamente');
     toggles.forEach(button => {
       button.hidden = false; button.disabled = unsupported || reducedNow;
       // Pulsado significa movimiento habilitado, igual que en Papel y Retro. El nombre accesible permanece
@@ -56,12 +58,12 @@
       // Visible labels stay stable. A wave or pause bars conveys state without relying on color.
       const indicator = button.querySelector('[data-motion-indicator]');
       if (indicator) indicator.setAttribute('d', enabled ? 'M22 12h-4l-3 9-6-18-3 9H2' : 'M9 4v16M15 4v16');
-      button.setAttribute('aria-label', button.hasAttribute('data-compact') ? 'Fondo animado' : 'Animación del sitio');
-      button.title = reducedNow ? 'Tu sistema solicita menos movimiento.' : unsupported ? 'Este navegador no permite consultar la preferencia de movimiento.' : preference === 'paused' ? 'Activar las animaciones.' : 'Pausar las animaciones.';
+      button.setAttribute('aria-label', button.hasAttribute('data-compact') ? (english ? 'Background motion' : 'Fondo animado') : animationName);
+      button.title = english ? (reducedNow ? 'Your system requests reduced motion.' : unsupported ? 'This browser cannot read the motion preference.' : preference === 'paused' ? 'Enable animations.' : 'Pause animations.') : (reducedNow ? 'Tu sistema solicita menos movimiento.' : unsupported ? 'Este navegador no permite consultar la preferencia de movimiento.' : preference === 'paused' ? 'Activar las animaciones.' : 'Pausar las animaciones.');
       if (!button.hasAttribute('data-compact')) {
         const state = button.querySelector('[data-motion-state]');
-        if (state) state.textContent = label.slice('Animación'.length);
-        else if (button.textContent !== 'Animación del sitio') button.textContent = 'Animación del sitio';
+        if (state) state.textContent = label.slice((english ? 'Animation' : 'Animación').length);
+        else if (button.textContent !== animationName) button.textContent = animationName;
       }
     });
     replays.forEach(button => { button.hidden = false; button.disabled = unsupported || reducedNow || preference === 'paused'; });
