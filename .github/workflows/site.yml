@@ -41,6 +41,7 @@ jobs:
           npm run test:publish
           npm run test:links
           npm run test:report-assets
+          npm run test:public-cv
       - name: Verify Matrix entrance
         run: npm run test:intro
       - name: Verify portfolio and reporting evidence

@@ -33,6 +33,12 @@
 [data-intro-preference-state]{font-size:.75em;font-weight:400;color:var(--dim)}
 .appearance-panel>.intro-preference-note{font-size:.8rem;line-height:1.6;margin:.1rem 0 0}
 @media(prefers-reduced-motion:no-preference){
+  html:not([data-paused]) .site-intro,
+  html:not([data-paused]) .site-intro::backdrop{transition:opacity .5s ease-in-out}
+  html:not([data-paused]) .site-intro .intro-card{transition:transform .5s cubic-bezier(.22,1,.36,1)}
+  html:not([data-paused]) .site-intro[data-intro-leaving],
+  html:not([data-paused]) .site-intro[data-intro-leaving]::backdrop{opacity:0}
+  html:not([data-paused]) .site-intro[data-intro-leaving] .intro-card{transform:translateY(-12px) scale(.985)}
   html:not([data-paused]) .site-intro[open] .intro-rain>span{animation:intro-rain 7s linear both}
   html:not([data-paused]) .site-intro[open] .intro-rain>span:nth-child(3n){animation-duration:9s;animation-delay:-2s}
   html:not([data-paused]) .site-intro[open] .intro-rain>span:nth-child(3n+1){animation-duration:8s;animation-delay:-1s}

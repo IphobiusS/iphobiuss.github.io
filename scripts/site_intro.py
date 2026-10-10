@@ -34,11 +34,13 @@ BOOTSTRAP = r'''(() => {
   // Late CSS cannot introduce a modal after the visitor has begun using the page.
   // The local stylesheet declares this guard; a missing stylesheet means no intro.
   if (performance.now() > 1800 || getComputedStyle(dialog).getPropertyValue('--site-intro-ready').trim() !== '1') return;
-  let closed = false, timer;
+  let closed = false, exitTimer, deadline;
   const close = (reason) => {
     if (closed) return;
     closed = true;
-    clearTimeout(timer);
+    clearTimeout(exitTimer);
+    clearTimeout(deadline);
+    dialog.removeEventListener('transitionend', complete);
     if (dialog.open) dialog.close();
     dialog.hidden = true;
     document.removeEventListener('visibilitychange', visibility);
@@ -57,6 +59,9 @@ BOOTSTRAP = r'''(() => {
   const print = () => close('print');
   const reduce = () => { if (reduced.matches) close('reduced-motion'); };
   const printChange = () => { if (printing.matches) close('print'); };
+  const complete = event => {
+    if (event.target === dialog && event.propertyName === 'opacity' && !event.pseudoElement) close('complete');
+  };
   dialog.querySelector('[data-intro-skip]').addEventListener('click', () => close('skip'));
   dialog.addEventListener('cancel', event => { event.preventDefault(); close('escape'); });
   dialog.addEventListener('close', () => close('closed'), {once: true});
@@ -65,10 +70,15 @@ BOOTSTRAP = r'''(() => {
   addEventListener('beforeprint', print);
   reduced.addEventListener?.('change', reduce);
   printing?.addEventListener?.('change', printChange);
+  dialog.addEventListener('transitionend', complete);
   window.__iphobiussIntro = {close};
   dialog.hidden = false;
   try { dialog.showModal(); } catch { close('unavailable'); return; }
-  timer = setTimeout(() => close('complete'), 2500);
+  // Keep the document fully covered until the welcome is readable. Fade both
+  // native top-layer surfaces, then release the modal without an opaque snap.
+  // The independent deadline also works when CSS transitions never fire.
+  exitTimer = setTimeout(() => { if (!closed) dialog.setAttribute('data-intro-leaving', ''); }, 2000);
+  deadline = setTimeout(() => close('complete'), 2600);
 })();'''
 
 

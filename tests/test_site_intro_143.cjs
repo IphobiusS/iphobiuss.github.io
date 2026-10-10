@@ -4,7 +4,7 @@ const fs = require('node:fs'), path = require('node:path'), http = require('node
 const { chromium } = require('playwright');
 const { axeSource } = require('./qa-deps.cjs');
 const root = path.resolve(process.env.SITE_INTRO_DIST || path.join(__dirname, '../dist'));
-const output = path.resolve(process.env.SITE_INTRO_OUTPUT || path.join(__dirname, '../audit-v14.4/intro'));
+const output = path.resolve(process.env.SITE_INTRO_OUTPUT || path.join(__dirname, '../audit-v14.5/intro'));
 fs.mkdirSync(output, { recursive: true });
 const checks = []; let browser, base;
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp' };
@@ -78,9 +78,9 @@ async function clean(page, errors) {
 function expectOneCycle(audit) {
   assert.deepEqual(audit.events.map(event => event.open), [true, false]);
   const duration = audit.events[1].at - audit.events[0].at;
-  // The product closes after 2500 ms. Allow 700 ms of scheduler delay on CI;
-  // the separate 1800 ms navigation guard controls whether it may open at all.
-  assert.ok(duration <= 3200, 'intro must promptly release the page; measured ' + duration + ' ms');
+  // The 500 ms exit starts at 2 s; an independent 2.6 s deadline covers missing
+  // transition events. The navigation guard is separate from this visible time.
+  assert.ok(duration <= 3000, 'intro must promptly release the page; measured ' + duration + ' ms');
   return { durationMs: Math.round(duration), navigation: audit.navigation };
 }
 async function noOpening(page) {
@@ -109,10 +109,51 @@ async function dismiss(page) {
     await page.waitForTimeout(140);
     const rainAfter = await page.locator('.intro-rain>span').first().evaluate(node => getComputedStyle(node).transform);
     assert.notEqual(rainAfter, rainBefore, 'the decorative symbols visibly move down while the terminal is open');
+    const beforeExit = await page.locator('[data-site-intro]').evaluate(dialog => ({ opacity: getComputedStyle(dialog).opacity, backdrop: getComputedStyle(dialog, '::backdrop').opacity }));
+    assert.deepEqual(beforeExit, { opacity: '1', backdrop: '1' }, 'the site remains fully covered before the deliberate reveal');
+    await page.waitForFunction(() => document.querySelector('[data-site-intro]').hasAttribute('data-intro-leaving'));
+    await page.waitForTimeout(170);
+    const midway = await page.locator('[data-site-intro]').evaluate(dialog => ({ open: dialog.open, modal: dialog.matches(':modal'), opacity: Number(getComputedStyle(dialog).opacity), backdrop: Number(getComputedStyle(dialog, '::backdrop').opacity), welcome: Number(getComputedStyle(dialog.querySelector('.intro-line-ready')).opacity), card: getComputedStyle(dialog.querySelector('.intro-card')).transform }));
+    assert.equal(midway.open, true); assert.equal(midway.modal, true, 'the native modal remains active while it is fading');
+    assert.ok(midway.opacity > 0 && midway.opacity < 1, 'the dialog is visibly between opaque and transparent');
+    assert.ok(midway.backdrop > 0 && midway.backdrop < 1, 'the native backdrop fades too, so it cannot conceal the reveal');
+    assert.equal(midway.welcome, 1, 'the welcome line finishes before the exit starts');
+    assert.notEqual(midway.card, 'none', 'the terminal moves gently as it leaves');
+    await page.screenshot({ path: path.join(output, 'intro-reveal-midpoint.png') });
     await closed(page);
     const result = expectOneCycle(await state(page));
     assert.ok(result.durationMs >= 2400, 'the intended intro actually played');
     assert.equal(await page.evaluate(() => sessionStorage.getItem('iphobiuss:intro')), '1');
+    await page.screenshot({ path: path.join(output, 'intro-reveal-complete.png') });
+    await clean(page, errors); await context.close(); return { ...result, beforeExit, midway };
+  });
+
+  for (const action of ['button', 'Escape', 'reduced-motion']) await check('exit can still be interrupted immediately: ' + action, async () => {
+    const { context, page, errors } = await fresh();
+    await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' }); await opened(page);
+    await page.waitForFunction(() => document.querySelector('[data-site-intro]').hasAttribute('data-intro-leaving'));
+    const before = await page.evaluate(() => performance.now());
+    if (action === 'button') {
+      // A moving target is intentionally clickable during the transition; use
+      // its actual position without waiting for Playwright's stability heuristic.
+      const box = await page.locator('[data-intro-skip]').boundingBox();
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    } else if (action === 'Escape') await page.keyboard.press('Escape');
+    else await page.emulateMedia({ reducedMotion: 'reduce' });
+    await closed(page);
+    const audit = await state(page), elapsed = audit.events[1].at - before;
+    assert.ok(elapsed < 300, 'an explicit interruption must not wait for the rest of the fade: ' + elapsed);
+    if (action !== 'reduced-motion') assert.equal(await page.locator('a.skip').evaluate(link => link === document.activeElement), true, 'deliberate skips move focus to the existing skip link');
+    await clean(page, errors); await context.close(); return { ...expectOneCycle(audit), interruptionMs: Math.round(elapsed) };
+  });
+
+  await check('missing transition events still release the page by the independent deadline', async () => {
+    const { context, page, errors } = await fresh();
+    await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' }); await opened(page);
+    await page.evaluate(() => document.querySelector('[data-site-intro]').addEventListener('transitionend', event => event.stopImmediatePropagation(), { capture: true }));
+    await closed(page);
+    const result = expectOneCycle(await state(page));
+    assert.ok(result.durationMs >= 2550, 'the safety deadline, rather than a transition event, closes the dialog');
     await clean(page, errors); await context.close(); return result;
   });
 

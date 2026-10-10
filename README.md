@@ -1,16 +1,16 @@
-# iphobiuss · sitio estático v14.4
+# iphobiuss · sitio estático v14.5
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
 
 ## Entrada de terminal
 
-La primera entrada de cada sesión y una recarga explícita muestran una terminal durante 2,5 segundos, sobre un fondo opaco con lluvia verde de caracteres. Puedes omitirla con el botón o Escape. La navegación interna, los enlaces con fragmento, volver atrás, la pausa del sitio y la reducción de movimiento conservan el acceso directo. En Apariencia puedes desactivar o reactivar la entrada; la preferencia se guarda únicamente en el navegador.
+La primera entrada de cada sesión y una recarga explícita muestran una terminal durante unos 2,5 segundos, sobre un fondo opaco con lluvia verde de caracteres. Tras «Bienvenido», terminal y fondo se desvanecen durante medio segundo para revelar el sitio. Un cierre independiente a los 2,6 segundos evita depender del evento de transición. Puedes omitirla con el botón o Escape. La navegación interna, los enlaces con fragmento, volver atrás, la pausa del sitio y la reducción de movimiento conservan el acceso directo. En Apariencia puedes desactivar o reactivar la entrada; la preferencia se guarda únicamente en el navegador.
 
 La secuencia es decorativa y no representa escaneos ni verificaciones de seguridad. El contenido permanece disponible sin JavaScript, y la apertura y el cierre no dependen de que termine una descarga de recursos.
 
 ## Portafolio y búsqueda
 
-La portada enlaza directamente al CV en PDF. Cap y Forest abren con un resumen de problema, decisión, evidencia, resultado y límite; el detalle técnico mantiene sus enlaces. La bitácora (`bitacora.html` y `engineering-notes.html`) documenta decisiones de proyectos propios y laboratorios, con fuentes y una fecha de revisión explícita.
+La portada enlaza directamente al CV público en PDF, sin correo ni teléfono. La censura elimina el contenido de esos campos y sus metadatos; conserva las dos páginas y los enlaces profesionales. `test:public-cv` revisa texto, enlaces, metadatos y objetos antes de publicar. Cap y Forest abren con un resumen de problema, decisión, evidencia, resultado y límite; el detalle técnico mantiene sus enlaces. La bitácora (`bitacora.html` y `engineering-notes.html`) documenta decisiones de proyectos propios y laboratorios, con fuentes y una fecha de revisión explícita.
 
 La ficha de report-gen utiliza `content/report-gen-status.json`: es una instantánea fechada de una revisión concreta y sus comprobaciones, no un estado en vivo. Al actualizar el programa, revisa también ese archivo, sus enlaces de ejecución y las validaciones pendientes.
 
@@ -56,6 +56,7 @@ npm run test:build
 npm run test:publish
 npm run test:links
 npm run test:report-assets
+npm run test:public-cv
 npm run test:intro
 npm run test:portfolio
 npm run test:report-status
