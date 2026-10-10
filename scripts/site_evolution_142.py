@@ -7,7 +7,7 @@ from lxml import html
 
 ENGLISH_PAGES = {
     'english.html': ('A short introduction', 'Junior penetration tester in Santiago: documented lab decisions, evidence and a local reporting tool.', 'recorrido.html'),
-    'report-gen-en.html': ('report-gen: from evidence to delivery', 'A local report editor for findings, evidence, review and recipient-specific exports.', 'proyectos.html'),
+    'report-gen-en.html': ('report-gen: from evidence to delivery', 'A local report editor with a Linux installer, external workspaces, a project catalogue, reviewed remediation returns and shareable diagnostics.', 'proyectos.html'),
     'cap-case-en.html': ('Cap: object access and effective privileges', 'An English summary of the documented HTB Cap lab, its decisions, evidence and limits.', 'cap-caso.html'),
     'forest-case-en.html': ('Forest: identity, permissions and replication', 'An English summary of the documented HTB Forest lab, with explicit evidence and limits.', 'forest-caso.html'),
 }
@@ -28,15 +28,17 @@ def add_resource(tree, tag, **attrs):
 def demo_widget(language='es'):
     labels = {
         'es': {
-            'heading': 'Prueba un hallazgo, compara dos lecturas',
-            'scope': 'Ejercicio ficticio en este navegador. Edita los campos y actualiza la comparación. La vista técnica conserva la observación; la ejecutiva destaca la consecuencia y la decisión. No usa IA, no ejecuta pruebas y no genera un informe de report-gen.',
+            'heading': 'Edita una ficha y comprueba cómo se presenta',
+            'scope': 'Ejercicio ficticio en este navegador. Edita los campos: las dos vistas HTML se actualizan mientras escribes. La vista técnica conserva la observación; la ejecutiva destaca la consecuencia y la decisión. No usa IA, no ejecuta pruebas y no genera un informe de report-gen.',
             'legend': 'Datos del ejemplo', 'title': 'Título', 'asset': 'Activo ficticio',
+            'severity': 'Severidad ilustrativa', 'severity_value': 'Alta', 'severity_options': ('Informativa', 'Baja', 'Media', 'Alta', 'Crítica'),
+            'severity_help': 'La eliges tú para este ejemplo; no se calcula CVSS ni se valida el riesgo.',
             'observation': 'Observación técnica', 'impact': 'Consecuencia para el negocio', 'remedy': 'Acción propuesta',
             'title_value': 'Acceso a documentos de otra cuenta', 'asset_value': 'Portal de documentos · laboratorio local',
             'observation_value': 'En el guion, la cuenta A recibe un documento de la cuenta B al cambiar la referencia solicitada.',
             'impact_value': 'La separación entre cuentas podría fallar y exponer documentos privados de otro cliente ficticio.',
             'remedy_value': 'Validar en el servidor la identidad, el propietario y el permiso sobre cada documento. Repetir controles positivos y negativos.',
-            'update': 'Actualizar comparación', 'reset': 'Restablecer ejemplo', 'technical': 'Lectura técnica', 'executive': 'Lectura ejecutiva',
+            'update': 'Revisar campos', 'reset': 'Restablecer ejemplo', 'technical': 'Lectura técnica', 'executive': 'Lectura ejecutiva',
             'pending': 'Ejemplo sintético · sin prueba ni retest',
             'state': 'La comparación inicial está disponible sin JavaScript. Para editarla, activa JavaScript.',
             'privacy': 'El ejercicio no envía ni guarda tus cambios. Al recargar, vuelve el ejemplo ficticio.',
@@ -44,14 +46,16 @@ def demo_widget(language='es'):
         },
         'en': {
             'heading': 'Edit one finding, compare two audiences',
-            'scope': 'A fictional exercise in this browser. Edit the fields and update the comparison. The technical view keeps the observation; the executive view highlights the consequence and decision. This does not use AI, run security tests or generate a report-gen document.',
+            'scope': 'A fictional exercise in this browser. Edit the fields: both HTML previews update as you type. The technical view keeps the observation; the executive view highlights the consequence and decision. This does not use AI, run security tests or generate a report-gen document.',
             'legend': 'Example fields', 'title': 'Title', 'asset': 'Fictional asset',
+            'severity': 'Illustrative severity', 'severity_value': 'High', 'severity_options': ('Informational', 'Low', 'Medium', 'High', 'Critical'),
+            'severity_help': 'You choose it for this example; no CVSS calculation or risk validation is performed.',
             'observation': 'Technical observation', 'impact': 'Business consequence', 'remedy': 'Proposed action',
             'title_value': 'Access to another account’s documents', 'asset_value': 'Document portal · local laboratory',
             'observation_value': 'In the scenario, account A receives a document belonging to account B after changing the requested reference.',
             'impact_value': 'Account separation could fail and expose another fictional customer’s private documents.',
             'remedy_value': 'Validate identity, ownership and permission for every document on the server. Repeat positive and negative controls.',
-            'update': 'Update comparison', 'reset': 'Reset example', 'technical': 'Technical reading', 'executive': 'Executive reading',
+            'update': 'Review fields', 'reset': 'Reset example', 'technical': 'Technical reading', 'executive': 'Executive reading',
             'pending': 'Synthetic example · no test or retest',
             'state': 'The initial comparison works without JavaScript. Enable JavaScript to edit it.',
             'privacy': 'This exercise does not send or save your edits. Reloading restores the fictional example.',
@@ -60,17 +64,22 @@ def demo_widget(language='es'):
     }[language]
     e = lambda value: escape(value, quote=True)
     fields = ''
-    for name in ('title', 'asset', 'observation', 'impact', 'remedy'):
+    options = ''.join('<option{}>{}</option>'.format(' selected' if option == labels['severity_value'] else '', e(option)) for option in labels['severity_options'])
+    for name in ('title', 'severity', 'asset', 'observation', 'impact', 'remedy'):
         value = e(labels[name + '_value'])
-        control = (f'<input id="finding-{name}" name="{name}" type="text" maxlength="140" required value="{value}">'
-                   if name in ('title', 'asset') else f'<textarea id="finding-{name}" name="{name}" rows="3" maxlength="700" required>{value}</textarea>')
-        fields += f'<div class="finding-field"><label for="finding-{name}">{e(labels[name])}</label>{control}</div>'
+        if name == 'severity':
+            control = f'<select id="finding-severity" name="severity" aria-describedby="finding-severity-help">{options}</select><small id="finding-severity-help">{e(labels["severity_help"])}</small>'
+        elif name in ('title', 'asset'):
+            control = f'<input id="finding-{name}" name="{name}" type="text" maxlength="140" required value="{value}">'
+        else:
+            control = f'<textarea id="finding-{name}" name="{name}" rows="3" maxlength="700" required>{value}</textarea>'
+        fields += f'<div class="finding-field finding-field-{name}"><label for="finding-{name}">{e(labels[name])}</label>{control}</div>'
     def output(name):
         return f'<p data-finding-output="{name}">{e(labels[name + "_value"])}</p>'
     preview = ''
     for audience, field in [('technical', 'observation'), ('executive', 'impact')]:
-        preview += f'''<article class="finding-preview" aria-labelledby="finding-{audience}"><p class="finding-audience" id="finding-{audience}">{e(labels[audience])}</p><h4 data-finding-output="title">{e(labels['title_value'])}</h4><p class="finding-asset" data-finding-output="asset">{e(labels['asset_value'])}</p><dl><dt>{e(labels[field])}</dt><dd>{output(field)}</dd><dt>{e(labels['remedy'])}</dt><dd>{output('remedy')}</dd></dl><p class="finding-limit">{e(labels['pending'])}</p></article>'''
-    return f'''<section id="finding-exercise" class="finding-exercise" data-finding-demo data-language="{language}" aria-labelledby="finding-heading"><h2 id="finding-heading">{e(labels['heading'])}</h2><p id="finding-scope">{e(labels['scope'])}</p><p class="finding-privacy">{e(labels['privacy'])}</p><form data-finding-form aria-describedby="finding-scope"><fieldset disabled><legend>{e(labels['legend'])}</legend>{fields}<div class="actions"><button class="button primary" type="submit">{e(labels['update'])}</button><button class="button" type="reset">{e(labels['reset'])}</button></div></fieldset></form><p class="finding-state" data-finding-state role="status" aria-live="polite">{e(labels['state'])}</p><h3>{e(labels['result'])}</h3><div class="finding-comparison">{preview}</div></section>'''
+        preview += f'''<article class="finding-preview" aria-labelledby="finding-{audience}"><p class="finding-audience" id="finding-{audience}">{e(labels[audience])}</p><h4 data-finding-output="title">{e(labels['title_value'])}</h4><p class="finding-asset" data-finding-output="asset">{e(labels['asset_value'])}</p><dl><dt>{e(labels['severity'])}</dt><dd>{output('severity')}</dd><dt>{e(labels[field])}</dt><dd>{output(field)}</dd><dt>{e(labels['remedy'])}</dt><dd>{output('remedy')}</dd></dl><p class="finding-limit">{e(labels['pending'])}</p></article>'''
+    return f'''<section id="finding-exercise" class="finding-exercise" data-finding-demo data-language="{language}" aria-labelledby="finding-heading"><h2 id="finding-heading">{e(labels['heading'])}</h2><p id="finding-scope">{e(labels['scope'])}</p><p class="finding-privacy">{e(labels['privacy'])}</p><form data-finding-form aria-describedby="finding-scope" autocomplete="off"><fieldset disabled><legend>{e(labels['legend'])}</legend>{fields}<div class="actions"><button class="button primary" type="submit">{e(labels['update'])}</button><button class="button" type="reset">{e(labels['reset'])}</button></div></fieldset></form><p class="finding-state" data-finding-state role="status" aria-live="polite">{e(labels['state'])}</p><h3>{e(labels['result'])}</h3><div class="finding-comparison">{preview}</div></section>'''
 
 
 def english_chrome(filename, tree):

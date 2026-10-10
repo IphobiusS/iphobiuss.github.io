@@ -1,0 +1,6 @@
+/* Keep native disclosure markers and usable text width at 200% on narrow screens. */
+@media screen{
+  .entry-details[data-http-scenario]>summary{display:list-item;list-style:revert;padding-inline:min(1rem,4vw)}
+  .entry-details[data-http-scenario]>summary::after{content:none}
+  .entry-details[data-http-scenario]>summary::-webkit-details-marker{display:inline}
+}

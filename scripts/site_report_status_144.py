@@ -26,8 +26,24 @@ def validate_snapshot(data, report):
     if data['version'] != report['version'] or sha != report['source_commit']:
         raise ValueError('Update the report-gen verification snapshot with the download')
     repo = data['repository']
-    if repo != 'https://github.com/IphobiusS/report-gen' or report['download'] != f'{repo}/archive/{sha}.zip':
-        raise ValueError('The verification snapshot must describe the immutable download')
+    if repo != 'https://github.com/IphobiusS/report-gen':
+        raise ValueError('Unexpected report-gen repository')
+    release = data.get('release')
+    if report.get('distribution') == 'github-release':
+        stem = f"report-gen-{report['version']}-{sha[:12]}"
+        expected = f"{repo}/releases/download/v{report['version']}/{stem}.zip"
+        if (not isinstance(release, dict) or release != report.get('release')
+                or release.get('source_commit') != sha or release.get('tag') != 'v' + report['version']
+                or release.get('asset_name') != stem + '.zip' or report['download'] != expected
+                or release.get('download') != expected
+                or release.get('html_url') != f"{repo}/releases/tag/v{report['version']}"
+                or not re.fullmatch(r'[0-9a-f]{64}', release.get('sha256', ''))
+                or report.get('download_sha256') != release['sha256']
+                or type(release.get('bytes')) is not int or release['bytes'] <= 0
+                or report.get('download_bytes') != release['bytes']):
+            raise ValueError('The verification snapshot must match the reviewed release package')
+    elif release is not None or report.get('release') is not None or report['download'] != f'{repo}/archive/{sha}.zip':
+        raise ValueError('The verification snapshot must describe the source-pinned download')
     reviewed = date.fromisoformat(data['reviewed_on'])
     if {check['key'] for check in data['checks']} != {'tests', 'browsers', 'windows', 'source'} or len(data['checks']) != 4:
         raise ValueError('Missing or repeated report-gen verification evidence')
@@ -49,7 +65,7 @@ def card(language):
     runs = {check['key']: f"{repo}/actions/runs/{check['run_id']}" for check in data['checks']}
     labels = {
         'en': {
-            'title': 'Verification and current limits',
+            'title': 'Checks and limits',
             'intro': 'Automated checks passed for this revision. This is a dated review, not a live status monitor.',
             'version': 'Version', 'reviewed': 'Reviewed', 'revision': 'Source revision',
             'summary': 'Inspect the checks and their scope',
@@ -60,7 +76,7 @@ def card(language):
             'windows': 'Selected automated save, import, delivery and history checks, plus creation and recovery flows in Chromium. The runner has no Microsoft Word installation.',
             'windows_link': 'Windows run',
             'source_title': 'Reproducible source package',
-            'source': 'Two archives built from the same commit compare byte for byte. This check covers the source package, not every generated report.',
+            'source': 'Two archives built from the same commit compare byte for byte. A clean Linux installation checks the launcher, saving in an external workspace and all four exports. This does not certify every generated report.',
             'source_link': 'Packaging run',
             'pending': 'Still pending',
             'pending_text': 'Native Microsoft Word review and five usability sessions with participants.',
@@ -68,7 +84,7 @@ def card(language):
             'limits': 'Automated results apply to these scenarios and environments. Review each final report in the recipient’s software before sharing it.',
         },
         'es': {
-            'title': 'Verificación y límites actuales',
+            'title': 'Pruebas y límites',
             'intro': 'Las comprobaciones automáticas de esta revisión pasaron. Es una revisión fechada, no un monitor en tiempo real.',
             'version': 'Versión', 'reviewed': 'Revisado', 'revision': 'Revisión del código',
             'summary': 'Consultar las pruebas y su alcance',
@@ -79,7 +95,7 @@ def card(language):
             'windows': 'Pruebas automáticas seleccionadas de guardado, importación, entrega e historial, más creación y recuperación en Chromium. El equipo de pruebas no tiene Microsoft Word instalado.',
             'windows_link': 'Pruebas de Windows',
             'source_title': 'Paquete de código reproducible',
-            'source': 'Dos paquetes construidos desde el mismo commit coinciden byte a byte. Esta comprobación cubre el código fuente, no cada informe generado.',
+            'source': 'Dos paquetes construidos desde el mismo commit coinciden byte a byte. Una instalación limpia en Linux comprueba el acceso, el guardado en una carpeta externa y las cuatro exportaciones. Esto no certifica cada informe generado.',
             'source_link': 'Prueba de empaquetado',
             'pending': 'Pendiente de validar',
             'pending_text': 'Revisión nativa en Microsoft Word y cinco sesiones de usabilidad con participantes.',
@@ -102,6 +118,11 @@ def card(language):
             links = [(runs[key], labels[key + '_link'])]
         links_html = ''.join(f'<a href="{escape(url, quote=True)}">{escape(label)}</a>' for url, label in links)
         rows.append(f'<li><h3>{escape(labels[key + "_title"])}</h3><p>{escape(labels[key])}</p><div class="report-status-links">{links_html}</div></li>')
+    release_link = ''
+    if data.get('release'):
+        receipt = data['release']
+        title = 'Published release and package checksums' if english else 'Versión publicada y huellas del paquete'
+        release_link = f'<p><a href="{escape(receipt["html_url"], quote=True)}">{title}</a></p>'
     return html.fragment_fromstring(f'''
 <section class="report-status" id="{anchor}" aria-labelledby="{anchor}-title" data-report-status data-source-commit="{sha}" data-reviewed-on="{data['reviewed_on']}">
   <h2 id="{anchor}-title">{escape(labels['title'])}</h2>
@@ -111,6 +132,7 @@ def card(language):
     <div><dt>{labels['reviewed']}</dt><dd><time datetime="{data['reviewed_on']}">{date_label}</time></dd></div>
     <div class="report-status-revision"><dt>{labels['revision']}</dt><dd><a href="{repo}/commit/{sha}"><code>{sha}</code></a></dd></div>
   </dl>
+  {release_link}
   <details class="report-status-details"><summary>{labels['summary']}</summary><ul class="report-status-checks">{''.join(rows)}</ul></details>
   <div class="report-status-pending"><h3>{labels['pending']}</h3><p>{labels['pending_text']} <a href="{guide_url}">{labels['pending_link']}</a>.</p></div>
   <p class="report-status-limits">{labels['limits']}</p>

@@ -33,7 +33,17 @@ def json_bytes(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
+def can_access_vulnerable(item, identity):
+    return item is not None
+
+
+def can_access_fixed(item, identity):
+    return item is not None and item["owner"] == identity
+
+
 def make_handler(reports, fixed):
+    can_access = can_access_fixed if fixed else can_access_vulnerable
+
     class Handler(BaseHTTPRequestHandler):
         # Python's HTTP server is suitable for a local demonstration, not production.
         protocol_version = "HTTP/1.0"
@@ -67,7 +77,7 @@ def make_handler(reports, fixed):
             item = reports.get(match.group(1)) if match else None
             # PATCH: ownership comes from the authenticated session and stored
             # object. Never accept an owner/identity asserted by a client header.
-            if item is None or (fixed and item["owner"] != identity):
+            if not can_access(item, identity):
                 return self.respond(404, {"error": "not_found"})
             if self.command == "GET":
                 return self.respond(200, item)

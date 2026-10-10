@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import hashlib
+import ast
+import difflib
 import json
 from pathlib import Path
 import subprocess
@@ -9,6 +11,18 @@ import sys
 import zipfile
 
 FILES = ("lab.py", "fixtures.json", "resultados.json", "INSTRUCCIONES.txt", "Dockerfile", ".dockerignore")
+
+
+def access_control_diff(root: Path) -> str:
+    """Compare the two actual policies executed by the downloadable lab."""
+    source = (root / "content/labs/http-access/lab.py").read_text(encoding="utf-8")
+    functions = {node.name: node for node in ast.parse(source).body if isinstance(node, ast.FunctionDef)}
+    snippets = [ast.get_source_segment(source, functions[name]) + "\n"
+                for name in ("can_access_vulnerable", "can_access_fixed")]
+    return "".join(difflib.unified_diff(
+        snippets[0].splitlines(keepends=True), snippets[1].splitlines(keepends=True),
+        fromfile="lab.py: política vulnerable", tofile="lab.py: política corregida",
+    ))
 
 
 def prepare_evidence(root: Path) -> dict:

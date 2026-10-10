@@ -40,6 +40,11 @@ const inspectCard = async (page, language) => {
   const urls = await card.locator('a').evaluateAll(links => links.map(link => link.href));
   assert.deepEqual(urls.filter(url => url.includes('/actions/runs/')).sort(), expectedRuns);
   assert.ok(urls.includes(`${snapshot.repository}/commit/${report.source_commit}`));
+  if (report.distribution === 'github-release') {
+    const release = card.locator(`a[href="${report.release.html_url}"]`);
+    assert.equal(await release.count(), 1);
+    assert.ok(await release.isVisible(), 'The reviewed release link is visible in both languages');
+  }
   assert.ok(urls.filter(url => url.includes('/blob/')).every(url => url.includes(`/blob/${report.source_commit}/`)));
   assert.match(await card.locator('.report-status-pending').innerText(), /Microsoft Word/);
   assert.match(await card.locator('.report-status-pending').innerText(), language === 'en' ? /five usability sessions/ : /cinco sesiones de usabilidad/);
@@ -52,9 +57,20 @@ const inspectCard = async (page, language) => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = 'http://127.0.0.1:' + server.address().port;
   browser = await chromium.launch({ ...(process.env.SITE_CHROMIUM ? { executablePath: process.env.SITE_CHROMIUM } : {}), headless: true, args: ['--no-sandbox'] });
-  await check('Dated evidence matches the immutable source download', async () => {
+  await check('Dated evidence matches the source-pinned, reviewed download', async () => {
     assert.equal(snapshot.version, report.version); assert.equal(snapshot.source_commit, report.source_commit);
-    assert.equal(report.download, `${snapshot.repository}/archive/${snapshot.source_commit}.zip`);
+    if (report.distribution === 'github-release') {
+      assert.deepEqual(report.release, snapshot.release);
+      assert.equal(report.release.source_commit, snapshot.source_commit);
+      assert.equal(report.release.tag, `v${report.version}`);
+      assert.equal(report.download, `${snapshot.repository}/releases/download/v${report.version}/report-gen-${report.version}-${snapshot.source_commit.slice(0,12)}.zip`);
+      assert.equal(report.download_sha256, report.release.sha256);
+      assert.match(report.download_sha256, /^[a-f0-9]{64}$/);
+      assert.equal(report.download_bytes, report.release.bytes);
+      assert.ok(Number.isSafeInteger(report.download_bytes) && report.download_bytes > 0);
+    } else {
+      assert.equal(report.download, `${snapshot.repository}/archive/${snapshot.source_commit}.zip`);
+    }
     assert.equal(snapshot.checks.length, 4);
     for (const item of snapshot.checks) { assert.equal(item.head_sha, report.source_commit); assert.equal(item.conclusion, 'success'); assert.ok(item.completed_at.slice(0,10) <= snapshot.reviewed_on); }
     return { runs: expectedRuns, reviewedOn: snapshot.reviewed_on };
@@ -99,6 +115,10 @@ const inspectCard = async (page, language) => {
     const page = await context.newPage(); await page.goto(`${base}/${pages[language][0]}#${pages[language][1]}`);
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
     await inspectCard(page, language);
+    const factBoxes = await page.locator('.report-status-facts>div').evaluateAll(nodes => nodes.map(node => {
+      const box = node.getBoundingClientRect(); return { top: box.top, bottom: box.bottom };
+    }));
+    assert.ok(factBoxes[1].top >= factBoxes[0].bottom, 'Enlarged facts have separate rows so the review date remains readable');
     await page.locator('.report-status-details>summary').click();
     await inspectCard(page, language);
     await page.locator('.report-status-details>summary').click();

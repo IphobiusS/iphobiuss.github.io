@@ -51,9 +51,9 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
   });
   await page.goto(base + '/index.html'); await page.evaluate(() => localStorage.setItem('iphobiuss:motion', 'paused')); await page.reload(); await frames(page);
   await check('portfolio hierarchy and case CTA target a visible real local section', async () => {
-   assert.equal(await page.locator('.welcome-actions .primary').innerText(), 'Ver proyectos'); assert.equal(await page.locator('.welcome-actions .primary').getAttribute('href'), 'proyectos.html#report-gen');
+   assert.equal(await page.locator('.welcome-actions .primary').innerText(), 'Ver trabajos propios'); assert.equal(await page.locator('.welcome-actions .primary').getAttribute('href'), '#proyecto-destacado');
    assert.equal(await page.locator('.welcome-actions a').filter({ hasText: 'Ver casos' }).getAttribute('href'), '#casos');
-   const cue = page.locator('.welcome-actions a[href="#casos"]'); assert.equal(await cue.innerText(), 'Ver casos'); assert.equal(await cue.getAttribute('href'), '#casos'); assert.ok(await cue.isVisible());
+   const cue = page.locator('.welcome-actions a[href="#casos"]'); assert.equal(await cue.innerText(), 'Ver casos HTB'); assert.equal(await cue.getAttribute('href'), '#casos'); assert.ok(await cue.isVisible());
    assert.equal(await page.locator('.session-shell').getAttribute('open'), null); assert.equal(await page.locator('[data-library]').getAttribute('open'), null); assert.equal(await page.locator('[data-intro][open]').count(), 0);
    await cue.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(() => location.hash === '#casos'); await frames(page); assert.equal(new URL(page.url()).hash, '#casos'); assert.ok(await page.locator('#casos').isVisible());
    assert.equal(await cue.evaluate(el => el.getAnimations().length), 0);

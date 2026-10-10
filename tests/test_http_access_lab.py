@@ -9,11 +9,13 @@ import sys
 import tempfile
 import unittest
 import zipfile
+from lxml import html
 
 ROOT = Path(__file__).resolve().parents[1]
 LAB = ROOT / "content/labs/http-access"
 sys.path.insert(0, str(ROOT / "scripts"))
-from http_access_case import prepare_evidence
+from http_access_case import access_control_diff, prepare_evidence
+from site_http_access import build_case
 
 spec = importlib.util.spec_from_file_location("http_lab", LAB / "lab.py")
 lab = importlib.util.module_from_spec(spec)
@@ -49,6 +51,57 @@ class HTTPAuthorizationTests(unittest.TestCase):
         self.assertEqual(json.loads(response["body"]), lab.REPORTS["202"])
         followup = self.cases["alice_cross_write"]["vulnerable"]["trace"][1]["response"]
         self.assertEqual(json.loads(followup["body"])["title"], "Cambio no autorizado")
+
+    def test_same_policy_guards_both_operations_and_keeps_ownership_server_side(self):
+        for mode in (False, True):
+            with lab.running_server(fixed=mode) as server:
+                # A client-supplied identity never overrides the token. The
+                # protected policy must deny this write before processing JSON.
+                observed = lab.request(server.server_address[1], {
+                    "method": "PATCH", "path": "/reports/202", "token": "lab-alice-only",
+                    "headers": [["X-Lab-User", "bruno"]], "body": '{"title":"Untrusted header"}',
+                })
+                self.assertEqual(observed["response"]["status"], 404 if mode else 200)
+                followup = lab.request(server.server_address[1], {
+                    "method": "GET", "path": "/reports/202", "token": "lab-bruno-only",
+                })
+                self.assertEqual(json.loads(followup["response"]["body"])["title"],
+                                 "Informe sintético B" if mode else "Untrusted header")
+
+    def test_published_policy_comparison_is_extracted_from_executed_source(self):
+        comparison = access_control_diff(ROOT)
+        for name in ("can_access_vulnerable", "can_access_fixed"):
+            self.assertIn("def " + name + "(item, identity):", comparison)
+        self.assertIn('-    return item is not None\n', comparison)
+        self.assertIn('+    return item is not None and item["owner"] == identity\n', comparison)
+
+    def test_case_publishes_every_real_exchange_in_native_disclosures(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(LAB, root / "content/labs/http-access", ignore=shutil.ignore_patterns("__pycache__"))
+            rendered = []
+            build_case(lambda *args, **kwargs: rendered.append(args[3]),
+                       lambda *args, **kwargs: '<h1>HTTP lab</h1>',
+                       lambda *args, **kwargs: None, root)
+            tree = html.fromstring(rendered[0])
+            entries = tree.xpath('//details[@data-http-scenario]')
+            self.assertEqual(len(entries), len(self.evidence["results"]))
+            ids = tree.xpath('//@id')
+            self.assertEqual(len(ids), len(set(ids)))
+            for link in tree.xpath('//a[starts-with(@href,"#")]/@href'):
+                self.assertIn(link[1:], ids)
+            total = 0
+            for entry, row in zip(entries, self.evidence["results"]):
+                self.assertEqual(entry.get("data-http-scenario"), row["id"])
+                self.assertTrue(entry.xpath('./summary'))
+                for mode, block in zip(("vulnerable", "fixed"), entry.xpath('.//pre/code')):
+                    text = block.text_content()
+                    for step in row[mode]["trace"]:
+                        self.assertIn(f'{step["request"]["method"]} {step["request"]["path"]}', text)
+                        self.assertIn(f'Estado HTTP observado: {step["response"]["status"]}', text)
+                        self.assertIn(step["response"]["body"], text)
+                        total += 1
+            self.assertEqual(total, self.evidence["summary"]["http_exchanges"])
 
     def test_server_binds_loopback_and_closes(self):
         with lab.running_server() as server:

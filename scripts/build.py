@@ -440,23 +440,21 @@ def picture(stem,width,height,alt,cls='',srcset=None,sizes='100vw'):
 def project_capture(kind):
  provenance=json.loads((ROOT/'content/report-gen-capturas-procedencia.json').read_text(encoding='utf-8'))
  return next(capture for capture in provenance['images'] if capture['stem'].endswith('-'+kind))
-def screenshot_sizes(context,kind):
+def screenshot_sizes(kind):
  # Measured at five widths and DPR 1/2/3, including the overrides in identity.css.
  # Lazy images use their rendered content width with auto sizes where supported.
  # The measured fallback preserves the layout's rem gutters and fixed borders.
- if context=='home':
-  return '(max-width:480px) calc(100vw - min(1.5rem, 12vw) - min(2rem, 16vw) - 4px), (max-width:640px) calc(100vw - min(1.5rem, 12vw) - min(2.5rem, 16vw) - 4px), (max-width:720px) calc(100vw - 4.5rem - 4px), (max-width:900px) calc(100vw - 7rem - 194px), (max-width:1100px) calc(100vw - 8rem - 209px), calc(min(100vw, 1280px) - 9.5rem - 234px)'
  extra=' - min(3rem, 48px) - min(2rem, 32px) - 5px' if kind=='comprobaciones' else ''
  return (f'(max-width:640px) calc(min(1040px, 100vw - min(2.5rem, 16vw)){extra}), '
   f'(max-width:900px) calc(min(1040px, 100vw - 3rem){extra}), '
   f'calc(min(1040px, min(100vw, 1280px) - 4rem){extra})')
-def project_shot(kind,cls='',context='project'):
+def project_shot(kind,cls=''):
  capture=project_capture(kind)
- return picture(capture['stem'],capture['width'],capture['height'],capture['alt'],cls,srcset=Path(capture['variants'][-1]['file']).name,sizes=screenshot_sizes(context,kind))
+ return picture(capture['stem'],capture['width'],capture['height'],capture['alt'],cls,srcset=Path(capture['variants'][-1]['file']).name,sizes=screenshot_sizes(kind))
 def project_caption(kind):
  capture=project_capture(kind)
  return E(capture['caption'])+f' <a href="{E(capture["original"])}" target="_blank" rel="noopener">Ampliar captura<span class="sr-only"> (abre otra pestaña)</span></a>.'
-def shot_main(cls='',context='project'):return project_shot('editor',cls,context)
+def shot_main(cls=''):return project_shot('editor',cls)
 def shot_hallazgos(cls=''):return project_shot('entrega',cls)
 def shot_readme():
  # A compact identity card, not a scaled dashboard. Labels remain real text.
@@ -543,7 +541,7 @@ def welcome(techs_total,tools_total):
  hero=f'''<section class="welcome shell" aria-labelledby="welcome-title">
  <div class="welcome-terminal" data-hero-terminal>
  <div class="welcome-titlebar"><span class="terminal-window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>iphobiuss@lab: ~</span><span class="terminal-window-label">inicio</span></div>
- <div class="welcome-terminal-body"><div class="welcome-id"><div class="welcome-lead"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> whoami</p><p class="section-eyebrow">Seguridad web · Active Directory · IA / LLM</p><h1 id="welcome-title">{E(NAME)}</h1><p class="welcome-role">Pentester Junior<span>Santiago, Chile</span></p><p class="welcome-description">Investigo fallos, conecto evidencias y documento decisiones. Explora mis casos y herramientas.</p></div><div class="welcome-navigation"><div class="welcome-actions"><a class="button primary" href="proyectos.html#report-gen">Ver proyectos</a><a class="button" href="#casos">Ver casos</a></div><div class="welcome-links"><a class="text-link welcome-contact" href="#contacto">Contacto</a><a class="text-link" href="recorrido.html">Recorrido breve</a></div></div></div>
+ <div class="welcome-terminal-body"><div class="welcome-id"><div class="welcome-lead"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> whoami</p><p class="section-eyebrow">Seguridad web · Active Directory · IA / LLM</p><h1 id="welcome-title">{E(NAME)}</h1><p class="welcome-role">Pentester Junior<span>Santiago, Chile</span></p><p class="welcome-description">Investigo fallos, conecto evidencias y documento decisiones. Explora mis casos y herramientas.</p></div><div class="welcome-navigation"><div class="welcome-actions"><a class="button primary" href="#proyecto-destacado">Ver trabajos propios</a><a class="button" href="#casos">Ver casos HTB</a></div><div class="welcome-links"><a class="text-link welcome-contact" href="#contacto">Contacto</a><a class="text-link" href="recorrido.html">Recorrido breve</a></div></div></div>
  <nav class="terminal-directory" aria-labelledby="terminal-directory-title"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> ls laboratorio/</p><h2 id="terminal-directory-title">Elige por dónde entrar</h2><a href="guias.html"><span class="terminal-command">cd guias/ <span aria-hidden="true">→</span></span><span>{len(SERIES)} recorridos de práctica</span></a><a href="tecnicas.html"><span class="terminal-command">cat tecnicas <span aria-hidden="true">→</span></span><span>{techs_total} técnicas con contexto</span></a><a href="herramientas.html"><span class="terminal-command">ls herramientas/ <span aria-hidden="true">→</span></span><span>{tools_total} herramientas por propósito</span></a></nav></div>
  <div class="welcome-terminal-footer"><span class="terminal-session-note"><span class="terminal-ready-dot" aria-hidden="true"></span>Nmap · Forest · report-gen</span><a href="#terminal-lab" data-open-session>Explorar la sesión completa <span aria-hidden="true">↓</span></a></div>
  </div></section>'''
@@ -570,8 +568,6 @@ def meta_summary(text,limit=155):
 
 def build_home():
  counts=area_counts();tools_total=sum(len(g['t']) for g in DATA['ARSENAL']);techs_total=sum(counts.values())
- external='<span class="sr-only"> (abre otra pestaña)</span>'
- zip_name=REPORT.get('download_name',REPORT['download'].split('/')[-1]);guide_name=REPORT.get('guide_name','Guía de uso')
  ledger=''
  for key,count in sorted(counts.items(),key=lambda x:-x[1]):
   label,desc,_=AREA_INFO[key]
@@ -579,19 +575,8 @@ def build_home():
  certs=''.join(explorer_row(sec['id']+'/',f'Notas de preparación de {sec["code"]}',plural(len(sec['techs']),'técnica','técnicas'),f'tecnicas.html?cert={sec["id"]}','folder') for sec in DATA['DATA'])
  tools=''.join(explorer_row(slug(g['h'])+'/',g['h'],plural(len(g['t']),'herramienta','herramientas'),f'herramientas.html#grupo-{slug(g["h"])}','term') for g in DATA['ARSENAL'])
  tools+=explorer_row('cheatsheet/','Comandos por objetivo, con referencia en Markdown',plural(len(DATA['CHEAT']),'grupo','grupos'),'herramientas.html#cheatsheet','file')
- sample=(OUT/SAMPLE_REPORT).exists()
- sample_banca=(OUT/SAMPLE_REPORT_BANCA).exists()
- banca_pages=REPORT.get('sample_banca_pages')
- project_files=(explorer_row(zip_name,'Código fuente, guía de uso y proyecto de ejemplo',download_size(),REPORT['download'],'zip')
-  +explorer_row(guide_name,'Guía de uso de report-gen','Markdown',REPORT['guide'],'file')
-  +explorer_row('banco-lumbre/','Resumen de banca digital: del hallazgo técnico a la decisión de negocio','Simulación',BANK['summary_page'],'folder')
-  +(explorer_row(SAMPLE_REPORT.split('/')[-1],'Informe de ejemplo exportado con report-gen, con datos ficticios','PDF',SAMPLE_REPORT,'file') if sample else '')
-  +(explorer_row(SAMPLE_REPORT_BANCA.split('/')[-1],'Evaluación de banca digital y riesgo empresarial: caso ficticio Banco Lumbre',f'PDF, {banca_pages} páginas' if banca_pages else 'PDF',SAMPLE_REPORT_BANCA,'file') if sample_banca else '')
-  +explorer_row('github.com/IphobiusS/report-gen','Repositorio público del proyecto','GitHub',GITHUB,'link',True))
- features=''.join(f'<li><b>{E(f["title"])}.</b> {E(f["text"])}</li>' for f in REPORT['features'][:4])
- folders=[('readme','README.md','','file'),('proyectos','proyectos/','2','folder'),('guias','guias/',str(len(SERIES)),'folder'),('tecnicas','tecnicas/',str(techs_total),'folder'),('herramientas','herramientas/',str(tools_total),'folder')]
+ folders=[('readme','README.md','','file'),('proyectos','proyectos/','3','folder'),('guias','guias/',str(len(SERIES)),'folder'),('tecnicas','tecnicas/',str(techs_total),'folder'),('herramientas','herramientas/',str(tools_total),'folder')]
  tree=''.join(f'<a href="#{k}" data-folder="{k}">{pi(icon)}<span class="tree-name">{E(label)}</span>'+(f'<span class="count">{count}</span>' if count else '')+'</a>' for k,label,count,icon in folders)
- sample_link=f'<a class="text-link" href="{SAMPLE_REPORT}">Ver informe de ejemplo</a>' if sample else ''
  readme=(f'<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss$ cat README.md</p><div class="readme-intro"><h2 class="profile-title">Biblioteca del laboratorio</h2>'
   '<p class="pitch">Guías con pistas, técnicas y herramientas para practicar. Cada carpeta tiene su propia dirección y puedes guardar tus lecturas en el cuaderno local.</p>'
   f'<p class="status-line"><span class="status-label">Ahora</span> {E(STATUS)}</p>'
@@ -599,19 +584,17 @@ def build_home():
   f'<dl class="hero-stats"><div><dt>Guías de laboratorio</dt><dd>{len(SERIES):02d}</dd></div><div><dt>Técnicas documentadas</dt><dd>{techs_total}</dd></div><div><dt>Herramientas en contexto</dt><dd>{tools_total}</dd></div></dl>'
   '<aside class="readme-start" aria-label="Ruta para empezar"><div><h2>¿Tu primer laboratorio?</h2><p>Prepara la VPN y el entorno. Después, sigue una guía con pistas antes de abrir la solución.</p></div><a class="button" href="setup.html">Empezar desde cero</a></aside>'
   f'<details class="readme-en" lang="en"><summary>English summary</summary><p>{E(ENGLISH)}</p></details>')
- featured=(f'<section class="shell home-featured" id="proyecto-destacado" aria-labelledby="featured-title"><div class="readme-project">'
-  f'<div class="readme-project-foot"><p class="section-eyebrow">Proyecto propio · v{E(REPORT["version"])}</p><h2 id="featured-title">report-gen</h2><p class="featured-tagline">Una revisión. Cuatro formatos.</p><p>Documenta hallazgos y evidencias en tu equipo. Genera PDF, Word, Markdown y HTML portátil desde la misma revisión, con comprobaciones antes de entregar.</p>'
-  f'<div class="readme-project-links"><a class="button primary" href="proyectos.html#report-gen">Conocer report-gen</a>{sample_link}</div></div>{shot_readme()}</div></section>')
+ featured=(f'<section class="shell home-featured" id="proyecto-destacado" aria-labelledby="featured-title">'
+  '<div class="home-work-heading"><p class="section-eyebrow">Código propio · decisiones verificables</p><h2 id="featured-title">Dos trabajos para conocer mi criterio</h2><p>Un editor que uso para documentar y una API propia que permite seguir un fallo hasta su corrección.</p></div><div class="home-work-grid">'
+  f'<article class="readme-project" aria-labelledby="home-report-title"><div class="readme-project-foot"><p class="section-eyebrow">Herramienta local · v{E(REPORT["version"])}</p><h3 id="home-report-title">report-gen</h3><p class="featured-tagline">Una revisión. Cuatro formatos.</p><p>Hallazgos, evidencias y remediación en una misma revisión. Prueba cómo cambia una ficha antes de instalar el editor.</p>'
+  f'{shot_readme()}<div class="readme-project-links"><a class="button primary" href="report-gen-demo.html#finding-exercise">Probar una ficha</a><a class="text-link" href="proyectos.html#report-gen">Proyecto y descarga</a></div></div></article>'
+  '<article class="home-api-work" aria-labelledby="home-api-title"><p class="section-eyebrow">Aplicación propia · HTTP real</p><h3 id="home-api-title">Una API, dos identidades</h3><p class="featured-tagline">Del acceso ajeno al retest.</p><p>Comparo lectura y escritura entre cuentas, corrijo la autorización en el servidor y repito casos positivos y negativos.</p><p class="home-work-scope">Laboratorio local con datos sintéticos. Código, intercambios HTTP y límites explícitos.</p><div class="readme-project-links"><a class="button" href="api-acceso.html">Seguir el caso completo</a><a class="text-link" href="api-acceso.html#retest">Consultar el retest</a></div></article></div></section>')
 
- proyectos=(f'<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/proyectos$ ls</p><h2 class="pane-title">Proyectos</h2>'
-  f'<article class="project-window" aria-labelledby="pw-title"><h3 id="pw-title" class="sr-only">report-gen</h3>'
-  f'<a class="pw-shot" href="proyectos.html#report-gen" tabindex="-1" aria-hidden="true">{shot_main(context="home")}</a>'
-  f'<div class="pw-facts-bar"><span><b>report-gen</b> v{E(REPORT["version"])}</span><span>MIT, Python 3.10 o superior, cuatro formatos</span></div>'
-  '<div class="pw-body"><div class="pw-session"><p class="group-label">Inicio local en Linux o Kali</p><p>Extrae el ZIP y abre la terminal en su carpeta <code>report-gen/</code>. El asistente prepara el entorno. Revisa primero los requisitos del README incluido.</p><pre>cd report-gen\npython3 start.py --ready\n# editor en http://127.0.0.1:8080</pre><details><summary>Otros sistemas y motores de PDF</summary><p>Consulta la guía para preparar Windows y el motor opcional Chromium, y revisar el alcance de validación por plataforma.</p></details></div>'
-  '<div class="pw-row"><div class="pw-copy"><p class="lead">Del hallazgo a la entrega: organiza activos, evidencias y retests, y exporta PDF, Word, Markdown y HTML portátil desde una misma revisión guardada. Trabaja en tu equipo, sin cuentas ni telemetría.</p>'
-  f'<ul class="project-highlights">{features}</ul></div>'
-  f'<div class="pw-actions"><p class="group-label">Acceso</p><div class="actions"><a class="button primary" href="proyectos.html#report-gen">Cómo funciona</a><a class="button" href="{E(REPORT["download"])}" download>Descargar v{E(REPORT["version"])}</a></div><p class="pw-link"><a class="text-link external" href="{GITHUB}" target="_blank" rel="noopener">Repositorio en GitHub{external}</a></p></div></div></div></article>'
-  +prometheus_card(home=True)+f'<ul class="explorer-list">{project_files}</ul>')
+ proyectos=('<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/proyectos$ ls</p><h2 class="pane-title">Proyectos</h2>'
+  '<p>Abre cada proyecto para consultar su estado, documentación y descargas.</p><ul class="explorer-list">'
+  +explorer_row('report-gen/','Editor local de hallazgos y evidencias',f'v{REPORT["version"]}','proyectos.html#report-gen','folder')
+  +explorer_row('api-acceso/','Caso propio: fallo de autorización, parche y retest','HTTP local','api-acceso.html','folder')+'</ul>'
+  +prometheus_card(home=True))
  guias=(f'<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/guias$ ls</p><h2 class="pane-title">Guías de laboratorio</h2>'
   '<p class="lead">Máquinas de Hack The Box explicadas con hipótesis, pruebas, pistas y conceptos transferibles. Empieza por la guía 00 si es tu primer laboratorio.</p>'
   f'{guide_group()}<p class="feed-line">{pi("file")}<a href="feed.xml">Suscribirse a las guías (RSS)</a></p>')
@@ -625,7 +608,7 @@ def build_home():
  pane_html=''.join(f'<section class="pane" id="{k}" data-path="{"" if k=="readme" else k+"/"}" aria-label="{E(label)}">{panes[k]}</section>' for k,label,_,_ in folders)
  hero,certifications,terminal=welcome(techs_total,tools_total)
  body=('<div class="home-presentation" data-motion-stage>'+hero+featured+casos_section()+certifications
-  +f'<section class="shell lab" id="laboratorio" aria-labelledby="laboratorio-title"><div class="lab-intro"><p class="section-eyebrow">Para explorar con calma</p><h2 id="laboratorio-title">Mi laboratorio</h2><p>Guías, técnicas y herramientas para estudiar. Prometeo y Evaristo cuidan este rincón.</p><div class="lab-shortcuts"><a href="guias.html">Guías de laboratorio</a><a href="tecnicas.html">Técnicas</a><a href="herramientas.html">Herramientas</a><a href="cuaderno.html">Mi cuaderno</a></div></div>{terminal}'
+  +f'<section class="shell lab" id="laboratorio" aria-labelledby="laboratorio-title"><div class="lab-intro"><p class="section-eyebrow">Para explorar con calma</p><h2 id="laboratorio-title">Mi laboratorio</h2><p>Guías, técnicas y herramientas para estudiar. Prometeo y Evaristo cuidan este rincón.</p><div class="lab-shortcuts"><a href="cuaderno.html">Mi cuaderno</a></div></div>{terminal}'
   '<details class="library-disclosure" data-library><summary>Explorar carpetas y proyectos del laboratorio</summary><div class="lab-window"><div class="titlebar"><span class="window-path" id="window-path">iphobiuss@lab:~/iphobiuss</span><span class="titlebar-hint js-only">Flechas para cambiar de carpeta, Tab para entrar, Enter para abrir</span></div>'
   f'<div class="window-body"><nav class="tree-nav" aria-label="Carpetas"><div class="tree">{tree}</div></nav><div class="panes">{pane_html}</div></div>'
   f'<p class="statusbar"><span id="window-status">{plural(len(folders),"entrada","entradas")} en ~/iphobiuss</span><span>Cada carpeta tiene su propia dirección; el botón Atrás vuelve a la anterior.</span></p></div></details></section>'
@@ -669,7 +652,7 @@ def build_projects():
  <figure class="project-screenshot">{shot_main()}<figcaption>{project_caption('editor')}</figcaption></figure>
  <section class="project-section" aria-labelledby="workflow-title"><h2 id="workflow-title">Un flujo completo de documentación</h2><ul class="feature-list">{features}</ul></section>
  <section class="project-section pagination-note" aria-labelledby="pagination-title"><h2 id="pagination-title">Comprobar antes de entregar</h2><p>La versión {E(REPORT['version'])} comprueba referencias, metadatos y enlaces. En HTML, Word y Markdown contrasta además el contexto de las evidencias; en PDF comprueba presencia de texto e imágenes y destinos del índice. En HTML detecta contenido oculto por las reglas CSS contempladas. Todos los formatos necesitan también revisión visual antes de compartirse.</p><details class="project-checks spoiler"><summary>Ver las comprobaciones del HTML portátil</summary><figure class="project-screenshot">{project_shot('comprobaciones')}<figcaption>{project_caption('comprobaciones')}</figcaption></figure></details></section>
- <figure class="project-screenshot">{shot_hallazgos()}<figcaption>{project_caption('entrega')}</figcaption></figure><section class="project-section" aria-labelledby="getting-started-title"><h2 id="getting-started-title">Empieza con la demo Nimbus</h2><ol class="project-steps"><li><strong>Descarga y prepara el editor.</strong> Desde <code>report-gen/</code>, ejecuta <code>python3 start.py --ready</code>.</li><li><strong>Abre «Probar demo Nimbus».</strong> El ejemplo ficticio incluye 12 hallazgos para recorrer el flujo sin usar datos de un cliente.</li><li><strong>Trabaja, revisa y entrega.</strong> Edita una evidencia, guarda una revisión y prepara los formatos desde Entregar. Comprueba los archivos y su presentación antes de compartirlos.</li></ol><div class="actions"><a class="button" href="{E(REPORT['guide'])}">Guía de uso</a><a class="button" href="{SAMPLE_REPORT}">Ver informe Nimbus (PDF)</a></div><p class="project-requirements">Python 3.10 o posterior; Linux / Kali es la ruta prioritaria. Consulta el README para las dependencias, los motores de PDF y el alcance de validación por plataforma.</p></section>
+ <figure class="project-screenshot">{shot_hallazgos()}<figcaption>{project_caption('entrega')}</figcaption></figure><section class="project-section" aria-labelledby="getting-started-title"><h2 id="getting-started-title">Empieza con la demo Nimbus</h2><ol class="project-steps"><li><strong>Instala en Linux o Kali.</strong> Desde la carpeta extraída, ejecuta <code>python3 scripts/install.py --desktop</code>. Abre report-gen desde el menú de aplicaciones o con <code>~/.local/bin/report-gen</code>.</li><li><strong>Abre «Probar Nimbus».</strong> Entra en <code>http://127.0.0.1:8080</code> desde el navegador. El ejemplo ficticio incluye 12 hallazgos para recorrer el flujo sin usar datos de un cliente.</li><li><strong>Trabaja, revisa y entrega.</strong> Edita una evidencia, guarda una revisión y prepara los formatos desde Entregar. Comprueba los archivos y su presentación antes de compartirlos.</li></ol><div class="actions"><a class="button" href="{E(REPORT['guide'])}">Guía de uso</a><a class="button" href="{SAMPLE_REPORT}">Ver informe Nimbus (PDF)</a></div><p class="project-requirements">Requiere Python 3.10 o posterior y las dependencias indicadas en el README. Conserva la carpeta extraída y su entorno <code>.venv</code>: el acceso los necesita, no es un ejecutable autónomo. En Windows y macOS, sigue la guía de instalación.</p><p>El instalador guarda los datos en <code>$XDG_DATA_HOME/report-gen</code> o, por defecto, <code>~/.local/share/report-gen</code>. Puedes elegir otra carpeta con <code>--workspace</code>; consulta la guía para trasladar proyectos antiguos.</p><p>Para pedir ayuda, abre «Comprobar instalación», revisa el diagnóstico sintético y descárgalo. Incluye versión, sistema y comprobaciones; excluye proyectos, rutas y nombres de usuario.</p></section>
  </article>'''
  pending=prometheus_card()
  catalog='<nav class="project-catalog" aria-label="Proyectos propios"><a href="#report-gen">report-gen</a><a href="#prometheus">PrometheuS <span>En construcción</span></a></nav>'
@@ -780,22 +763,11 @@ def build_cases():
   'Fuente: mi guía de Forest (enumeración, AS-REP, acceso y escalada). Resultado histórico documentado; las mitigaciones son propuestas, no verificadas.')
 
 def casos_section():
- cards_data=[
-  ('cap-caso.html','cap','Cap: de una captura expuesta a root',
-   'Control de acceso, credenciales reutilizadas y privilegios de Python: las decisiones detrás de una escalada a root.'),
-  ('forest-caso.html','forest','Forest: permisos de Active Directory',
-   'Kerberos, grupos y ACLs: cómo una cuenta de servicio alcanza acceso como Administrator, según la guía.')]
- cards=''
- for href,guide,title,body in cards_data:
-  g=GUIDES[guide];os_label=ui_text(g['os']);level=g['level']
-  cards+=(f'<article class="entry-card reveal"><p class="card-meta"><span class="step-no">Caso</span>'
-   f'<span class="tag">HTB</span><span class="tag">{E(os_label)}</span><span class="tag{level_class(level)}">{E(level.upper())}</span></p>'
-   f'<h3><a href="{href}">{E(title)}</a></h3><p>{E(body)}</p>'
-   f'<span class="card-cta" aria-hidden="true">Leer el caso</span></article>')
  return ('<section class="shell casos" id="casos" aria-labelledby="casos-title">'
-  '<div class="casos-head"><h2 id="casos-title" class="pane-title">Casos destacados</h2>'
-  '<p class="lead">Dos laboratorios HTB: problema, decisiones, evidencia y límites. Cada caso enlaza a la guía completa.</p></div>'
-  f'<div class="entry-grid casos-grid">{cards}</div></section>')
+  '<div class="casos-head"><h2 id="casos-title" class="pane-title">Casos HTB documentados</h2>'
+  '<p>Retrospectivas de laboratorio con evidencia citada y límites. Cada caso conserva su expediente y guía completa.</p></div>'
+  '<div class="home-case-links"><a href="cap-caso.html"><strong>Cap · Seguridad web</strong><span>De una captura expuesta a root</span></a>'
+  '<a href="forest-caso.html"><strong>Forest · Active Directory</strong><span>Identidades, permisos y DCSync</span></a></div></section>')
 
 def guide_environment(raw):
  values=['Kali Linux y VirtualBox: versiones no especificadas en la guía original.']

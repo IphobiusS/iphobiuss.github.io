@@ -1,4 +1,4 @@
-# iphobiuss · sitio estático v14.6
+# iphobiuss · sitio estático v14.7
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
 
@@ -10,6 +10,8 @@ La secuencia es decorativa y no representa escaneos ni verificaciones de segurid
 
 ## Portafolio y búsqueda
 
+La portada concentra los trabajos propios en report-gen y el caso HTTP; mantiene Cap y Forest como retrospectivas compactas y conserva la terminal y sus carpetas. La carpeta de proyectos actúa como índice, sin repetir toda la página del producto. La mini demo existente en español e inglés permite editar un hallazgo ficticio y su severidad ilustrativa con vista previa HTML inmediata; no ejecuta una evaluación ni sustituye las exportaciones de la aplicación local.
+
 La portada enlaza directamente al CV público en PDF, sin correo ni teléfono. La censura elimina el contenido de esos campos y sus metadatos; conserva las dos páginas y los enlaces profesionales. `test:public-cv` revisa texto, enlaces, metadatos y objetos antes de publicar. Cap y Forest abren con un resumen de problema, decisión, evidencia, resultado y límite; el detalle técnico mantiene sus enlaces. La bitácora (`bitacora.html` y `engineering-notes.html`) documenta decisiones de proyectos propios y laboratorios, con fuentes y una fecha de revisión explícita.
 
 La ficha de report-gen utiliza `content/report-gen-status.json`: es una instantánea fechada de una revisión concreta y sus comprobaciones, no un estado en vivo. Al actualizar el programa, revisa también ese archivo, sus enlaces de ejecución y las validaciones pendientes.
@@ -18,7 +20,15 @@ El mapa de habilidades de la portada enlaza evidencias concretas de Web, Active 
 
 `api-acceso.html` presenta un segundo laboratorio propio: API HTTP con dos identidades sintéticas, IDOR de lectura y escritura, autorización por propietario y retest con cuerpos completos. `content/labs/http-access/` conserva código, escenarios y evidencia. CI repite la ejecución nativa y en Docker sin red externa ni puertos publicados; el ZIP descargable incluye instrucciones y un manifiesto SHA-256. No es una API de producción.
 
-Para actualizar report-gen, descarga los recibos JSON reales de sus workflows para el commit aprobado y ejecuta `python scripts/sync-report-release.py --repo /ruta/report-gen --commit COMMIT_COMPLETO --runs /ruta/recibos.json`. Revisa la propuesta y añade `--apply` para actualizar conjuntamente versión, descarga, guía y estado. El comando exige las cuatro ejecuciones correctas de la misma revisión y un CV revisado con esa versión. No modifica la procedencia de los informes históricos ni marca Word o sesiones humanas como realizados.
+El caso muestra alcance, hipótesis y controles negativos, recorrido entre las dos identidades, diferencia entre las políticas reales y los 44 intercambios de sus 17 escenarios. Las transcripciones se generan desde el resultado ejecutado. El guion de grabación vive en las instrucciones del ZIP; no hay un vídeo ni una voz fabricados. La lectura completa funciona sin JavaScript.
+
+Para actualizar report-gen, espera su Release verificada y guarda los JSON reales de la Release y de sus workflows. Comprueba que la etiqueta apunte al commit aprobado y reproduce el paquete con `scripts/build-release.py` en ese checkout. Sincroniza así:
+
+```bash
+python scripts/sync-report-release.py --repo /ruta/report-gen --commit COMMIT_COMPLETO --runs /ruta/recibos.json --release /ruta/release.json --package-manifest /ruta/paquete/report-gen-VERSION-SHA12.json
+```
+
+Revisa la propuesta y añade `--apply` para actualizar conjuntamente versión, descarga, guía y estado. Exige cuatro ejecuciones `push` correctas de la misma revisión y repositorio, un CV revisado y coincidencia de los tres archivos publicados con el ZIP, SHA-256 y manifiesto locales. No modifica los informes históricos ni marca Word o sesiones humanas como realizados. La opción sin Release se conserva para archivos históricos fijados a un commit.
 
 El buscador permite filtrar por tipo e idioma y compartir la selección mediante `q`, `tipo` e `idioma` en la URL. Sin JavaScript se conserva el catálogo de enlaces. Las consultas y filtros no se envían a un servicio externo; el historial sigue siendo opcional.
 
@@ -75,6 +85,7 @@ npm run test:evolution
 npm run test:home-actions
 npm run test:journey
 npm run test:graphs
+npm run test:http-case
 npm run test:layout
 ```
 

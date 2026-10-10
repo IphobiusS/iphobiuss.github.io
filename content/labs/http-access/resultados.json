@@ -10,7 +10,7 @@
   ],
   "normalization": "Ephemeral port, Host, Date and Server are omitted. Request paths, application headers, statuses and complete response bodies are captured from actual HTTP exchanges.",
   "source_sha256": {
-    "lab.py": "68399c59c901ea047998b4bb4adcee91bb51273904ec5e8447aea12882e7b285",
+    "lab.py": "77b0cc3b50497916f368bc214828a9dfdce2eb771f2d3a95034c119840aa21e4",
     "fixtures.json": "0f1f75c14a154b701319fdef6bf5010e57240dc32ed6e1f4de5a664a9160855a"
   },
   "summary": {

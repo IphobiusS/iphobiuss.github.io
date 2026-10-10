@@ -39,7 +39,9 @@ const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     await page.locator('#finding-title').fill(literal);
     await page.locator('#finding-observation').fill('Technical evidence only.');
     await page.locator('#finding-impact').fill('Business impact only.');
-    await page.locator('[data-finding-form] button[type=submit]').click();
+    await page.locator('#finding-severity').selectOption(language === 'en' ? 'Critical' : 'Crítica');
+    assert.deepEqual(await page.locator('[data-finding-output="severity"]').allTextContents(), language === 'en' ? ['Critical', 'Critical'] : ['Crítica', 'Crítica']);
+    // Real previews update before a submit or a network round-trip.
     assert.deepEqual(await page.locator('[data-finding-output="title"]').allTextContents(), [literal, literal]);
     assert.equal(await exercise.locator('img,script').count(), 0);
     assert.equal(await page.evaluate(() => window.__unsafe), undefined);
@@ -53,11 +55,15 @@ const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     await page.locator('[data-finding-form] button[type=reset]').click();
     await page.waitForFunction(() => [...document.querySelectorAll('[data-finding-output="title"]')].every(n => n.textContent === document.querySelector('#finding-title').value));
     assert.doesNotMatch(await page.locator('#finding-title').inputValue(), /<img/);
+    assert.equal(await page.locator('#finding-severity').inputValue(), language === 'en' ? 'High' : 'Alta');
+    assert.deepEqual(await page.locator('[data-finding-output="severity"]').allTextContents(), language === 'en' ? ['High', 'High'] : ['Alta', 'Alta']);
     // Native required validation prevents an empty title from silently replacing an accepted preview.
     const previous = await page.locator('[data-finding-output="title"]').first().textContent();
     await page.locator('#finding-title').fill('');
     await page.locator('[data-finding-form] button[type=submit]').click();
     assert.equal(await page.locator('[data-finding-output="title"]').first().textContent(), previous);
+    await page.locator('#finding-title').fill('   ');
+    assert.equal(await page.locator('[data-finding-output="title"]').first().textContent(), previous, 'Whitespace is not a complete finding');
     await page.locator('[data-finding-form] button[type=reset]').click();
     await page.waitForFunction(() => !!document.querySelector('#finding-title').value);
     await page.evaluate(() => scrollTo(0, 0));
@@ -94,10 +100,13 @@ const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     await page.screenshot({path:path.join(output,file.replace('.html','')+'-390.png'),fullPage:true});
     await context.close(); return {englishMetadata:true,translatedControls:true};
   });
-  for (const language of ['es','en']) await check('No JavaScript fallback ' + language, async () => {
-    const context = await browser.newContext({ javaScriptEnabled: false, viewport: {width:320,height:900} });
-    const page = await context.newPage(); await page.goto(base + '/' + (language==='en'?'report-gen-en.html':'report-gen-demo.html'));
+  for (const language of ['es','en']) for (const mode of ['no-js', 'demo-blocked']) await check('Static preview fallback ' + language + '/' + mode, async () => {
+    const context = await browser.newContext({ javaScriptEnabled: mode !== 'no-js', viewport: {width:320,height:900} });
+    const page = await context.newPage();
+    if (mode === 'demo-blocked') await page.route('**/assets/js/finding-demo.js', route => route.abort());
+    await page.goto(base + '/' + (language==='en'?'report-gen-en.html':'report-gen-demo.html'));
     assert.equal(await page.locator('#finding-title').isDisabled(), true);
+    assert.equal(await page.locator('#finding-severity').isDisabled(), true);
     assert.equal(await page.locator('.finding-preview').count(),2);
     assert.ok((await page.locator('.finding-preview').first().innerText()).length>100);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

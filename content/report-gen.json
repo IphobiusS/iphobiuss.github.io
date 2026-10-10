@@ -1,7 +1,7 @@
 {
-  "version": "0.28.0",
-  "download": "https://github.com/IphobiusS/report-gen/archive/4b7b588681bb0105203ae3443e75e85960a4a356.zip",
-  "guide": "https://github.com/IphobiusS/report-gen/blob/4b7b588681bb0105203ae3443e75e85960a4a356/docs/guide.es.md",
+  "version": "0.29.0",
+  "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.29.0/report-gen-0.29.0-30b10b6006e2.zip",
+  "guide": "https://github.com/IphobiusS/report-gen/blob/30b10b6006e21d689b733c365818f8dd6c123ca9/docs/guide.es.md",
   "formats": [
     "PDF",
     "DOCX",
@@ -39,12 +39,12 @@
       "text": "Comparte un informe autónomo con búsqueda, filtros por tipo y severidad, vista ejecutiva e impresión; la lectura completa funciona sin JavaScript."
     },
     {
-      "title": "Causas raíz, tareas y retest",
-      "text": "Agrupa hallazgos por corrección común y conserva sus evidencias y retests. Exporta tareas revisadas con responsable, plazo y criterio de cierre en CSV o fichas."
+      "title": "Causas raíz y retorno de tareas",
+      "text": "Agrupa hallazgos por corrección común y exporta tareas. Emite una plantilla CSV de retorno y acepta cambios por campo; la corrección comunicada permanece separada del retest verificado."
     },
     {
-      "title": "Recuperación y respaldo privado",
-      "text": "Recupera capturas y formularios compatibles del mismo navegador. Crea respaldos cifrados de proyectos guardados; las copias pendientes del navegador se gestionan por separado."
+      "title": "Proyectos, datos y respaldos",
+      "text": "Busca por cliente, ordena y archiva sin borrar. Con el instalador, conserva los datos fuera de la aplicación. Crea respaldos cifrados de proyectos guardados; los borradores del navegador se gestionan aparte."
     }
   ],
   "sample_banca_html": "downloads/report-gen-banco-lumbre-0.25.0.html",
@@ -56,8 +56,22 @@
   "sample_banca_html_historical": "downloads/report-gen-informe-banco-lumbre.html",
   "sample_banca_html_historical_export_version": "0.23.0",
   "sample_banca_html_historical_source_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f",
-  "download_name": "report-gen-0.28.0.zip",
+  "download_name": "report-gen-0.29.0-30b10b6006e2.zip",
   "guide_name": "Guía de uso",
-  "distribution": "github-immutable-commit",
-  "source_commit": "4b7b588681bb0105203ae3443e75e85960a4a356"
+  "distribution": "github-release",
+  "source_commit": "30b10b6006e21d689b733c365818f8dd6c123ca9",
+  "download_sha256": "56ea32b48534561cec56031c559f5a992fa083cf612cb5b576c65a7d302bc6de",
+  "download_bytes": 16112484,
+  "release": {
+    "id": 409108811,
+    "tag": "v0.29.0",
+    "html_url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.29.0",
+    "published_at": "2026-10-10T17:52:43Z",
+    "source_commit": "30b10b6006e21d689b733c365818f8dd6c123ca9",
+    "asset_id": 628611323,
+    "asset_name": "report-gen-0.29.0-30b10b6006e2.zip",
+    "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.29.0/report-gen-0.29.0-30b10b6006e2.zip",
+    "sha256": "56ea32b48534561cec56031c559f5a992fa083cf612cb5b576c65a7d302bc6de",
+    "bytes": 16112484
+  }
 }

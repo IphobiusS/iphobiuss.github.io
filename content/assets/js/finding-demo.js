@@ -8,27 +8,46 @@
     if (!form || !state || !fieldset) return;
     const en = root.dataset.language === 'en';
     const messages = en ? {
-      ready: 'Ready. Edit the fictional fields, then update the comparison.',
-      updated: 'Both readings updated. No security test was performed.',
-      reset: 'Fictional example restored in both readings.'
+      ready: 'Ready. Both HTML previews update as you type. Severity is illustrative.',
+      updated: 'Both previews updated. No security test or risk calculation was performed.',
+      incomplete: 'Complete the empty fields. The previews keep your last complete example.',
+      reset: 'Fictional example restored in both previews.'
     } : {
-      ready: 'Listo. Edita los campos ficticios y actualiza la comparación.',
-      updated: 'Ambas lecturas actualizadas. No se ejecutó ninguna prueba de seguridad.',
-      reset: 'Ejemplo ficticio restablecido en ambas lecturas.'
+      ready: 'Listo. Las dos vistas HTML cambian mientras escribes. La severidad es ilustrativa.',
+      updated: 'Ambas vistas actualizadas. No se ejecutó una prueba ni se calculó el riesgo.',
+      incomplete: 'Completa los campos vacíos. Las vistas conservan tu último ejemplo completo.',
+      reset: 'Ejemplo ficticio restablecido en ambas vistas.'
     };
-    const update = message => {
-      for (const name of ['title', 'asset', 'observation', 'impact', 'remedy']) {
+    const fields = ['title', 'severity', 'asset', 'observation', 'impact', 'remedy'];
+    let announcement;
+    const announce = (message, immediate = false) => {
+      clearTimeout(announcement);
+      if (immediate) state.textContent = message;
+      else announcement = setTimeout(() => { state.textContent = message; }, 400);
+    };
+    const valid = () => {
+      for (const name of fields) {
         const input = form.elements.namedItem(name);
-        const value = input.value.trim().slice(0, input.maxLength);
+        input.setCustomValidity(input.value.trim() ? '' : (en ? 'Complete this field.' : 'Completa este campo.'));
+      }
+      return form.checkValidity();
+    };
+    const update = (message, immediate = false) => {
+      if (!valid()) { announce(messages.incomplete, immediate); return; }
+      for (const name of fields) {
+        const input = form.elements.namedItem(name);
+        const value = input.value.trim().slice(0, name === 'severity' ? 32 : input.maxLength);
         root.querySelectorAll(`[data-finding-output="${name}"]`).forEach(node => { node.textContent = value; });
       }
-      state.textContent = message;
+      announce(message, immediate);
     };
+    form.addEventListener('input', () => update(messages.updated));
+    form.addEventListener('change', () => update(messages.updated));
     form.addEventListener('submit', event => {
       event.preventDefault();
-      if (form.reportValidity()) update(messages.updated);
+      if (valid() && form.reportValidity()) update(messages.updated, true);
     });
-    form.addEventListener('reset', () => requestAnimationFrame(() => update(messages.reset)));
+    form.addEventListener('reset', () => requestAnimationFrame(() => update(messages.reset, true)));
     fieldset.disabled = false;
     state.textContent = messages.ready;
   });

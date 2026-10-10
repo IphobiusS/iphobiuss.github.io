@@ -60,7 +60,11 @@ que la versión vulnerable sea segura. MANIFEST.sha256 cubre el ZIP descargable.
 
 PARCHE Y LÍMITES
 La sesión selecciona una identidad a partir del token del servidor. El parche
-comprueba item["owner"] == identity antes de leer o escribir. Los objetos ajenos
+selecciona can_access_fixed, que comprueba item["owner"] == identity antes de
+leer o escribir. can_access_vulnerable solo comprueba que el objeto exista.
+Ambas funciones están en lab.py y son ejecutadas por la batería. La comparación
+de código del sitio se extrae de esas funciones, no de un historial inventado.
+Los objetos ajenos
 y los inexistentes devuelven el mismo estado/cuerpo. La API rechaza sesiones
 ambiguas, argumentos no admitidos y cambios al propietario desde el JSON.
 Las respuestas usan Cache-Control: no-store. No hay archivos ni datos privados.
@@ -70,3 +74,44 @@ para producción y no implementa TLS, login, expiración/revocación de tokens,
 base de datos, autorización multirrol ni control de concurrencia de escrituras.
 El retest cubre los escenarios publicados y no demuestra ausencia universal de
 fallos. Docker ejecuta exactamente la misma batería, sin ampliar su alcance.
+
+LEER EL CASO COMPLETO
+La página api-acceso.html del sitio acompaña este paquete: alcance, hipótesis,
+recorrido con dos identidades, comparación del código ejecutado y los 17
+escenarios desplegables con sus transcripciones HTTP. Funciona sin JavaScript.
+No se atribuye este laboratorio a un incidente real ni a trabajo con clientes.
+Las solicitudes publicadas se ejecutan automáticamente. Las instrucciones
+manuales siguientes no son una declaración de pruebas humanas ya realizadas.
+
+GUIÓN SUGERIDO PARA UNA EXPLICACIÓN GRABADA (60-90 SEGUNDOS)
+Preparación pendiente de la persona que presenta: ejecutar --verify, abrir
+api-acceso.html y ensayar este guion con la evidencia a la vista. No se incluye
+vídeo ni voz artificial. Ajustar el ritmo tras una lectura cronometrada.
+
+0-12 s | Mostrar alcance e identidades.
+"Este laboratorio local demuestra por qué iniciar sesión no basta para
+autorizar un objeto. Alice y Bruno tienen un informe cada uno; los datos son
+sintéticos y no hay un objetivo externo."
+
+12-28 s | Abrir alice_own_read y alice_cross_read.
+"Primero compruebo una lectura legítima. Después mantengo el token de Alice
+y cambio solo el identificador. La versión vulnerable devuelve el informe
+de Bruno. Su marcador permite reconocer la lectura ajena."
+
+28-43 s | Mostrar las dos funciones de lab.py.
+"La causa está en la política de acceso: antes se comprobaba que el objeto
+existiera. El modo corregido compara también su propietario con la identidad
+que el servidor resolvió a partir de la sesión."
+
+43-65 s | Abrir alice_cross_write y alice_own_write.
+"No me quedo con el código de rechazo. Bruno vuelve a leer su informe después
+del intento de escritura y confirma que no cambió. Alice también puede seguir
+actualizando su propio informe: la corrección conserva el uso legítimo."
+
+65-85 s | Mostrar el comando --verify y los límites.
+"El paquete permite repetir diecisiete escenarios y cuarenta y cuatro
+intercambios HTTP. Esto respalda esos casos concretos; no prueba una API de
+producción ni cubre concurrencia o revocación de sesiones."
+
+Al grabar, mostrar la salida de la ejecución realizada en esa sesión. Publicar
+subtítulos y transcripción que correspondan al vídeo final y evitar autoplay.

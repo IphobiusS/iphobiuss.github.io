@@ -116,6 +116,8 @@ jobs:
           SITE_COMPAT_HEADED: '1'
           SITE_COMPAT_BROWSERS: firefox
         run: xvfb-run -a npm run test:compatibility
+      - name: Verify HTTP case evidence, keyboard and reflow
+        run: npm run test:http-case
       - name: Verify Matrix entrance
         run: npm run test:intro
       - name: Verify portfolio and reporting evidence

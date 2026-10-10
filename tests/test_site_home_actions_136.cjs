@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => { const requested = decodeURIComp
 const check = async (name, action) => { console.log(name); try { const detail = await action(); checks.push({ name, passed: true, ...(detail || {}) }); } catch (error) { checks.push({ name, passed: false, error: error.message }); throw error; } };
 const ready = async page => { await page.evaluate(() => document.fonts.ready); const skip = page.locator('[data-intro][open] [data-intro-skip]'); if (await skip.count()) await skip.click(); };
 const expectActions = async page => {
- assert.deepEqual(await page.locator('.welcome-actions .button').evaluateAll(nodes => nodes.map(node => [node.textContent.trim(), node.getAttribute('href')])), [['Ver proyectos', 'proyectos.html#report-gen'], ['Ver casos', '#casos']]);
+ assert.deepEqual(await page.locator('.welcome-actions .button').evaluateAll(nodes => nodes.map(node => [node.textContent.trim(), node.getAttribute('href')])), [['Ver trabajos propios', '#proyecto-destacado'], ['Ver casos HTB', '#casos']]);
  const secondary = page.locator('.welcome-links a'); assert.equal(await secondary.count(), 3);
  assert.deepEqual(await secondary.evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['#contacto', 'recorrido.html', 'downloads/cv-sebastian-latorre.pdf']);
  const external = page.locator('.home-contact a[href*="linkedin.com"]');
@@ -25,6 +25,11 @@ const expectActions = async page => {
  assert.equal(await page.locator('[data-library]').getAttribute('open'), null);
  assert.equal(await page.locator('[data-intro][open]').count(), 0);
  assert.equal(await page.locator('.welcome-links .button').count(), 0);
+ assert.equal(await page.locator('.home-work-grid>article').count(), 2);
+ assert.equal(await page.locator('.home-work-grid a[href="api-acceso.html"]').count(), 1);
+ assert.equal(await page.locator('.home-work-grid a[href="report-gen-demo.html#finding-exercise"]').count(), 1);
+ assert.equal(await page.locator('.project-window,.pw-shot').count(), 0, 'The home catalogue does not duplicate the full product introduction');
+ assert.deepEqual(await page.locator('.home-case-links a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['cap-caso.html', 'forest-caso.html']);
  const hero = page.locator('[data-hero-terminal]');
  assert.ok(await hero.isVisible(), 'terminal is visible from initial render');
  assert.equal(await hero.locator('h1').count(), 1);
@@ -68,8 +73,8 @@ const write = fatal => { fs.mkdirSync(path.dirname(output), { recursive: true })
    if (mode === 'storage-denied') await context.addInitScript(() => { for (const method of ['getItem', 'setItem', 'removeItem']) Object.defineProperty(Storage.prototype, method, { value() { throw new DOMException('Storage access denied', 'SecurityError'); } }); });
    else if (mode !== 'no-js') await context.addInitScript(() => sessionStorage.setItem('iphobiuss:intro', '1'));
    const page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message)); if (mode === 'site-blocked') await page.route('**/assets/js/site.js', route => route.abort());
-   for (const target of ['#casos', '#contacto']) { await page.goto(base + '/index.html'); await ready(page); const actual = page.locator(`.welcome-actions a[href="${target}"],.welcome-links a[href="${target}"]`); assert.equal(await actual.count(), 1); await actual.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(hash => location.hash === hash, target); assert.ok(await page.locator(target).isVisible()); }
-   await page.goto(base + '/index.html'); await ready(page); await page.locator('.welcome-actions a[href="proyectos.html#report-gen"]').focus(); await page.keyboard.press('Enter'); await page.waitForURL('**/proyectos.html#report-gen'); assert.ok(await page.locator('#report-gen').isVisible());
+   for (const target of ['#proyecto-destacado', '#casos', '#contacto']) { await page.goto(base + '/index.html'); await ready(page); const actual = page.locator(`.welcome-actions a[href="${target}"],.welcome-links a[href="${target}"]`); assert.equal(await actual.count(), 1); await actual.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(hash => location.hash === hash, target); assert.ok(await page.locator(target).isVisible()); }
+   await page.goto(base + '/index.html'); await ready(page); await page.locator('.home-work-grid a[href="proyectos.html#report-gen"]').focus(); await page.keyboard.press('Enter'); await page.waitForURL('**/proyectos.html#report-gen'); assert.ok(await page.locator('#report-gen').isVisible());
    await page.goto(base + '/index.html'); await ready(page); await page.locator('.welcome-links a[href="recorrido.html"]').focus(); await page.keyboard.press('Enter'); await page.waitForURL('**/recorrido.html'); assert.equal(await page.locator('h1').innerText(), 'Recorrido breve');
    await page.goto(base + '/index.html'); await ready(page); const contact = page.locator('.home-contact a[href*="linkedin.com"]'), expectedUrl = await contact.getAttribute('href'); await context.route('https://**/*', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>External navigation boundary</title>' })); const popupPromise = context.waitForEvent('page'); await contact.focus(); await page.keyboard.press('Enter'); const popup = await popupPromise; await popup.waitForURL(expectedUrl); assert.equal(await popup.evaluate(() => opener === null), true); assert.equal(new URL(page.url()).pathname, '/index.html'); await popup.close();
    for (const target of ['guias.html', 'tecnicas.html', 'herramientas.html']) { await page.goto(base + '/index.html'); await ready(page); const route = page.locator(`.terminal-directory a[href="${target}"]`); await route.focus(); await page.keyboard.press('Enter'); await page.waitForURL('**/' + target); assert.equal(await page.locator('h1').count(), 1); }
