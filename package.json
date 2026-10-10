@@ -1,6 +1,6 @@
 {
   "name": "iphobiuss-retro",
-  "version": "14.2.0",
+  "version": "14.3.0",
   "private": true,
   "description": "Scripts de construcción del sitio estático.",
   "scripts": {
@@ -21,7 +21,8 @@
     "test:build": "python tests/test_clean_build.py",
     "test:links": "python tests/check_public_site.py",
     "test:publish": "python tests/test_publish_site.py",
-    "test:evolution": "node tests/test_site_evolution_142.cjs"
+    "test:evolution": "node tests/test_site_evolution_142.cjs",
+    "test:intro": "node tests/test_site_intro_143.cjs"
   },
   "devDependencies": {
     "axe-core": "4.14.0",

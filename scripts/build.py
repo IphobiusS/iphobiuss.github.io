@@ -7,6 +7,7 @@ from PIL import Image
 from copy import deepcopy
 import site_evolution as evolution
 import site_evolution_142 as evolution_142
+import site_intro
 import ai_boundary_case
 from site_assets import prepare_assets
 import re, json, hashlib, base64, unicodedata, math, datetime
@@ -276,6 +277,7 @@ def document(filename,title,description,body,active='',article=False,social=None
  for t in tree.xpath('//*[@style]'):
   if t.tag!='svg':del t.attrib['style']
  evolution_142.enhance_document(filename,tree)
+ site_intro.enhance_document(filename,tree)
  decorate_code(tree,title)
  result='<!doctype html>\n'+serialize(tree)
  (OUT/filename).parent.mkdir(parents=True,exist_ok=True)

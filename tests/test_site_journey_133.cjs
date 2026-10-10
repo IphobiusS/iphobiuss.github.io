@@ -60,7 +60,7 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
   });
   await check('site motion remains paused and the terminal welcome needs no modal', async () => {
    assert.equal(await page.locator('html').getAttribute('data-paused'), '');
-   assert.equal(await page.locator('[data-intro]').count(), 0);
+   assert.equal(await page.locator('[data-intro][open]').count(), 0);
    assert.ok(await page.locator('[data-hero-terminal]').isVisible());
    for (const state of await page.locator('[data-motion-toggle]').evaluateAll(els => els.map(el => el.getAttribute('aria-pressed')))) assert.equal(state, 'false');
   });
@@ -71,6 +71,7 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
    if (mode === 'journey-blocked') await p.route('**/assets/js/journey.js', route => route.abort());
    if (mode === 'site-blocked') await p.route('**/assets/js/site.js', route => route.abort());
    await p.goto(base + '/recorrido.html');
+   await p.locator('[data-intro][open]').waitFor({ state: 'hidden' });
    assert.equal(await p.locator('[data-journey-stop]').count(), 4); for (const link of await p.locator('[data-journey-nav] a').all()) assert.ok(await link.isVisible());
    if (mode === 'no-js' || mode === 'journey-blocked') assert.equal(await p.locator('[data-journey-nav] [aria-current]').count(), 0);
    await p.locator('[data-journey-nav] a[href="#caso-ad"]').focus(); await p.keyboard.press('Enter'); await p.waitForFunction(() => location.hash === '#caso-ad'); assert.equal(new URL(p.url()).hash, '#caso-ad');

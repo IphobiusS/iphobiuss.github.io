@@ -43,6 +43,7 @@ jobs:
           npm run test:report-assets
       - name: Browser regressions
         run: |
+          npm run test:intro
           npm run test:evolution
           npm run test:home-actions
           npm run test:journey

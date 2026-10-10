@@ -1,6 +1,12 @@
-# iphobiuss · sitio estático v14.2
+# iphobiuss · sitio estático v14.3
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
+
+## Entrada de terminal
+
+La primera entrada de cada sesión y una recarga explícita muestran una secuencia visual breve, que se puede omitir con el botón o Escape. La navegación interna, los enlaces con fragmento, volver atrás, la pausa del sitio y la reducción de movimiento conservan el acceso directo. En Apariencia puedes desactivar o reactivar la entrada; la preferencia se guarda únicamente en el navegador.
+
+La secuencia es decorativa y no representa escaneos ni verificaciones de seguridad. El contenido permanece disponible sin JavaScript, y la apertura y el cierre no dependen de que termine una descarga de recursos.
 
 ## Reconstruir desde cero
 
@@ -42,6 +48,7 @@ npm run test:build
 npm run test:publish
 npm run test:links
 npm run test:report-assets
+npm run test:intro
 npm run test:evolution
 npm run test:home-actions
 npm run test:journey

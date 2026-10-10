@@ -31,7 +31,7 @@ const expectActions = async page => {
  assert.equal(await hero.evaluate(node => !!node.closest('details')), false, 'hero is not a disclosure');
  assert.deepEqual(await hero.locator('.terminal-directory a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['guias.html', 'tecnicas.html', 'herramientas.html']);
  assert.equal(await hero.locator('[data-open-session]').getAttribute('href'), '#terminal-lab');
- assert.equal(await page.locator('[data-intro]').count(), 0, 'no blocking intro remains');
+ assert.equal(await page.locator('[data-intro][open]').count(), 0, 'intro is closed before using the page');
  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'page overflow');
  const bounds = await page.locator(heroLinks).evaluateAll(nodes => nodes.map(node => {
   const rect = node.getBoundingClientRect(), style = getComputedStyle(node), ranges = [];
@@ -106,11 +106,11 @@ const write = fatal => { fs.mkdirSync(path.dirname(output), { recursive: true })
    assert.equal(new URL(page.url()).hash, '#guias'); assert.ok(await page.locator('#guias').isVisible());
    await openTerminal(page); await page.waitForFunction(() => document.querySelector('[data-session]').classList.contains('done'));
    assert.equal(await page.locator('[data-session]').evaluate(node => node.classList.contains('boot')), false);
-   assert.equal(await page.locator('[data-intro]').count(), 0);
+   assert.equal(await page.locator('[data-intro][open]').count(), 0);
    await page.evaluate(() => { window.__heroBeforeReplay = document.querySelector('[data-hero-terminal]').outerHTML; window.__heroReplayMutations = []; window.__heroReplayObserver = new MutationObserver(records => window.__heroReplayMutations.push(...records.map(record => record.type))); window.__heroReplayObserver.observe(document.querySelector('[data-hero-terminal]'), { subtree: true, childList: true, attributes: true, characterData: true }); });
    await page.locator('[data-motion-replay]').focus(); await page.keyboard.press('Enter'); await page.waitForFunction(() => document.querySelector('[data-session]').classList.contains('boot'));
    await page.waitForTimeout(250);
-   assert.equal(await page.locator('[data-intro]').count(), 0);
+   assert.equal(await page.locator('[data-intro][open]').count(), 0);
    assert.equal(await page.locator('[data-motion-stage]').evaluate(node => node.classList.contains('boot')), false, 'replay stays within the optional session');
    assert.deepEqual(await page.evaluate(() => { window.__heroReplayObserver.disconnect(); return { changed: document.querySelector('[data-hero-terminal]').outerHTML !== window.__heroBeforeReplay, mutations: window.__heroReplayMutations }; }), { changed: false, mutations: [] });
    assert.ok(await page.locator('[data-motion-replay]').evaluate(node => node === document.activeElement), 'replay does not steal keyboard focus');
