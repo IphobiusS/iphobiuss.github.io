@@ -213,21 +213,66 @@ function observeNativeIntro() {
     });
     for (const javascript of [true, false]) await check('Public CV download and native reading, JavaScript ' + javascript, async () => {
       const state = await fresh({ javaScriptEnabled: javascript }); const { page, context } = state;
-      for (const route of ['index.html', 'english.html']) {
-        await page.goto(base + '/' + route);
-        const cv = page.locator('a[download][href="downloads/cv-sebastian-latorre.pdf"]').first();
-        await cv.focus(); const pending = page.waitForEvent('download'); await page.keyboard.press('Enter'); const download = await pending;
-        assert.equal(await download.failure(), null); assert.equal(download.suggestedFilename(), 'cv-sebastian-latorre.pdf');
-        assert.ok(fs.readFileSync(await download.path()).equals(fs.readFileSync(path.join(root, 'downloads/cv-sebastian-latorre.pdf'))));
+      const journeys = [];
+      let current = { route: null, phase: 'created' };
+      const inspectDocument = () => page.locator('html').evaluate(() => ({
+        url: location.href, title: document.title, readyState: document.readyState,
+        htmlClass: document.documentElement.className, bodyPresent: !!document.body,
+        h1: [...document.querySelectorAll('h1')].map(node => node.textContent),
+        cvCount: document.querySelectorAll('a[download][href="downloads/cv-sebastian-latorre.pdf"]').length,
+        cvLinks: [...document.querySelectorAll('a[download]')].map(node => ({ html: node.outerHTML, connected: node.isConnected,
+          display: getComputedStyle(node).display, visibility: getComputedStyle(node).visibility,
+          box: { x: node.getBoundingClientRect().x, y: node.getBoundingClientRect().y, width: node.getBoundingClientRect().width, height: node.getBoundingClientRect().height } })),
+        activeElement: document.activeElement?.outerHTML.slice(0, 1000),
+        bodyHTML: document.body?.innerHTML || '', csp: window.__csp || []
+      }));
+      const logSummary = entry => ({ ...entry, document: entry.document ? { ...entry.document,
+        bodyHTML: entry.document.bodyHTML.slice(0, 2500), bodyHTMLLength: entry.document.bodyHTML.length,
+        bodyEnd: entry.document.bodyHTML.slice(-1500) } : null });
+      try {
+        for (const route of ['index.html', 'english.html']) {
+          current = { route, phase: 'navigation', urlBefore: page.url() };
+          const response = await page.goto(base + '/' + route);
+          current.response = response ? { url: response.url(), status: response.status(), headers: response.headers() } : null;
+          current.phase = 'document-inspection';
+          console.log('CV NAVIGATION ' + JSON.stringify({ engine, javascript, ...current, actualURL: page.url() }));
+          assert.equal(response?.status(), 200, 'CV introduction must return HTTP 200: ' + route);
+          assert.equal(page.url(), base + '/' + route, 'CV introduction must retain its expected URL');
+          current.document = await inspectDocument();
+          console.log('CV DOCUMENT ' + JSON.stringify({ engine, javascript, route, title: current.document.title,
+            readyState: current.document.readyState, cvCount: current.document.cvCount, htmlClass: current.document.htmlClass }));
+          assert.ok(current.document.cvCount >= 1, 'A native CV link must exist on ' + route);
+          if (!javascript) assert.equal(current.document.htmlClass.split(/\s+/).includes('js'), false, 'Author scripts must stay disabled');
+          const cv = page.locator('a[download][href="downloads/cv-sebastian-latorre.pdf"]').first();
+          current.phase = 'focus';
+          await cv.focus();
+          assert.equal(await cv.evaluate(node => node === document.activeElement), true, 'Native CV link must receive keyboard focus');
+          current.phase = 'download';
+          const pending = page.waitForEvent('download'); await page.keyboard.press('Enter'); const download = await pending;
+          assert.equal(await download.failure(), null); assert.equal(download.suggestedFilename(), 'cv-sebastian-latorre.pdf');
+          assert.ok(fs.readFileSync(await download.path()).equals(fs.readFileSync(path.join(root, 'downloads/cv-sebastian-latorre.pdf'))));
+          current.phase = 'complete'; journeys.push(current);
+        }
+        if (!javascript) {
+          current = { route: 'buscar.html', phase: 'native-search-fallback' };
+          await page.goto(base + '/buscar.html'); assert.ok(await page.locator('.search-fallback a').count() >= routes.length - 2);
+          assert.ok(await page.locator('.search-fallback').isVisible());
+        }
+        // Firefox reports a navigation download as NS_BINDING_ABORTED; the completed,
+        // byte-checked Download object above is the authoritative download outcome.
+        state.failed = state.failed.filter(item => !item.url.endsWith('/downloads/cv-sebastian-latorre.pdf'));
+        await healthy(state); await context.close(); return { downloads: 2, identicalPDF: true, nativeFallback: !javascript,
+          journeys: journeys.map(entry => ({ route: entry.route, status: entry.response.status, cvCount: entry.document.cvCount, completed: entry.phase === 'complete' })) };
+      } catch (error) {
+        // Keep the pre-focus DOM even if the driver's utility context itself is
+        // unavailable; synchronous URL/network records never need that context.
+        error.evidence = { engine, javascript, browserMode: headed ? 'headed' : 'headless', current,
+          actualURL: page.url(), pageClosed: page.isClosed(), journeys,
+          pageErrors: state.errors, failedRequests: state.failed, badResponses: state.badResponses, requests: state.requests };
+        fs.writeFileSync(path.join(output, engine + '-cv-js-' + javascript + '-diagnostic.json'), JSON.stringify(error.evidence, null, 2) + '\n');
+        console.error('CV DIAGNOSTIC ' + JSON.stringify({ ...error.evidence, current: logSummary(current), journeys: journeys.map(logSummary) }));
+        throw error;
       }
-      if (!javascript) {
-        await page.goto(base + '/buscar.html'); assert.ok(await page.locator('.search-fallback a').count() >= routes.length - 2);
-        assert.ok(await page.locator('.search-fallback').isVisible());
-      }
-      // Firefox reports a navigation download as NS_BINDING_ABORTED; the completed,
-      // byte-checked Download object above is the authoritative download outcome.
-      state.failed = state.failed.filter(item => !item.url.endsWith('/downloads/cv-sebastian-latorre.pdf'));
-      await healthy(state); await context.close(); return { downloads: 2, identicalPDF: true, nativeFallback: !javascript };
     });
     await check('Skill evidence and HTTP lab remain operable with keyboard and no JavaScript', async () => {
       const state = await fresh({ javaScriptEnabled: false }); const { page, context } = state;
