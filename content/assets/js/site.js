@@ -541,10 +541,10 @@
         }
       }
       // Native selects can truncate their displayed value with enlarged text.
-      // The mobile visual summary wraps; accessible native labels stay unchanged.
+      // The mobile summary keeps full names stable while the option/result counts update.
       for (const [target, control, label] of [['[data-search-selected-type]', typeChoice, 'Tipo'], ['[data-search-selected-language]', languageChoice, 'Idioma']]) {
         const summary = $(target);
-        if (summary && control) summary.textContent = `${label}: ${control.selectedOptions[0].textContent}`;
+        if (summary && control) summary.textContent = `${label}: ${control.selectedOptions[0].dataset.label}`;
       }
       if (clearFilters) clearFilters.disabled = !hasFilters();
       if (clearQuery) clearQuery.hidden = !query;

@@ -107,6 +107,30 @@ const save=fatal=>fs.writeFileSync(path.join(output,'results.json'),JSON.stringi
     await page.locator('[data-search-reset-query]').click();await page.locator('#search-type').selectOption('casos');await page.locator('#search-language').selectOption('en');assert.equal(await count(page),2);assert.deepEqual(errors,[]);
     await context.close();return {safeText:true,storageOptional:true};
   });
+  for(const width of [320,390])for(const scale of [100,200])await check(`Selected labels and result position remain stable while query counts change ${width}/${scale}`,async()=>{
+    const {context,page}=await create({viewport:{width,height:1000}});await page.goto(base+'/buscar.html');await ready(page);await page.evaluate(()=>document.fonts.ready);
+    if(scale===200)await page.addStyleTag({content:'html{font-size:200%!important}'});
+    const setQuery=async query=>{
+      await page.evaluate(query=>{const input=document.querySelector('input[name=q]');input.value=query;input.dispatchEvent(new Event('input',{bubbles:true}));},query);
+      await page.waitForFunction(query=>new URL(location.href).searchParams.get('q')===(query||null),query);
+    };
+    const geometry=()=>page.evaluate(()=>{
+      const summary=document.querySelector('[data-search-filter-selection]'),filters=document.querySelector('.search-filters'),region=document.querySelector('.search-result-region');
+      return {text:summary.textContent,summaryHeight:summary.getBoundingClientRect().height,filtersHeight:filters.getBoundingClientRect().height,resultTop:region.getBoundingClientRect().top+scrollY};
+    });
+    const states=[];
+    for(const [type,language] of [['',''],['herramientas','es'],['fundamentos','es'],['portafolio','en']]){
+      await page.locator('#search-type').selectOption(type);await page.locator('#search-language').selectOption(language);await setQuery('');
+      const baseline=await geometry(),initialNativeCount=await page.locator('#search-type option:checked').textContent();
+      for(const query of ['kerberos','zzznothing144','','sqli']){
+        await setQuery(query);const actual=await geometry();
+        assert.deepEqual(actual,baseline,'Changing only the query must not move or resize the filter summary or results region');
+        if(query==='zzznothing144'){assert.equal(await count(page),0);assert.match(await page.locator('#search-type option:checked').textContent(),/\(0\)$/);assert.notEqual(await page.locator('#search-type option:checked').textContent(),initialNativeCount);}
+      }
+      states.push({type:type||'all',language:language||'both',...baseline});
+    }
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await context.close();return {queryTransitions:16,states};
+  });
   for(const theme of ['dark','paper','retro'])for(const [width,scale] of [[1440,100],[320,100],[320,200]])await check(`Layout and accessibility ${theme}/${width}/${scale}`,async()=>{
     const {context,page}=await create({viewport:{width,height:1000}});await context.addInitScript(theme=>{if(theme==='paper')localStorage.setItem('iphobiuss:theme','paper');if(theme==='retro')localStorage.setItem('iphobiuss:retro','on');window.__csp=[];document.addEventListener('securitypolicyviolation',e=>window.__csp.push(e.violatedDirective));},theme);
     const errors=[];page.on('pageerror',error=>errors.push(error.message));await page.goto(base+'/buscar.html?tipo=casos&idioma=en');await ready(page);await page.evaluate(()=>document.fonts.ready);
@@ -118,14 +142,14 @@ const save=fatal=>fs.writeFileSync(path.join(output,'results.json'),JSON.stringi
     if(width===320&&scale===200){
       for(const [type,language,expected] of [['fundamentos','es','Fundamentos'],['herramientas','es','Herramientas'],['','','Todos los tipos'],['portafolio','en','Portafolio']]){
         await page.locator('#search-type').selectOption(type);await page.locator('#search-language').selectOption(language);
-        assert.match(await selectedSummary.innerText(),new RegExp(expected+' \\(\\d+\\)'));
+        assert.ok((await selectedSummary.innerText()).includes('Tipo: '+expected));
         const selection=await selectedSummary.evaluate(node=>{
           const box=node.getBoundingClientRect();
           const texts=[...node.children].map(span=>{const range=document.createRange();range.selectNodeContents(span);return {text:span.textContent,rects:[...range.getClientRects()].map(rect=>({left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom}))};});
           return {left:box.left,right:box.right,top:box.top,bottom:box.bottom,texts};
         });
         for(const item of selection.texts)for(const rect of item.rects){assert.ok(rect.left>=selection.left-1&&rect.right<=selection.right+1&&rect.top>=selection.top-1&&rect.bottom<=selection.bottom+1,'Complete selected text must wrap inside its visible summary: '+item.text);}
-        const expectedType=await page.locator('#search-type option:checked').textContent(),expectedLanguage=await page.locator('#search-language option:checked').textContent();
+        const expectedType=await page.locator('#search-type option:checked').getAttribute('data-label'),expectedLanguage=await page.locator('#search-language option:checked').getAttribute('data-label');
         assert.equal(selection.texts[0].text,'Tipo: '+expectedType);assert.equal(selection.texts[1].text,'Idioma: '+expectedLanguage);
         if(type==='herramientas'){summaryScreenshot=`search-controls-${theme}-${width}-${scale}.png`;await page.locator('.search-filters').screenshot({path:path.join(output,summaryScreenshot)});}
       }
