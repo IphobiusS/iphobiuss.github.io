@@ -18,6 +18,7 @@ def enhance_document(filename, tree):
     if filename == PAGE:
         # Native disclosure markers leave wrapped headings the full text width.
         tree.find("head").append(html.Element("link", rel="stylesheet", href="assets/css/http-case.css"))
+        tree.find("head").append(html.Element("script", src="assets/js/http-case.js", defer="defer"))
         return
     if filename == "index.html":
         nodes = tree.xpath('//*[contains(concat(" ", normalize-space(@class), " "), " lab-shortcuts ")]')
@@ -74,6 +75,68 @@ def render_results(evidence: dict) -> str:
     return "".join(entries)
 
 
+def render_explorer(evidence: dict) -> str:
+    """Render captured exchanges, never predict a response from the policy."""
+    cases = {row["id"]: row for row in evidence["results"]}
+    panels = []
+    for identity in ("alice", "bruno"):
+        for identifier, owner in (("101", "alice"), ("202", "bruno")):
+            for method, operation in (("GET", "read"), ("PATCH", "write")):
+                relation = "own" if identity == owner else "cross"
+                key = f"{identity}_{relation}_{operation}"
+                row = cases[key]
+                initial = key == "alice_cross_read"
+                cards = []
+                for mode, label in (("vulnerable", "Vulnerable"), ("fixed", "Corregido")):
+                    trace = row[mode]["trace"]
+                    request = trace[0]["request"]
+                    # Fail the build if a fixture or mapping no longer represents these controls.
+                    if (request["method"] != method or request["path"] != f"/reports/{identifier}"
+                            or dict(request["headers"]).get("Authorization") != f"Bearer lab-{identity}-only"):
+                        raise ValueError(f"Explorer selection differs from recorded request: {key}/{mode}")
+                    responses = []
+                    for index, step in enumerate(trace):
+                        label_step = "Respuesta a la solicitud" if index == 0 else "Lectura posterior del propietario"
+                        responses.append(f'<p><b>{label_step}: HTTP {step["response"]["status"]}</b></p>'
+                                         + code_block('Cuerpo JSON registrado', step["response"]["body"], "output"))
+                    cards.append(f'<article><h4>{label}</h4>{"".join(responses)}</article>')
+                interpretation = (
+                    'El propietario conserva el acceso legítimo en ambos modos.' if relation == "own" else
+                    'El modo vulnerable expone el objeto ajeno; el corregido no devuelve su contenido.' if method == "GET" else
+                    'La lectura posterior confirma el cambio ajeno en el vulnerable y el título original en el corregido.'
+                )
+                payload = (f'<p>Cuerpo enviado: <code>{escape(row["vulnerable"]["trace"][0]["request"]["body"])}</code></p>'
+                           if method == "PATCH" else "")
+                panels.append(
+                    f'<div data-http-result="{identity}:{identifier}:{method}" data-http-source="{key}"'
+                    + ('' if initial else ' hidden')
+                    + f'><h3>{escape(row["label_es"])}</h3><p><code>{method} /reports/{identifier}</code> '
+                    f'con el token sintético de {identity.title()}.</p>{payload}<div class="http-comparison">'
+                    + ''.join(cards) + f'</div><p>{interpretation}</p>'
+                    + f'<a href="#evidencia-{key}">Abrir peticiones, cabeceras y cuerpos completos</a></div>'
+                )
+    return section("explorador", "02", "Compara una identidad, un objeto y una operación",
+        '<div class="http-explorer" data-http-explorer><p id="http-explorer-scope">'
+        '<b>Explorador de evidencia registrada.</b> Cada combinación muestra intercambios HTTP '
+        'ya ejecutados en el laboratorio local y publicados en el JSON. Cambiar los controles no envía '
+        'peticiones a la API ni ejecuta una nueva prueba. Los datos son sintéticos.</p>'
+        '<p id="http-control-help">El informe 101 pertenece a Alice; el 202, a Bruno. '
+        '<code>GET</code> lee el informe; <code>PATCH</code> intenta cambiar su título.</p>'
+        '<form data-http-form aria-describedby="http-explorer-scope"><fieldset disabled>'
+        '<legend>Elegir una comparación</legend><div class="http-fields">'
+        '<label for="http-identity">Identidad<select id="http-identity" name="http_identity">'
+        '<option value="alice">Alice</option><option value="bruno">Bruno</option></select></label>'
+        '<label for="http-object">Objeto<select id="http-object" name="http_object" aria-describedby="http-control-help">'
+        '<option value="101">101</option><option value="202" selected>202</option></select></label>'
+        '<label for="http-method">Operación<select id="http-method" name="http_method" aria-describedby="http-control-help">'
+        '<option value="GET">GET</option><option value="PATCH">PATCH</option></select></label>'
+        '</div><div class="actions"><button class="button primary" type="submit">Comparar evidencia</button>'
+        '<button class="button" type="reset">Ejemplo inicial</button></div></fieldset></form>'
+        '<p data-http-state role="status" aria-live="polite">Sin JavaScript puedes leer la comparación inicial '
+        'y abrir todos los escenarios en la sección de retest.</p>'
+        + ''.join(panels) + '</div>')
+
+
 def build_case(document, page_head, record, root):
     root = Path(root)
     evidence = prepare_evidence(root)
@@ -82,7 +145,7 @@ def build_case(document, page_head, record, root):
     cases = {row["id"]: row for row in evidence["results"]}
     cross_read = cases["alice_cross_read"]
     response = cross_read["fixed"]["trace"][0]["response"]
-    toc = [("alcance", "Alcance y criterio de éxito"), ("hipotesis", "Hipótesis y controles"),
+    toc = [("alcance", "Alcance y criterio de éxito"), ("explorador", "Explorar la evidencia"), ("hipotesis", "Hipótesis y controles"),
            ("recorrido", "Del fallo a su impacto"), ("parche", "El cambio de código"),
            ("retest", "Retest y evidencia HTTP"), ("reproducir", "Reproducir y descargar"),
            ("limites", "Límites y conclusiones")]
@@ -111,7 +174,7 @@ def build_case(document, page_head, record, root):
         '<p>Cada escenario inicia un servidor nuevo en <code>127.0.0.1</code> y un cliente envía HTTP real. '
         'Los datos se reinician entre escenarios y se conservan entre los pasos de cada uno. '
         'No hay un destino externo ni respuestas simuladas.</p>')
-    hypotheses = section("hipotesis", "02", "Hipótesis y controles que las delimitan",
+    hypotheses = section("hipotesis", "03", "Hipótesis y controles que las delimitan",
         '<p>Las siguientes conclusiones se apoyan en los escenarios publicados. '
         'Una hipótesis descartada aquí no equivale a descartar esa clase de fallo en cualquier aplicación.</p>'
         '<dl class="case-synthesis">'
@@ -134,7 +197,7 @@ def build_case(document, page_head, record, root):
         'El estado y el cuerpo del informe ajeno coinciden con los del '
         + evidence_link("unknown_object", "identificador inexistente") + ' después del parche. '
         'No se midieron diferencias de tiempo ni canales laterales.</dd></div></dl>')
-    walkthrough = section("recorrido", "03", "Del fallo a su impacto, paso a paso",
+    walkthrough = section("recorrido", "04", "Del fallo a su impacto, paso a paso",
         '<ol class="takeaways">'
         '<li><b>1. Establecer dos controles legítimos.</b> '
         + evidence_link("alice_own_read", "Alice lee 101") + ' y '
@@ -158,7 +221,7 @@ def build_case(document, page_head, record, root):
         + code_block("Cuerpo observado al leer el informe ajeno en modo vulnerable", cross_read["vulnerable"]["trace"][0]["response"]["body"], "output")
         + '<p>El marcador <code>SYNTHETIC_BRUNO_202</code> identifica el objeto ajeno de forma inequívoca. '
         'Todos los nombres, títulos y tokens son datos públicos inventados para esta prueba.</p>')
-    patch = section("parche", "04", "El cambio de código que corrige la causa",
+    patch = section("parche", "05", "El cambio de código que corrige la causa",
         '<p>Estas dos funciones están en el <code>lab.py</code> descargable y son las políticas que ejecuta la batería. '
         'La comparación se genera desde ese archivo al construir esta página. '
         'Muestra la diferencia entre los dos modos del laboratorio; no representa el historial de un proyecto ajeno.</p>'
@@ -171,7 +234,7 @@ def build_case(document, page_head, record, root):
         '<p>Los controles anteriores al parche se mantienen: una única cabecera de autenticación, '
         'un JSON que solo puede cambiar el título y respuestas con <code>Cache-Control: no-store</code>. '
         'Ninguno sustituye la comprobación de propietario.</p>')
-    retest = section("retest", "05", "Retest: abrir la evidencia de cada escenario",
+    retest = section("retest", "06", "Retest: abrir la evidencia de cada escenario",
         f'<p><b>{checks}/{checks} intercambios coinciden con su expectativa.</b> Los {count} escenarios se ejecutan '
         'contra ambos modos. En el vulnerable, varios resultados esperados reproducen el fallo; '
         'no significan que esa versión sea segura.</p>'
@@ -182,7 +245,7 @@ def build_case(document, page_head, record, root):
         'Date y Server para permitir comparaciones reproducibles. No son una captura de red; '
         'el JSON descargable conserva además las expectativas y la huella SHA-256 de cada cuerpo.</p>'
         + render_results(evidence))
-    reproduce = section("reproducir", "06", "Reproducir y descargar",
+    reproduce = section("reproducir", "07", "Reproducir y descargar",
         '<p>Python 3.10 o posterior, sin dependencias. Descarga y descomprime el ZIP; desde su carpeta:</p>'
         + code_block("Ejecutar el retest HTTP", 'python3 lab.py --verify resultados.json', "command")
         + f'<p>Salida esperada: <code>PASS: {checks}/{checks} HTTP checks; complete evidence identical</code>.</p>'
@@ -197,7 +260,7 @@ def build_case(document, page_head, record, root):
         'con la evidencia incluida; una diferencia hace fallar la comprobación.</p>'
         '<div class="actions"><a class="button primary" href="downloads/http-access-lab.zip" download>Descargar laboratorio (ZIP)</a>'
         '<a class="button" href="downloads/http-access-resultados.json" download>Descargar evidencia HTTP (JSON)</a></div>')
-    limits = section("limites", "07", "Qué permite concluir y qué queda fuera",
+    limits = section("limites", "08", "Qué permite concluir y qué queda fuera",
         '<p>Los controles reproducidos respaldan una conclusión concreta: comprobar el propietario antes '
         'de leer o escribir bloquea los accesos cruzados ensayados y conserva las operaciones legítimas. '
         'Una respuesta de rechazo no basta por sí sola; el retest comprueba también el estado del objeto.</p>'
@@ -214,6 +277,6 @@ def build_case(document, page_head, record, root):
     body = (head + '<div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En este caso</span>'
             f'<nav aria-label="Índice del caso">{links}</nav></aside><div class="article-content">'
             f'<details class="mobile-toc"><summary>En este caso</summary><nav aria-label="Índice móvil">{links}</nav></details>'
-            + opening + scope + hypotheses + walkthrough + patch + retest + reproduce + limits + '</div></div>')
+            + opening + scope + render_explorer(evidence) + hypotheses + walkthrough + patch + retest + reproduce + limits + '</div></div>')
     document(PAGE, TITLE, DESCRIPTION, body, "guias", article=True, date_modified=EDITION)
     record(TITLE, PAGE, "Laboratorio", DESCRIPTION, "Web, API, HTTP, IDOR, autorización, causa raíz, retest, Docker")

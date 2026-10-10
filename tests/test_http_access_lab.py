@@ -30,7 +30,7 @@ class HTTPAuthorizationTests(unittest.TestCase):
 
     def test_complete_recorded_evidence_reproduces(self):
         self.assertEqual(self.evidence, json.loads((LAB / "resultados.json").read_text()))
-        self.assertEqual(self.evidence["summary"], {"scenarios": 17, "modes": 2, "http_exchanges": 44, "passed": 44, "failed": 0})
+        self.assertEqual(self.evidence["summary"], {"scenarios": 18, "modes": 2, "http_exchanges": 48, "passed": 48, "failed": 0})
 
     def test_read_denials_have_no_foreign_content(self):
         for name in ("alice_cross_read", "bruno_cross_read", "client_owner_header"):

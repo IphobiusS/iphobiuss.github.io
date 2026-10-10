@@ -1,4 +1,4 @@
-# iphobiuss · sitio estático v14.7
+# iphobiuss · sitio estático v14.8
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
 
@@ -20,7 +20,7 @@ El mapa de habilidades de la portada enlaza evidencias concretas de Web, Active 
 
 `api-acceso.html` presenta un segundo laboratorio propio: API HTTP con dos identidades sintéticas, IDOR de lectura y escritura, autorización por propietario y retest con cuerpos completos. `content/labs/http-access/` conserva código, escenarios y evidencia. CI repite la ejecución nativa y en Docker sin red externa ni puertos publicados; el ZIP descargable incluye instrucciones y un manifiesto SHA-256. No es una API de producción.
 
-El caso muestra alcance, hipótesis y controles negativos, recorrido entre las dos identidades, diferencia entre las políticas reales y los 44 intercambios de sus 17 escenarios. Las transcripciones se generan desde el resultado ejecutado. El guion de grabación vive en las instrucciones del ZIP; no hay un vídeo ni una voz fabricados. La lectura completa funciona sin JavaScript.
+El caso muestra alcance, hipótesis y controles negativos, recorrido entre las dos identidades, diferencia entre las políticas reales y los 48 intercambios de sus 18 escenarios. Las transcripciones se generan desde el resultado ejecutado. El explorador permite elegir identidad, objeto y GET/PATCH entre ocho combinaciones registradas, con URL compartible, recarga y Atrás/Adelante. Cambiar controles no hace solicitudes ni ejecuta pruebas nuevas. La comparación inicial y todas las transcripciones siguen disponibles sin JavaScript. El recorrido breve y el resumen inglés priorizan este caso propio, con los mismos resultados y límites. La grabación está postergada; su guion permanece en las instrucciones del ZIP.
 
 Para actualizar report-gen, espera su Release verificada y guarda los JSON reales de la Release y de sus workflows. Comprueba que la etiqueta apunte al commit aprobado y reproduce el paquete con `scripts/build-release.py` en ese checkout. Sincroniza así:
 
@@ -31,6 +31,12 @@ python scripts/sync-report-release.py --repo /ruta/report-gen --commit COMMIT_CO
 Revisa la propuesta y añade `--apply` para actualizar conjuntamente versión, descarga, guía y estado. Exige cuatro ejecuciones `push` correctas de la misma revisión y repositorio, un CV revisado y coincidencia de los tres archivos publicados con el ZIP, SHA-256 y manifiesto locales. No modifica los informes históricos ni marca Word o sesiones humanas como realizados. La opción sin Release se conserva para archivos históricos fijados a un commit.
 
 El buscador permite filtrar por tipo e idioma y compartir la selección mediante `q`, `tipo` e `idioma` en la URL. Sin JavaScript se conserva el catálogo de enlaces. Las consultas y filtros no se envían a un servicio externo; el historial sigue siendo opcional.
+
+## Cuaderno y recuperación
+
+Las notas se validan antes de escribirlas: un carácter de control no puede invalidar silenciosamente todo el cuaderno. Si los datos guardados no se pueden interpretar, **Revisar cuaderno** permite descargar el original exacto, revisar las entradas válidas y exportar una copia revisada sin sobrescribirlo. **Descargar esta pestaña** conserva los datos que aún estén en memoria.
+
+Una nota pendiente cuyo favorito se elimina desde otra pestaña queda en **Notas por recuperar**, con descarga o restauración explícita. Si el favorito reaparece, se compara la nota guardada antes de aceptar el borrador. Las escrituras usan Web Locks y leen el estado actual para preservar cambios de otras pestañas. Sin bloqueo disponible, con cuota agotada o almacenamiento denegado, se informa de una sesión temporal exportable. Esta recuperación local no sustituye descargar respaldos antes de borrar los datos del navegador.
 
 ## Reconstruir desde cero
 
@@ -84,6 +90,9 @@ npm run test:search-filters
 npm run test:evolution
 npm run test:home-actions
 npm run test:journey
+npm run test:continuity
+npm run test:notebook
+npm run test:guide-progress
 npm run test:graphs
 npm run test:http-case
 npm run test:layout
@@ -91,7 +100,7 @@ npm run test:layout
 
 `build:all` equivale a `python scripts/build-site.py`. `npm run build` sólo regenera las páginas y copia recursos editables; usa el build completo antes de publicar. `test:build` se ejecuta en una carpeta temporal, compara dos construcciones completas, detecta recursos obsoletos y comprueba que las fuentes no se modifican.
 
-Las pruebas de navegador usan Playwright y axe-core fijados en `package-lock.json`, levantan sus propios servidores y admiten `SITE_CHROMIUM` para un Chromium existente. `SITE_LAYOUT_MODE=matrix` o `targeted` selecciona cada parte de la batería de distribución; sin esa variable se ejecutan ambas. Se conservan además pruebas específicas de cuaderno, progreso, mascotas y fuentes de gráficos en los comandos de `package.json`.
+Las pruebas de navegador usan Playwright y axe-core fijados en `package-lock.json`, levantan sus propios servidores y admiten `SITE_CHROMIUM` para un Chromium existente. `SITE_LAYOUT_MODE=matrix` o `targeted` selecciona cada parte de la batería de distribución; sin esa variable se ejecutan ambas. `test:continuity`, `test:notebook` y `test:guide-progress` participan en la validación de CI antes de publicar. Cubren continuidad, escrituras concurrentes, recuperación de notas, datos inválidos y progreso de lectura. Se conservan además las pruebas de mascotas y fuentes de gráficos en `package.json`.
 
 Las comprobaciones automáticas no sustituyen una revisión humana de accesibilidad ni pruebas con usuarios. Las evidencias de cada entrega deben distinguir las pruebas realizadas de las pendientes.
 

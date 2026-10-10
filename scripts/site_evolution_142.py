@@ -7,7 +7,7 @@ from lxml import html
 
 ENGLISH_PAGES = {
     'english.html': ('A short introduction', 'Junior penetration tester in Santiago: documented lab decisions, evidence and a local reporting tool.', 'recorrido.html'),
-    'report-gen-en.html': ('report-gen: from evidence to delivery', 'A local report editor with a Linux installer, external workspaces, a project catalogue, reviewed remediation returns and shareable diagnostics.', 'proyectos.html'),
+    'report-gen-en.html': ('report-gen: from evidence to delivery', 'A local report editor with reviewed bulk changes, owner-specific remediation packages, external workspaces and verified update preparation.', 'proyectos.html'),
     'cap-case-en.html': ('Cap: object access and effective privileges', 'An English summary of the documented HTB Cap lab, its decisions, evidence and limits.', 'cap-caso.html'),
     'forest-case-en.html': ('Forest: identity, permissions and replication', 'An English summary of the documented HTB Forest lab, with explicit evidence and limits.', 'forest-caso.html'),
 }
@@ -169,12 +169,15 @@ def enhance_document(filename, tree):
 
 
 def build_routes(document, page_head, record, report, root):
+    http_summary = json.loads((root / 'content/labs/http-access/resultados.json').read_text(encoding='utf-8'))['summary']
     for filename, (title, description, spanish) in ENGLISH_PAGES.items():
         source = (root / 'content/pages' / filename).read_text(encoding='utf-8')
         source = source.replace('{{REPORT_VERSION}}', escape(report['version']))
         source = source.replace('{{REPORT_DOWNLOAD}}', escape(report['download'], quote=True))
         source = source.replace('{{REPORT_GUIDE}}', escape(report['guide'], quote=True))
         source = source.replace('{{FINDING_DEMO}}', demo_widget('en'))
+        source = source.replace('{{HTTP_SCENARIOS}}', str(http_summary['scenarios']))
+        source = source.replace('{{HTTP_EXCHANGES}}', str(http_summary['http_exchanges']))
         header = f'<div class="page-head"><div class="shell narrow"><p class="crumbs"><a href="english.html">English overview</a> / <a href="{spanish}" lang="es" hreflang="es">Español</a></p><h1>{escape(title)}</h1><p>{escape(description)}</p><p class="edition-line">Updated <time datetime="2026-10-10">10 October 2026</time></p></div></div>'
         document(filename, title, description, header + '<div class="shell narrow professional-route" lang="en">' + source + '</div>', date_modified='2026-10-10')
         record(title + ' (English)', filename, 'English', description, 'Portafolio')

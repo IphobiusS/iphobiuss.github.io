@@ -132,6 +132,11 @@ jobs:
         run: npm run test:home-actions
       - name: Verify guided journey
         run: npm run test:journey
+      - name: Verify notebook continuity and saved reading
+        run: |
+          npm run test:continuity
+          npm run test:guide-progress
+          npm run test:notebook
       - name: Verify case graphs
         run: npm run test:graphs
       - name: Audit all layouts and accessibility

@@ -1,6 +1,6 @@
 AUTORIZACIÓN POR OBJETO: API HTTP LOCAL 1.0.0
 
-17 escenarios, 2 modos y 44 intercambios HTTP realmente ejecutados.
+18 escenarios, 2 modos y 48 intercambios HTTP realmente ejecutados.
 Datos e identidades completamente sintéticos. Ningún objetivo externo.
 Requisitos sin Docker: Python 3.10 o posterior; biblioteca estándar solamente.
 
@@ -9,7 +9,7 @@ Desde la carpeta descomprimida:
   python3 lab.py --verify resultados.json
 
 Salida esperada:
-  PASS: 44/44 HTTP checks; complete evidence identical
+  PASS: 48/48 HTTP checks; complete evidence identical
 
 Cada escenario inicia una API nueva en 127.0.0.1 y un puerto efímero. Un cliente
 HTTP real envía las solicitudes, conserva estados/cabeceras/cuerpos completos y
@@ -77,7 +77,7 @@ fallos. Docker ejecuta exactamente la misma batería, sin ampliar su alcance.
 
 LEER EL CASO COMPLETO
 La página api-acceso.html del sitio acompaña este paquete: alcance, hipótesis,
-recorrido con dos identidades, comparación del código ejecutado y los 17
+recorrido con dos identidades, comparación del código ejecutado y los 18
 escenarios desplegables con sus transcripciones HTTP. Funciona sin JavaScript.
 No se atribuye este laboratorio a un incidente real ni a trabajo con clientes.
 Las solicitudes publicadas se ejecutan automáticamente. Las instrucciones

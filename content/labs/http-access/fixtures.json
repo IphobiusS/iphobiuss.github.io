@@ -311,6 +311,63 @@
       ]
     },
     {
+      "id": "bruno_own_write",
+      "label_es": "Bruno modifica su título y lo vuelve a leer",
+      "steps": [
+        {
+          "method": "PATCH",
+          "path": "/reports/202",
+          "token": "lab-bruno-only",
+          "body": "{\"title\":\"Título actualizado por Bruno\"}",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/202",
+          "token": "lab-bruno-only",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "id": "202",
+                "owner": "bruno",
+                "title": "Título actualizado por Bruno",
+                "marker": "SYNTHETIC_BRUNO_202"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "alice_cross_write",
       "label_es": "Alice intenta modificar el informe de Bruno",
       "steps": [

@@ -1,4 +1,22 @@
 /* Keep native disclosure markers and usable text width at 200% on narrow screens. */
+.http-explorer{margin-block:1rem}
+.http-explorer [hidden]{display:none!important}
+.http-explorer fieldset{min-width:0;margin:1rem 0;padding:1rem;border:1px solid var(--line-strong)}
+.http-explorer legend{max-width:100%;padding-inline:.4rem;font-weight:600}
+.http-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.http-fields label{display:grid;gap:.35rem;min-width:0;font-weight:600}
+.http-fields select{width:100%;max-width:100%;min-width:0;min-height:44px;padding:.6rem .4rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);font:inherit}
+.http-explorer .actions{margin-block:1rem 0}
+.http-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.http-comparison article{min-width:0;padding:1rem;border:1px solid var(--line-strong);background:var(--surface)}
+.http-comparison h4{margin:0 0 .75rem;font:600 1.125rem/1.4 var(--sans)}
+.http-comparison p{margin-block:.75rem .5rem}
+.http-comparison .code-block{margin:.5rem 0 1rem}
+.http-comparison pre{max-width:100%;margin:0;padding:.6rem;white-space:pre-wrap;font:.875rem/1.65 var(--mono)}
+.http-comparison pre code{white-space:pre-wrap;overflow-wrap:anywhere!important}
+.http-explorer [data-http-state]{color:var(--dim);font-size:.9375rem}
+@media(max-width:700px){.http-fields,.http-comparison{grid-template-columns:minmax(0,1fr)}.http-explorer fieldset,.http-comparison article{padding:.75rem}}
+@media print{.http-explorer form,.http-explorer [data-http-state]{display:none}.http-comparison{display:block}.http-comparison article{break-inside:avoid;margin-block:1rem}}
 @media screen{
   .entry-details[data-http-scenario]>summary{display:list-item;list-style:revert;padding-inline:min(1rem,4vw)}
   .entry-details[data-http-scenario]>summary::after{content:none}

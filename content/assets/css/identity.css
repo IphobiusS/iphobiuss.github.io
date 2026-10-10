@@ -8,7 +8,7 @@
   body{background-image:none}
 
   /* Tipografía: Plex Mono estructura, Plex Sans lectura. Pixel solo en Retro. */
-  h1,h2,h3,h4,.pane h1,.pane-title,.sec-name,.entry-details>summary,.result-item h2,.feature-list h3,.readme-start h2,.lab-box h2,.egg-box h2,.pagination-note h2,.search-empty h2,.project-page .proj-name,.project-tagline,.series-nav span,.hero-role{font-family:var(--mono);letter-spacing:0}
+  h1,h2,h3,h4,.pane h1,.pane-title,.sec-name,.entry-details>summary,.result-item h2,.feature-list h3,.readme-start h2,.lab-box h2,.egg-box h2,.pagination-note h2,.search-empty h2,.project-page .proj-name,.project-tagline,.series-nav span{font-family:var(--mono);letter-spacing:0}
   h1,.pane h1,.project-page .proj-name{font-weight:600;font-size:clamp(1.75rem,3.2vw,2.5rem);line-height:1.2;text-wrap:balance;overflow-wrap:anywhere}
   h2{font-size:1.4rem;line-height:1.3}
   h3{font-size:1.0625rem}
@@ -274,7 +274,6 @@
   #readme{container-type:inline-size}
   .readme-intro{max-width:52rem}
   .profile-title{font-size:1.6rem;margin-bottom:.35rem}
-  .hero-role{font-size:1.0625rem;font-weight:400;color:var(--dim);margin-bottom:1.25rem}
   .status-line{border-left:2px solid var(--acc);border-radius:0}
   .hero-stats dd{color:var(--acc);font:600 1.65rem/1.3 var(--mono)}
   @container(max-width:16rem){

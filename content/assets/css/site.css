@@ -216,7 +216,6 @@ html:not(.js) .pane+.pane{border-top:1px solid var(--line)}
 .prompt{font:400 .8125rem/1.6 var(--mono);color:var(--dim);margin:0 0 var(--s3);overflow-wrap:anywhere}
 .prompt b{font-weight:600;color:var(--acc)}
 .pane h1{font-size:clamp(1.375rem,3.6vw,2.25rem);line-height:1.6;margin-bottom:var(--s3);text-wrap:balance}
-.hero-role{font-size:1.375rem;font-weight:600;line-height:1.4;margin-bottom:var(--s2);color:var(--ink-bright)}
 .status-line{max-width:72ch;margin:0 0 var(--s3);padding:1rem 1.15rem;border-left:2px solid var(--acc);background:var(--surface);color:var(--ink);font-size:.9375rem;line-height:1.65}
 .status-label{display:inline-block;margin-right:.5rem;font:600 .8125rem/1.5 var(--mono);color:var(--acc)}
 .readme-en{margin:var(--s3) 0 0;border:1px solid var(--line);background:var(--surface);padding:.25rem 1rem}
@@ -230,9 +229,6 @@ html:not(.js) .pane+.pane{border-top:1px solid var(--line)}
 .feed-line .pi{color:var(--dim)}
 .prompt-output{font:.9375rem/1.6 var(--mono);color:var(--warn);margin:0 0 var(--s3);overflow-wrap:anywhere}
 .pitch,.lead{max-width:64ch;margin:0 0 var(--s3);color:var(--dim);line-height:1.75}
-.credentials-summary{display:flex;flex-wrap:wrap;gap:.25rem 1rem;align-items:center;margin:0 0 var(--s3);font:.9375rem/1.6 var(--sans);color:var(--dim)}
-.credentials-summary a{display:inline-flex;align-items:center;min-height:44px}
-.hero-linkedin{display:inline-flex;align-items:center;min-height:44px;font:600 .875rem/1.5 var(--mono)}
 /* Presentation card and optional English summary. */
 .readme-project{margin-top:var(--s4)}
 .readme-en{margin-top:var(--s4)}
@@ -691,7 +687,6 @@ html{scroll-padding-top:1rem}
 .readme-project-foot{padding:1.25rem;gap:1rem}
 .readme-project-foot .button{justify-content:center}
 .readme-start{padding:1.25rem}
-.hero-role{font-size:1.2rem}
 .pitch,.lead{font-size:1rem;line-height:1.75}
 .hero-actions{gap:.75rem;margin-bottom:1.5rem}
 
@@ -829,7 +824,6 @@ body[data-page=index] .pane#herramientas{break-inside:avoid-page;page-break-insi
 body[data-page=index] .pane+.pane{padding-top:.75rem}
 body[data-page=index] .hero-actions{margin-bottom:1rem}
 body[data-page=index] .hero-stats{margin:.75rem 0;padding:.5rem 0}
-body[data-page=index] .credentials-summary{margin-bottom:1rem}
 body[data-page=index] .readme-project{margin:.75rem 0}
 body[data-page=index] .readme-en{margin-top:1rem;padding:.5rem .75rem}
 body[data-page=index] .readme-en>summary{min-height:0;padding:0;font-size:9pt}
