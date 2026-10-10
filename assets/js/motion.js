@@ -1,12 +1,12 @@
-/* v10: la sesión de la portada arranca sola (intro, terminal, grafo, report-gen) y el fondo
-   de paquetes acompaña mientras la portada está a la vista. Todo tiene estado final sin
-   JavaScript; aquí solo se anima. La pausa persiste y la preferencia del sistema manda. */
+/* La terminal es opcional: abrirla o pulsar Repetir inicia la secuencia. El fondo
+   acompaña mientras la portada está a la vista. El HTML conserva el estado final
+   sin JavaScript; la pausa persiste y se respeta la reducción de movimiento. */
 (() => {
   'use strict';
   const html = document.documentElement;
   const toggles = [...document.querySelectorAll('[data-motion-toggle]')];
   const replays = [...document.querySelectorAll('[data-motion-replay]')];
-  const key = 'iphobiuss:motion', introKey = 'iphobiuss:intro';
+  const key = 'iphobiuss:motion';
   const storedPreference = () => { try { return localStorage.getItem(key) === 'paused' ? 'paused' : 'running'; } catch { return 'running'; } };
   let preference = storedPreference();
   // Comparte la preferencia de pausa con los estilos de animación y syncControls().
@@ -29,13 +29,13 @@
   const running = () => !!reduced && !systemReduced() && preference === 'running' && !document.hidden && !printing && !(printMedia && printMedia.matches);
 
   const session = document.querySelector('[data-session]'), stage = document.querySelector('[data-motion-stage]');
+  const sessionDisclosure = session?.closest('details');
   const intro = document.querySelector('[data-intro]'), skip = document.querySelector('[data-intro-skip]');
   const name = document.querySelector('[data-scramble]'), finalName = name ? name.textContent : '';
   const glyphs = '01$#&%@/\\<>|*+=';
   const cmds = session ? [...session.querySelectorAll('[data-cmd]')].map(el => ({wrap: el, text: el.querySelector('.tcmd-text'), value: el.querySelector('.tcmd-text').textContent})) : [];
   const termLines = session ? [...session.querySelectorAll('.spane-term .tl')] : [];
   const visible = el => el.getClientRects ? !!(el.offsetParent !== null || el.getClientRects().length) : true;
-  const bannerLines = termLines.filter(el => el.classList.contains('tb') && visible(el));
   const tagLine = termLines.find(el => el.classList.contains('ttag')), promptTwo = termLines.find(el => el.classList.contains('tp2'));
   const nmapLines = termLines.filter(el => !el.classList.contains('tb') && !el.classList.contains('ttag') && !el.classList.contains('tp2'));
   const repLines = session ? [...session.querySelectorAll('.rep .tl')] : [];
@@ -43,8 +43,7 @@
   const panes = {};
   if (session) session.querySelectorAll('[data-pane]').forEach(p => { panes[p.dataset.pane] = p; });
   const introLines = intro ? [...intro.querySelectorAll('.il')] : [];
-  let introOpen = false, introSeen = false;
-  try { introSeen = sessionStorage.getItem(introKey) === '1'; } catch {}
+  let introOpen = false;
 
   function syncControls() {
     const reducedNow = systemReduced(), unsupported = !reduced, active = running() && onScreen;
@@ -152,7 +151,6 @@
   }
   function closeIntro(instant) {
     if (introState === 'closed') { finalizeIntroClose(); return; }
-    try { sessionStorage.setItem(introKey, '1'); } catch {}
     // Interrumpir (instant) desde cualquier estado, incluida la salida en curso, cierra de inmediato.
     if (instant || introState === 'closing') { finalizeIntroClose(); return; }
     introState = 'closing';
@@ -162,7 +160,7 @@
   if (skip) skip.addEventListener('click', () => closeIntro(true));
   // El dialog nativo cierra con Escape por su cuenta: sincronizamos nuestro estado cuando ocurre.
   // El dialog nativo dispara 'close' tanto por Escape como por nuestro intro.close(): dejamos el estado coherente.
-  if (intro) intro.addEventListener('close', () => { if (introState !== 'closed') { try { sessionStorage.setItem(introKey, '1'); } catch {} } if (introExitTimer) { clearTimeout(introExitTimer); timers.delete(introExitTimer); introExitTimer = null; } intro.classList.remove('off'); introState = 'closed'; setIntroOpen(false); });
+  if (intro) intro.addEventListener('close', () => { if (introExitTimer) { clearTimeout(introExitTimer); timers.delete(introExitTimer); introExitTimer = null; } intro.classList.remove('off'); introState = 'closed'; setIntroOpen(false); });
 
   // F02: mientras la secuencia corre, si una fila oculta recibe foco por teclado, se muestra de inmediato.
   const bootFocusReveal = event => { const row = event.target.closest && event.target.closest('.tl.trow, .tl'); if (row && session.classList.contains('boot')) row.classList.add('on'); };
@@ -172,6 +170,7 @@
     session.classList.remove('done'); session.classList.add('boot'); stage && stage.classList.add('boot');
     if (name) after(60, () => scramble(name, finalName, 900));
     activate('term', 0);
+    const bannerLines = termLines.filter(el => el.classList.contains('tb') && visible(el));
     let t = cmds[0] ? typeInto(cmds[0], 220, 70) : 220;
     bannerLines.forEach((line, i) => after(t + 240 + i * 60, () => line.classList.add('on')));
     t += 240 + bannerLines.length * 60 + 120;
@@ -395,7 +394,7 @@
   // al reanudar se actualiza una sola vez.
   const clock = document.querySelector('[data-clock]');
   let clockTimer = null;
-  const clockActive = () => running() && onScreen;
+  const clockActive = () => running() && onScreen && (!sessionDisclosure || sessionDisclosure.open);
   function tickClock() { if (clock) clock.textContent = new Date().toLocaleTimeString('es-CL', {hour12: false}); }
   function syncClock() {
     if (!clock) return;
@@ -406,5 +405,10 @@
   // Animación y Repetir ya están cableados y con estado: se revelan (reservaban su espacio pero estaban invisibles).
   // Si motion.js no llega a ejecutarse, siguen ocultos en vez de aparecer habilitados sin responder.
   html.classList.add('motion-ready');
-  if (running() && session) play(!introSeen); else finish();
+  // Opening the optional terminal is the user's cue. Landing on the portfolio never opens a modal.
+  if (sessionDisclosure) sessionDisclosure.addEventListener('toggle', () => {
+    if (sessionDisclosure.open && running()) play(false); else finish();
+    syncControls();
+  });
+  if (sessionDisclosure?.open && running()) play(false); else finish();
 })();

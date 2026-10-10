@@ -70,15 +70,15 @@
   /* Portada v10: la sesión. Identidad arriba, ventana tmux con tres paneles,
      línea de estado. Todo tiene estado final sin JavaScript; motion.js solo anima. */
   .welcome{display:grid;grid-template-columns:minmax(0,1fr);gap:1.5rem;padding-top:1.75rem;padding-bottom:0;position:relative;z-index:1}
-  .welcome-id{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:1.25rem 2rem;align-items:start;position:relative;z-index:1}
+  .welcome-id{display:grid;grid-template-columns:minmax(0,1fr);gap:1.25rem;align-items:start;position:relative;z-index:1}
   /* F06: las zonas de lectura llevan su propia superficie opaca; el fondo de paquetes nunca cruza letras. */
   .welcome-lead{position:relative;min-width:0}
   .welcome-lead::before{content:'';position:absolute;inset:-.75rem -1rem;z-index:-1;background:var(--bg);border-radius:2px}
   .welcome h1,.welcome-role,.welcome-description,.welcome-actions,.welcome-links{position:relative}
-  .welcome-creds{grid-column:2;grid-row:1;position:relative;align-self:start;border:1px solid var(--line);background:var(--bg);padding:1rem 1.1rem}
-  .welcome-creds-label{margin:0 0 .65rem;color:var(--dim);font:.6875rem/1.5 var(--mono)}
-  .welcome-badges{display:flex;flex-wrap:wrap;gap:.4rem}
-  .welcome-badges .badge{flex:1 1 calc(25% - .3rem);min-width:min(100%,5em);min-height:44px;justify-content:center}
+  .welcome-creds{position:relative;border:1px solid var(--line);background:var(--bg);padding:1.25rem 1.5rem}
+  .welcome-creds-label{margin:0 0 1rem;color:var(--ink-bright);font:600 1.1rem/1.5 var(--mono)}
+  .welcome-badges{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:.5rem}
+  .welcome-badges .badge{min-width:0;min-height:44px;justify-content:center}
   .welcome h1{font-size:clamp(1.8rem,3.2vw,2.5rem);line-height:1.15;margin:0 0 .35rem;text-wrap:initial;overflow-wrap:anywhere}
   .welcome h1 .ch{display:inline-block;min-width:.1em}
   .welcome h1 .ch.sc{color:var(--acc)}
@@ -106,7 +106,12 @@
   .motion-toggle:disabled{cursor:default;border-color:var(--line-strong);color:var(--dim)}
 
   .session-shell{margin:0}
-  .session-shell>.session-summary{display:none}
+  .session-shell>.session-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem 1rem;align-items:center;min-height:52px;padding:.85rem 1rem;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:600 .875rem/1.5 var(--mono);cursor:pointer;list-style:none;overflow-wrap:anywhere}
+  .session-shell>.session-summary::-webkit-details-marker{display:none}
+  .session-shell>.session-summary::after{content:'[+]';grid-column:2;grid-row:1/3;color:var(--acc)}
+  .session-shell[open]>.session-summary::after{content:'[-]'}
+  .session-summary-hint{grid-column:1;font-weight:400;color:var(--dim);font-size:.8125rem}
+  .session-shell[open]>.session-summary{margin-bottom:-1px}
   .session{position:relative;border:1px solid var(--line-strong);background:var(--surface);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto;grid-template-areas:"title title" "term graph" "term report" "status status";overflow:hidden}
   .session-title{grid-area:title;display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.45rem 1rem;border-bottom:1px solid var(--line-strong);font:600 .8125rem/1.5 var(--mono);color:var(--ink)}
   .session-path{overflow-wrap:anywhere}
@@ -305,7 +310,6 @@
   .readme-start{padding:1.5rem}
   .readme-start h2{font-size:1.0625rem}
   .readme-project-foot h2{font-size:1.35rem}
-  .readme-project-kicker{font-weight:600}
   /* v13.8: a compact identity illustration with live, scalable labels. */
   .readme-project{display:flex;flex-wrap:wrap;align-items:center;gap:1.25rem;padding:1.25rem;border:1px solid var(--line-strong);background:var(--surface)}
   .readme-project-foot{display:block;flex:1 1 22rem;min-width:0;padding:0;border:0}
@@ -367,12 +371,6 @@
   }
   @media(max-width:900px){
     .window-body{grid-template-columns:190px minmax(0,1fr)}
-    .session-shell>.session-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto;overflow-wrap:anywhere;justify-content:space-between;align-items:center;gap:1rem;min-height:44px;padding:.55rem 1rem;border:1px solid var(--line-strong);background:var(--acc);color:var(--on-acc);font:600 .75rem/1.5 var(--mono);cursor:pointer;list-style:none}
-    .session-shell>.session-summary::-webkit-details-marker{display:none}
-    .session-shell>.session-summary::after{content:'[+]'}
-    .session-shell[open]>.session-summary::after{content:'[-]'}
-    .session-summary-hint{font-weight:400;opacity:.85}
-    .session-shell[open]>.session-summary{margin-bottom:-1px}
     .session{grid-template-columns:1fr;grid-template-rows:auto auto auto auto auto;grid-template-areas:"title" "term" "graph" "report" "status"}
     .spane-term{border-right:0;border-bottom:1px solid var(--line)}
     .gph{max-height:260px}
@@ -397,7 +395,7 @@
     .welcome{gap:1.25rem;padding-top:1.5rem;padding-bottom:0}
     .welcome-id{grid-template-columns:minmax(0,1fr)}
     .welcome-creds{align-self:stretch}
-    .welcome-badges .badge{flex-basis:calc(50% - .2rem)}
+    .welcome-badges{grid-template-columns:repeat(4,minmax(0,1fr))}
     .readme-project{padding:min(1.25rem,8vw);gap:1rem}
     body[data-page=index] .casos{margin-top:1.5rem}
     .welcome h1{font-size:clamp(1.65rem,7vw,2.3rem)}
@@ -464,7 +462,7 @@
 @media print{
   .reveal{opacity:1!important;transform:none!important}
   .welcome{display:block;padding:0 0 1rem;border-bottom:1px solid #bbb;margin-bottom:1rem}
-  .session,.intro,.net,.motion-toggle{display:none!important}
+  .lab-session,.session,.intro,.net,.motion-toggle{display:none!important}
   .welcome-id{display:block}
   .welcome h1{font:700 18pt/1.25 var(--mono);letter-spacing:0;margin:0 0 .4rem}
   .welcome-role{font:600 10.5pt/1.5 var(--mono);margin:0 0 .4rem}
@@ -536,3 +534,70 @@ html:not(.search-ready) .search-interactive{visibility:hidden}
 html.js:not(.search-ready):not(.search-unavailable) .search-fallback{display:none}
 html:not(.js) .search-interactive,html.search-unavailable .search-interactive{display:none}
 html.search-ready .search-fallback{display:none}
+
+/* v14: a short portfolio first; the complete lab remains one disclosure away. */
+@media screen {
+  .section-eyebrow{margin:0 0 .65rem;color:var(--acc);font:600 .75rem/1.6 var(--mono);overflow-wrap:anywhere}
+  .home-presentation>.shell{margin-top:2rem}
+  .home-presentation>.welcome{margin-top:0;padding-top:2.25rem}
+  .welcome-lead{max-width:58rem}
+  .welcome-description{max-width:69ch}
+  .welcome-navigation{justify-content:flex-start;gap:.5rem 2rem}
+  .welcome-links{gap:0 1.25rem}
+  .home-featured .readme-project{padding:1.5rem 1.75rem;gap:2rem}
+  .home-featured .readme-project-foot{flex-basis:32rem}
+  .home-featured h2{font-size:1.7rem;margin:0 0 .5rem}
+  .featured-tagline{font:600 1.125rem/1.5 var(--mono);color:var(--ink-bright);margin:0 0 .65rem}
+  .home-featured .readme-project-foot>p:not(.section-eyebrow){max-width:64ch}
+  .readme-project-links{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem 1.25rem;margin:1.1rem 0 0}
+  .readme-project-links .text-link{display:inline-flex;align-items:center;min-height:44px}
+  .home-certifications .welcome-creds>p{margin:1rem 0 0;color:var(--dim);font-size:.9rem}
+  .lab-intro>p:not(.section-eyebrow){max-width:66ch;color:var(--dim);margin-bottom:.5rem}
+  .lab-intro h2{margin-bottom:.5rem}
+  .lab-shortcuts{display:flex;flex-wrap:wrap;gap:0 1.5rem;margin-bottom:1rem}
+  .lab-shortcuts a{display:inline-flex;align-items:center;min-height:44px;font:600 .875rem/1.5 var(--mono)}
+  .home-presentation>.lab{padding-top:0;padding-bottom:0}
+  .library-disclosure{margin-top:.75rem}
+  .library-disclosure>summary{padding:.85rem 1rem;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:600 .875rem/1.5 var(--mono);min-height:52px;cursor:pointer;overflow-wrap:anywhere}
+  .library-disclosure[open]>summary{margin-bottom:-1px}
+  .home-contact{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 2rem;padding-block:1.5rem;margin-block:2rem;border-top:1px solid var(--line)}
+  .home-contact>div:first-child{flex:1 1 28rem;min-width:0}
+  .home-contact h2{margin-bottom:.6rem}
+  .home-contact p:not(.section-eyebrow){max-width:65ch;color:var(--dim);margin:0}
+  .home-contact>.actions{flex:0 1 24rem;margin:0}
+  .home-contact .button{max-width:100%;overflow-wrap:anywhere}
+  .case-contact{border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem}
+  .case-contact h2{font-size:1.2rem}
+  .appearance-controls{position:relative}
+  .appearance-controls>summary{cursor:pointer;list-style:none;gap:.6rem}
+  .appearance-controls>summary::-webkit-details-marker{display:none}
+  .appearance-controls>summary::after{content:'+';color:var(--acc)}
+  .appearance-controls[open]>summary::after{content:'−'}
+  .appearance-panel{position:fixed;z-index:30;top:calc(var(--nav-height) + .35rem);right:1rem;width:min(21rem,calc(100vw - 2rem));max-height:calc(100dvh - var(--nav-height) - 1rem);overflow-y:auto;padding:1rem;border:1px solid var(--line-strong);background:var(--bg);display:grid;gap:.6rem}
+  .appearance-panel>p{margin:0 0 .2rem;font-size:.9rem;color:var(--dim)}
+  .header-tools .appearance-panel .icon-button{width:100%;justify-content:flex-start;padding:.65rem .75rem;gap:.5rem;min-height:44px}
+  .header-tools .appearance-panel .tgl-text{position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip:auto;white-space:normal;border:0;text-align:left}
+  .header-tools .appearance-panel .tgl-ico{flex:none;margin-right:0}
+  @media(max-width:900px){.welcome-badges{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media(max-width:640px){
+    .home-presentation>.shell{margin-top:1.5rem}
+    .home-presentation>.welcome{margin-top:0;padding-top:1.5rem}
+    .welcome-links{display:flex;width:auto}
+    .home-featured .readme-project{padding:1.25rem;gap:1rem}
+    .home-featured .report-brand-card{max-width:15rem}
+    .home-featured .readme-project-foot{flex-basis:100%}
+    .home-featured .report-brand-card img{max-width:10rem}
+    .welcome-creds{padding:1rem}
+    .home-contact{gap:1rem;padding-block:1.25rem}
+  }
+  @media(min-width:380px) and (max-width:640px){.welcome-actions .button{flex:1 1 0}}
+  @media(max-width:360px){
+    .welcome-badges{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .home-featured .readme-project{padding:1rem}
+  }
+}
+@media print {
+  .library-disclosure>summary{display:none}
+  .home-featured,.home-certifications,.home-contact{margin-block:1rem}
+  .home-contact .actions{display:none}
+}

@@ -34,7 +34,7 @@
     let lastY = window.scrollY, ticking = false;
     const onScroll = () => {
       const y = window.scrollY, h = header.getBoundingClientRect().height;
-      const menuOpen = header.querySelector('[aria-expanded="true"]');
+      const menuOpen = header.querySelector('[aria-expanded="true"], details[open]');
       const focusInHeader = header.contains(document.activeElement);
       if (y <= h || menuOpen || focusInHeader) header.classList.remove('header-hidden');
       else if (y > lastY + 4) header.classList.add('header-hidden');      // bajando
@@ -109,26 +109,22 @@
       setPaper(storage.get('theme') === 'paper' && html.dataset.retro !== 'on');
     }
   });
-  // Portada móvil: la sesión de ejemplo arranca plegada en pantallas estrechas para no empujar el perfil
-  // (sin JavaScript queda abierta y el contenido está completo). La preferencia se recuerda por pestaña.
+  // Native disclosures stay available with no JavaScript and at every viewport width.
+  const appearance = $('[data-appearance]');
+  if (appearance) {
+    appearance.addEventListener('toggle', () => { if (appearance.open) { closeMenu(); header?.classList.remove('header-hidden'); } });
+    document.addEventListener('click', event => { if (!appearance.contains(event.target)) appearance.open = false; });
+    document.addEventListener('focusin', event => { if (!appearance.contains(event.target)) appearance.open = false; });
+    appearance.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault(); event.stopPropagation(); appearance.open = false; $('summary', appearance).focus();
+    });
+  }
+  // The terminal starts folded. Remember an explicit choice only within this tab.
   const sessionShell = $('.session-shell');
   if (sessionShell) {
-    const narrowSession = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 640px)') : null;
-    const stored = (() => { try { return sessionStorage.getItem('iphobiuss:session'); } catch { return null; } })();
-    if (narrowSession && narrowSession.matches && stored !== 'open') sessionShell.open = false;
+    try { sessionShell.open = sessionStorage.getItem('iphobiuss:session') === 'open'; } catch {}
     sessionShell.addEventListener('toggle', () => { try { sessionStorage.setItem('iphobiuss:session', sessionShell.open ? 'open' : 'closed'); } catch {} });
-    // R03: en escritorio el resumen plegable se oculta por CSS, así que la sesión debe quedar abierta ahí.
-    // La preferencia de plegado es solo para el ancho móvil; al salir de ese ancho, se reabre para no dejar
-    // la sesión inaccesible sin control visible.
-    const syncSessionToWidth = () => { if (narrowSession && !narrowSession.matches) sessionShell.open = true; };
-    syncSessionToWidth();
-    if (narrowSession) { if (narrowSession.addEventListener) narrowSession.addEventListener('change', syncSessionToWidth); else if (narrowSession.addListener) narrowSession.addListener(syncSessionToWidth); }
-    // The disclosure remains visible up to 900px, including tablet widths above the mobile default.
-    // Reopen when that control disappears even if the 640px query did not change.
-    const disclosureWidth = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 900px)') : null;
-    const ensureDesktopSession = () => { if (disclosureWidth && !disclosureWidth.matches) sessionShell.open = true; };
-    ensureDesktopSession();
-    if (disclosureWidth) { if (disclosureWidth.addEventListener) disclosureWidth.addEventListener('change', ensureDesktopSession); else if (disclosureWidth.addListener) disclosureWidth.addListener(ensureDesktopSession); }
   }
   // 404: la ruta que no existe, tal cual la pidió el navegador (como texto, nunca como HTML).
   $$('[data-missing-path]').forEach(el => {
@@ -143,6 +139,8 @@
   // flechas se limitan al árbol o al listado. Tab y Shift+Tab no cambian.
   const lab = (() => {
     const tree = $('.lab-window .tree'); if (!tree) return null;
+    const library = $('[data-library]');
+    const revealLibrary = () => { if (library) library.open = true; };
     const links = $$('a[data-folder]', tree), panes = $$('.lab-window .pane'), path = $('#window-path'), status = $('#window-status');
     if (!links.length || !panes.length) return null;
     tree.setAttribute('role', 'tablist');
@@ -155,6 +153,7 @@
     const byId = id => links.find(link => link.dataset.folder === id);
     const select = (link, options = {}) => {
       const focus = options.focus !== false, push = options.push !== false, id = link.dataset.folder;
+      if (options.reveal !== false) revealLibrary();
       links.forEach(item => { const on = item === link; item.setAttribute('aria-selected', String(on)); item.tabIndex = on ? 0 : -1; });
       panes.forEach(pane => { pane.hidden = pane.id !== id; });
       const pane = $('#' + id), folder = pane.dataset.path || '';
@@ -184,8 +183,13 @@
       const link = byId(anchor.dataset.folderLink); if (!link) return;
       event.preventDefault(); select(link); scrollLab();
     }));
-    const fromHash = push => select(byId(location.hash.slice(1)) || links[0], {focus: false, push});
-    window.addEventListener('popstate', () => { fromHash(false); if (byId(location.hash.slice(1))) scrollLab(); });
+    const fromHash = push => {
+      const requested = byId(location.hash.slice(1));
+      select(requested || links[0], {focus: false, push, reveal: !!requested});
+    };
+    const restoreFolder = () => { fromHash(false); if (byId(location.hash.slice(1))) scrollLab(); };
+    window.addEventListener('popstate', restoreFolder);
+    window.addEventListener('hashchange', restoreFolder);
     fromHash(false);
     if (byId(location.hash.slice(1))) scrollLab();
     return {show: id => { const link = byId(id); if (link) select(link, {focus: false}); }};
