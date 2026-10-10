@@ -152,13 +152,13 @@ def network(card, x, y, size=1.0, variant=0):
 
 
 def main_card():
-    card = Card('Encuentra el fallo. Cuenta la historia. Sebastián Latorre Muñoz, Pentester Junior', svg=True)
+    card = Card('Proyectos propios. Evidencia revisable. Sebastián Latorre Muñoz, Pentester Junior en Santiago', svg=True)
     brand(card)
     card.text('EVIDENCIA QUE SE ENTIENDE', 64, 166, 17, MONO, MINT)
-    card.text('Encuentra el fallo.', 64, 267, 68, BOLD)
-    card.text('Cuenta la historia.', 64, 351, 68, BOLD, LAVENDER)
+    card.text('Proyectos propios.', 64, 267, 62, BOLD)
+    card.text('Evidencia revisable.', 64, 351, 62, BOLD, LAVENDER)
     card.text('Sebastián Latorre Muñoz', 64, 424, 29, BOLD)
-    card.text('Pentester Junior', 64, 463, 21, MONO, MUTED)
+    card.text('Pentester Junior · Santiago', 64, 463, 21, MONO, MUTED)
     network(card, 821, 194, 0.97)
     footer(card, 'iphobiuss.github.io')
     card.save(OUT / 'og-image.png', OUT / 'assets/img/og-image.svg')
@@ -236,9 +236,31 @@ def bank_card():
     card.save(OUT / 'assets/img/banco-lumbre-og.png')
 
 
+def case_cards():
+    """Legible editorial cards identify each case and its evidence boundary."""
+    cases = (
+        ('api-acceso', 'CASO PROPIO / HTTP LOCAL', ('Una sesión no autoriza', 'todos los objetos.'), 'Dos identidades · lectura y escritura · parche y retest', 'Datos sintéticos. Código y evidencia reproducibles.'),
+        ('sesiones-seguras', 'CASO PROPIO / HTTP LOCAL', ('Cerrar una sesión debe', 'revocar su acceso.'), 'Logout · contraseña · dispositivo · caducidad', 'Datos sintéticos. Solicitudes y estado del servidor.'),
+        ('ia-limites', 'CASO PROPIO / SIMULACIÓN LOCAL', ('La autorización pertenece', 'al ejecutor.'), 'Identidad · alcance · permiso antes de la acción', 'Adaptador determinista; no evalúa un modelo de IA real.'),
+        ('cap-caso', 'RETROSPECTIVA / HTB CAP', ('Del objeto solicitado', 'al permiso efectivo.'), 'IDOR · credenciales · capabilities de Linux', 'Guía documentada; sin captura original ni retest.'),
+        ('forest-caso', 'RETROSPECTIVA / HTB FOREST', ('Cada permiso explica', 'un paso de la cadena.'), 'Kerberos · relaciones de grupo · replicación', 'Guía documentada; sin ACLs originales ni retest.'),
+    )
+    for slug, kind, lines, detail, boundary in cases:
+        card = Card(' '.join(lines))
+        brand(card, kind)
+        card.text('RAZONAMIENTO Y EVIDENCIA', 64, 173, 17, MONO, MINT)
+        for index, line in enumerate(lines):
+            card.text(line, 64, 265 + index * 77, 59, BOLD, INK if index == 0 else LAVENDER)
+        card.text(detail, 64, 414, 24, SANS, MUTED)
+        card.text(boundary, 64, 471, 20, SANS, MUTED)
+        footer(card, 'iphobiuss.github.io/' + slug + '.html', 'CASO DOCUMENTADO')
+        card.save(OUT / 'assets/img' / (slug + '-og.png'))
+
+
 if __name__ == '__main__':
     main_card()
     guide_cards()
     report_card()
     bank_card()
-    print(f'Created 10 social cards at 1200 x 630: homepage (PNG/SVG), 7 guides, report-gen {REPORT["version"]}, Banco Lumbre.')
+    case_cards()
+    print(f'Created 15 social cards at 1200 x 630: homepage (PNG/SVG), 7 guides, 5 cases, report-gen {REPORT["version"]}, Banco Lumbre.')

@@ -12,9 +12,9 @@ const hashFiles=()=>Object.fromEntries(fs.readdirSync(root,{recursive:true}).fil
 const before=hashFiles(),results=[],checks=[];
 const pages=Object.keys(before).filter(f=>f.endsWith('.html')&&!f.includes('/')).sort();
 const downloads=Object.keys(before).filter(f=>f.endsWith('.html')&&f.startsWith('downloads/')).sort();
-assert.equal(pages.length,29);assert.equal(downloads.length,2);
+assert.equal(pages.length,30);assert.equal(downloads.length,2);
 const englishPages=new Set(['english.html','report-gen-en.html','cap-case-en.html','forest-case-en.html','engineering-notes.html']);
-for(const route of [...englishPages,'ia-limites.html','api-acceso.html','bitacora.html'])assert.ok(pages.includes(route),'Required new route '+route);
+for(const route of [...englishPages,'ia-limites.html','api-acceso.html','sesiones-seguras.html','bitacora.html'])assert.ok(pages.includes(route),'Required new route '+route);
 fs.mkdirSync(output,{recursive:true});fs.mkdirSync(path.join(output,'screenshots'),{recursive:true});
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.json':'application/json'};
 const server=http.createServer((req,res)=>{let file;try{const requested=decodeURIComponent(new URL(req.url,'http://localhost').pathname);file=path.resolve(root,'.'+(requested==='/'?'/index.html':requested));}catch{return res.writeHead(400).end();}if(!file.startsWith(root+path.sep))return res.writeHead(403).end();fs.readFile(file,(error,data)=>{if(error)return res.writeHead(404).end();res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.end(data);});});

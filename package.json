@@ -1,8 +1,8 @@
 {
   "name": "iphobiuss-retro",
-  "version": "14.8.0",
+  "version": "14.9.0",
   "private": true,
-  "description": "Scripts de construcción del sitio estático.",
+  "description": "Scripts de construcci\u00f3n del sitio est\u00e1tico.",
   "scripts": {
     "build": "python scripts/build.py",
     "build:images": "python scripts/build-images.py",
@@ -34,7 +34,11 @@
     "sync:report-release": "python scripts/sync-report-release.py",
     "test:http-case": "node tests/test_site_http_case_147.cjs",
     "test:continuity": "node tests/test_site_continuity.cjs",
-    "test:notebook": "node tests/test_site_notebook_148.cjs"
+    "test:notebook": "node tests/test_site_notebook_148.cjs",
+    "test:feed": "python tests/test_site_feed.py",
+    "test:experience": "node tests/measure_site_experience.cjs",
+    "test:session-case": "python tests/test_session_security.py && node tests/test_site_session_case_149.cjs",
+    "test:brand": "python tests/test_brand_assets.py && node tests/test_site_brand.cjs"
   },
   "devDependencies": {
     "axe-core": "4.14.0",

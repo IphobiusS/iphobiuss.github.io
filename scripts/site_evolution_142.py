@@ -118,7 +118,7 @@ def english_chrome(filename, tree):
     if search: search[0].set('hreflang', 'es')
     footer = tree.xpath('//footer')[0]
     footer.clear(); footer.set('class', 'footer')
-    footer.append(fragment('''<div class="shell"><div class="footer-top"><div><a class="brand" href="english.html">iphobiuss</a><p>Sebastián Latorre Muñoz, Santiago, Chile</p></div><div class="footer-links"><a href="english.html">Overview</a><a href="report-gen-en.html">report-gen</a><a href="index.html" hreflang="es" lang="es">Sitio en español</a><a href="https://github.com/IphobiusS">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/">LinkedIn</a></div></div><p class="footer-note">Educational work for controlled laboratories and authorized assessments. HTB cases are lab retrospectives; fictional examples are labelled. These pages do not describe client engagements.</p></div>''')[0])
+    footer.append(fragment('''<div class="shell"><div class="footer-top"><div><a class="brand" href="english.html">iphobiuss</a><p>Sebastián Latorre Muñoz, Santiago, Chile</p></div><div class="footer-links"><a href="english.html">Overview</a><a href="report-gen-en.html">report-gen</a><a href="index.html" hreflang="es" lang="es">Sitio en español</a><a href="feed.xml" hreflang="es">Updates (RSS · Spanish)</a><a href="https://github.com/IphobiusS">GitHub</a><a href="https://www.linkedin.com/in/sebastian-latorre-munoz/">LinkedIn</a></div></div><p class="footer-note">Educational work for controlled laboratories and authorized assessments. HTB cases are lab retrospectives; fictional examples are labelled. These pages do not describe client engagements.</p></div>''')[0])
     # document() creates CSP hashes before this language-specific transformation.
     for script in tree.xpath('//script[@type="application/ld+json"]'):
         old = script.text or ''
@@ -134,7 +134,7 @@ def english_chrome(filename, tree):
 def enhance_document(filename, tree):
     relevant = filename in ENGLISH_PAGES or filename in {'index.html', 'recorrido.html', 'report-gen-demo.html', 'cap-caso.html', 'forest-caso.html', 'proyectos.html'}
     if not relevant: return
-    add_resource(tree, 'link', rel='stylesheet', href='assets/css/evolution-142.css')
+    add_resource(tree, 'link', rel='stylesheet', href='assets/css/reading.css')
     if filename == 'index.html':
         eyebrow = tree.xpath('//*[contains(@class,"welcome-lead")]/*[@class="section-eyebrow"]')
         if eyebrow:

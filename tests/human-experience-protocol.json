@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "purpose": "Registro repetible de experiencia en móvil físico y accesibilidad humana. Este protocolo no constituye una prueba realizada.",
+  "execution_status": "not_run",
+  "automated_complement": "measure_site_experience.cjs",
+  "required_session_fields": [
+    "session_id_without_personal_name", "date", "site_commit", "url", "device_model", "operating_system_and_version",
+    "browser_and_version", "physical_device", "network_type_and_measured_bandwidth_if_available", "screen_reader_and_version_or_none",
+    "text_size_or_zoom", "theme", "reduced_motion", "cache_state", "task_id", "completion", "elapsed_seconds",
+    "assistance_requested", "observations", "evidence_reference_or_reason_absent"
+  ],
+  "allowed_task_results": ["completed_without_help", "completed_with_help", "blocked", "not_run"],
+  "session_template": {
+    "session_id_without_personal_name": null,
+    "date": null,
+    "site_commit": null,
+    "url": null,
+    "device_model": null,
+    "operating_system_and_version": null,
+    "browser_and_version": null,
+    "physical_device": null,
+    "network_type_and_measured_bandwidth_if_available": null,
+    "screen_reader_and_version_or_none": null,
+    "text_size_or_zoom": null,
+    "theme": null,
+    "reduced_motion": null,
+    "cache_state": null,
+    "task_id": null,
+    "completion": "not_run",
+    "elapsed_seconds": null,
+    "assistance_requested": null,
+    "observations": null,
+    "evidence_reference_or_reason_absent": null
+  },
+  "preconditions": [
+    "Registrar la revisión publicada y el dispositivo real. Una emulación de Chromium o WebKit no se etiqueta como teléfono físico o Safari nativo.",
+    "Usar un perfil de prueba o exportar el cuaderno existente antes de modificarlo. Emplear notas sintéticas; no grabar notas, correos, credenciales ni documentos personales.",
+    "En pruebas de primera entrada usar una sesión limpia. En pruebas de retorno conservar la sesión. Registrar cuál se ejecutó.",
+    "Pedir consentimiento antes de grabar pantalla o audio. Un identificador de sesión sustituye al nombre de la persona; la grabación es opcional.",
+    "El observador lee el objetivo de cada tarea, sin indicar el control que debe pulsarse. Si presta ayuda, registrar qué ayuda y en qué momento.",
+    "Guardar las sesiones cumplimentadas fuera del repositorio público. No cambiar not_run por aprobado a partir de pruebas automáticas."
+  ],
+  "physical_mobile_tasks": [
+    {
+      "id": "M01",
+      "goal": "Entrar por primera vez y explicar qué ofrece la página.",
+      "steps": ["Abrir la portada con movimiento permitido.", "Observar Matrix, Bienvenido y el paso al contenido sin tocar la pantalla.", "Encontrar un proyecto propio y abrirlo."],
+      "observe": ["Fondo opaco antes de la salida, transición perceptible y contenido disponible.", "Saltos del contenido, respuesta al toque, legibilidad y si la entrada retrasa o confunde la tarea."],
+      "repeat": "Una vez con Wi-Fi y otra con la conexión móvil disponible, documentando sus características sin presentarlas como equivalentes a la emulación."
+    },
+    {
+      "id": "M02",
+      "goal": "Volver a una guía sin esperar la animación.",
+      "steps": ["Omitir la entrada mediante su botón.", "Abrir una guía, regresar y seguir un enlace con fragmento.", "Desactivar la entrada desde Apariencia y recargar."],
+      "observe": ["Acceso inmediato tras omitir.", "Ausencia de repetición en navegación interna y retorno.", "Preferencia conservada y controles suficientemente fáciles de tocar."]
+    },
+    {
+      "id": "M03",
+      "goal": "Encontrar el caso Cap en inglés y compartir la selección.",
+      "steps": ["Buscar Cap.", "Elegir casos e inglés.", "Copiar la URL y abrirla en una pestaña nueva."],
+      "observe": ["Se entiende el número de resultados.", "Filtros, consulta y resultado se conservan.", "El teclado del móvil no oculta el control o el resultado que se necesita."]
+    },
+    {
+      "id": "M04",
+      "goal": "Guardar una nota sintética y llevarse una copia.",
+      "steps": ["Guardar Cap como favorito.", "Escribir y guardar una nota en el cuaderno.", "Recargar, comprobar la nota y exportar una copia JSON."],
+      "observe": ["Se distingue escribir de guardar.", "La confirmación se percibe y la nota reaparece tras recargar.", "La descarga se localiza mediante el gestor de archivos del teléfono."]
+    }
+  ],
+  "human_screen_reader_tasks": [
+    {
+      "id": "A01",
+      "goal": "Entrar, omitir la animación y recorrer la estructura.",
+      "steps": ["Con lector activo, cargar la portada con entrada habilitada.", "Escuchar el diálogo y omitirlo.", "Usar Saltar al contenido, títulos y regiones para localizar proyectos."],
+      "observe": ["Nombre del diálogo y del botón anunciados.", "No hay trampa ni foco perdido tras cerrar.", "Símbolos decorativos no generan anuncios repetitivos.", "Jerarquía y orden de lectura comprensibles."]
+    },
+    {
+      "id": "A02",
+      "goal": "Buscar y recuperar una selección usando únicamente teclado o gestos del lector.",
+      "steps": ["Buscar Cap y cambiar tipo e idioma.", "Escuchar resultados, abrir el caso y regresar."],
+      "observe": ["Cada campo tiene nombre.", "Los resultados se anuncian una vez y a tiempo.", "El foco y los valores tienen continuidad al volver."]
+    },
+    {
+      "id": "A03",
+      "goal": "Guardar, revisar y exportar una nota del cuaderno.",
+      "steps": ["Crear una nota sintética, guardarla y escribir un nuevo borrador sin guardarlo.", "Abrir el mismo cuaderno en otra pestaña y modificar y guardar la nota.", "Volver a la primera pestaña, comparar las dos versiones y guardar explícitamente el borrador sobre la versión revisada. Exportar la nota ya guardada."],
+      "observe": ["Etiquetas y mensajes distinguen borrador, versión guardada y conflicto.", "Los cambios se anuncian sin interrumpir continuamente.", "Se puede revisar el contenido completo y recuperar el borrador sin usar el ratón."]
+    },
+    {
+      "id": "A04",
+      "goal": "Leer un caso propio y localizar sus límites y evidencia.",
+      "steps": ["Abrir API de acceso.", "Recorrer títulos y tablas, abrir la reproducción y localizar la descarga.", "Repetir con movimiento reducido y texto ampliado."],
+      "observe": ["Tablas y controles conservan contexto.", "Texto, foco y controles permanecen visibles.", "Los enlaces distinguen evidencia de simulación y de descarga."]
+    }
+  ],
+  "suggested_coverage": [
+    "Safari nativo y VoiceOver en un iPhone físico.",
+    "Chrome y TalkBack en un Android físico.",
+    "Firefox o Chrome y NVDA en Windows para recorrido de teclado.",
+    "Cinco sesiones de tareas con personas nuevas al sitio; registrar ayuda y bloqueos sin convertir una muestra pequeña en estadística de visitantes."
+  ],
+  "completion_rule": "Registrar resultados por tarea y entorno, corregir bloqueos reproducidos y repetir sólo las tareas afectadas. Ausencia de problemas en esta muestra no acredita accesibilidad universal ni WCAG completa."
+}

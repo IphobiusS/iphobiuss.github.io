@@ -1,0 +1,71 @@
+LABORATORIO DE SESIONES 1.0.0
+
+Aplicación local propia y datos sintéticos. No admite objetivos remotos.
+No utilizar este servidor, sus contraseñas ni sus tokens en producción.
+
+REQUISITOS Y RETEST
+Python 3.10 o posterior; solo biblioteca estándar.
+Desde la carpeta descomprimida:
+  python3 lab.py --verify resultados.json
+Resultado esperado:
+  PASS: 154/154 HTTP checks; complete evidence identical
+
+La batería inicia servidores efímeros en 127.0.0.1 y envía HTTP real.
+24 escenarios ejecutados en dos modos: vulnerable y corregido.
+Cada escenario reinicia usuarios y sesiones; sus pasos comparten estado.
+Las respuestas completas y sus hashes se comparan con expectativas explícitas.
+El modo vulnerable debe reproducir las respuestas inseguras esperadas: PASS
+significa que la ejecución corresponde al caso publicado, no que sea seguro.
+
+CADUCIDAD Y REPRODUCIBILIDAD
+La batería usa un reloj controlado por el proceso de pruebas. Puede adelantar
+segundos entre peticiones sin esperar tiempo real. No hay endpoint de reloj.
+Estas pruebas verifican las fronteras 59/60 segundos, no precisión temporal
+ni carreras distribuidas. --serve usa tiempo monotónico real desde su inicio.
+Se omiten puerto efímero y cabeceras Host/Date/Server; el registro no es PCAP.
+
+EXPLORACIÓN MANUAL
+  python3 lab.py --serve fixed --port 8766
+En otra terminal, dentro de los primeros 60 segundos:
+  curl -i -H 'Authorization: Bearer lab-alice-laptop' http://127.0.0.1:8766/me
+  curl -i -X POST -H 'Authorization: Bearer lab-alice-laptop' -H 'Content-Type: application/json' --data '{}' http://127.0.0.1:8766/logout
+  curl -i -H 'Authorization: Bearer lab-alice-laptop' http://127.0.0.1:8766/me
+El último GET debe responder 401. Reinicia con --serve vulnerable y repite:
+responderá 200 porque la política vulnerable ignora el estado de revocación.
+Para obtener una sesión nueva incluso tras caducidad:
+  curl -i -X POST -H 'Content-Type: application/json' --data '{"user":"alice","password":"demo-alice-initial"}' http://127.0.0.1:8766/login
+Copia el token sintético devuelto en Authorization: Bearer TOKEN.
+Contraseña inicial Bruno: demo-bruno-initial. Tokens iniciales:
+lab-alice-laptop, lab-alice-phone, lab-bruno-laptop, lab-bruno-phone.
+Los ID de dispositivos son alice-laptop, alice-phone, bruno-laptop, bruno-phone.
+
+DECISIONES
+POST /logout revoca solo la sesión actual.
+POST /sessions/ID/revoke acepta {} y solo permite dispositivos propios.
+POST /password acepta current_password y new_password; comprobar la contraseña
+actual, actualizarla e incrementar la generación de la identidad invalida
+TODAS sus sesiones existentes, incluida la actual. Debe iniciar sesión de nuevo.
+La otra identidad no se modifica. Cada login obtiene una sesión con vida de 60s.
+El modo corregido comprueba en cada petición revocación, generación y caducidad.
+El modo vulnerable identifica un token conocido pero ignora esos tres estados.
+Ambos realizan las mismas mutaciones y controles de propietario del dispositivo.
+
+DOCKER
+  docker build -t iphobiuss-session-security:1.0.0 .
+  docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 128m --cpus 1 iphobiuss-session-security:1.0.0
+La imagen base se descarga al construir; la prueba no publica puertos ni requiere
+red externa. Docker repite exactamente la misma batería, sin ampliar cobertura.
+
+REGENERAR EVIDENCIA TRAS UN CAMBIO INTENCIONAL
+  python3 lab.py --write resultados.json
+  python3 lab.py --verify resultados.json
+Revisar también fixtures.json y volver a crear el manifiesto del ZIP.
+MANIFEST.sha256 cubre todos los archivos salvo el propio manifiesto.
+
+LÍMITES
+HTTP sin TLS, usuarios/sesiones en memoria, contraseñas sintéticas en texto plano,
+tokens deterministas públicos, sin rate limiting ni cookies/CSRF, refresh tokens,
+MFA, OIDC o persistencia. El lock serializa el control y la mutación de este único
+proceso; no prueba comportamiento distribuido. No se probaron navegadores con
+cookies, lectores de pantalla humanos, plataformas ajenas ni usuarios reales.
+Este caso no describe un incidente ni un trabajo para un cliente.

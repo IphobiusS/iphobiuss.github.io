@@ -84,7 +84,39 @@ for provenance_path in provenance_paths:
     if len(updates) != update_count:
         provenance_updates.append((provenance_path, (json.dumps(provenance, ensure_ascii=False, indent=2) + '\n').encode('utf-8')))
 
-# Verificar primero todas las capturas; un error de fuente no deja derivados parciales.
+# La identidad conserva su original y transparencia. La tarjeta de portada mide
+# 6rem: no debe descargar la ilustración de 900px en una pantalla de densidad 1×.
+brand_path = root / 'content/report-gen-brand-provenance.json'
+brand = json.loads(brand_path.read_text(encoding='utf-8'))
+brand_source = dist / brand['asset']
+brand_bytes = brand_source.read_bytes()
+if len(brand_bytes) != brand['bytes'] or digest(brand_bytes) != brand['sha256']:
+    raise SystemExit(f'{brand_source}: el logo original no coincide con su procedencia.')
+with Image.open(BytesIO(brand_bytes)) as original:
+    source = original.convert('RGBA')
+    widths = (108, 216, 432, 648)
+    geometry = [(f'assets/img/report-gen-brand-mark-{width}.webp', width,
+                 round(width * source.height / source.width)) for width in widths]
+    variants = brand.get('variants', [])
+    declared = [(item['file'], item['width'], item['height']) for item in variants]
+    if declared == geometry and all(current_variant(item) for item in variants):
+        print('report-gen-brand-mark: variantes y procedencia verificadas; sin cambios.')
+    else:
+        refreshed = []
+        for filename, width, height in geometry:
+            buffer = BytesIO()
+            source.resize((width, height), Image.Resampling.LANCZOS).save(
+                buffer, 'WEBP', lossless=True, exact=True, method=6)
+            data = buffer.getvalue()
+            updates.append((dist / filename, data))
+            refreshed.append({'file': filename, 'width': width, 'height': height,
+                              'bytes': len(data), 'sha256': digest(data)})
+        brand['derivation'] = 'LANCZOS RGBA; WebP lossless exact; sin recorte ni cambios de composición; original íntegro.'
+        brand['variants'] = refreshed
+        provenance_updates.append((brand_path, (json.dumps(brand, ensure_ascii=False, indent=2) + '\n').encode('utf-8')))
+        print(f'report-gen-brand-mark: variantes transparentes preparadas {list(widths)}.')
+
+# Verificar primero todas las fuentes; un error no deja derivados parciales.
 if updates:
     for path, data in updates:
         atomic_write(path, data)

@@ -1,4 +1,4 @@
-# iphobiuss · sitio estático v14.8
+# iphobiuss · sitio estático v14.9
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
 
@@ -7,6 +7,14 @@ Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuent
 La primera entrada de cada sesión y una recarga explícita muestran una terminal durante unos 2,5 segundos, sobre un fondo opaco con lluvia verde de caracteres. Tras «Bienvenido», terminal y fondo se desvanecen durante medio segundo para revelar el sitio. Un cierre independiente a los 2,6 segundos evita depender del evento de transición. Puedes omitirla con el botón o Escape. La navegación interna, los enlaces con fragmento, volver atrás, la pausa del sitio y la reducción de movimiento conservan el acceso directo. En Apariencia puedes desactivar o reactivar la entrada; la preferencia se guarda únicamente en el navegador.
 
 La secuencia es decorativa y no representa escaneos ni verificaciones de seguridad. El contenido permanece disponible sin JavaScript, y la apertura y el cierre no dependen de que termine una descarga de recursos.
+
+## Presentación y novedades
+
+Los metadatos de la portada presentan el perfil de Pentester Junior y sus proyectos propios. Cada caso destacado tiene una tarjeta social diferenciada que indica si es un laboratorio propio o una retrospectiva HTB. `content/feed-entries.json` mantiene las publicaciones de guías, casos, bitácora y Releases verificadas; `scripts/site_feed.py` conserva sus identificadores y fechas editoriales. Las guías antiguas conservan su GUID original sin inventar una fecha de publicación. Añade una entrada de report-gen sólo cuando su Release esté publicada y verificada.
+
+`content/assets/css/reading.css` reúne los componentes de lectura y portafolio antes repartidos entre hojas con nombres de versiones. Los tokens comunes de espaciado y controles están en `site.css`. La consolidación conserva el orden de la cascada y la apariencia de los tres temas. No vuelvas a añadir las hojas antiguas.
+
+La marca de report-gen utiliza variantes WebP sin pérdida de 108, 216, 432 y 648 píxeles, con transparencia y selección por ancho y densidad de pantalla. `build-images.py` genera esos derivados a partir del original de 900 píxeles y registra hashes en `content/report-gen-brand-provenance.json`.
 
 ## Portafolio y búsqueda
 
@@ -21,6 +29,8 @@ El mapa de habilidades de la portada enlaza evidencias concretas de Web, Active 
 `api-acceso.html` presenta un segundo laboratorio propio: API HTTP con dos identidades sintéticas, IDOR de lectura y escritura, autorización por propietario y retest con cuerpos completos. `content/labs/http-access/` conserva código, escenarios y evidencia. CI repite la ejecución nativa y en Docker sin red externa ni puertos publicados; el ZIP descargable incluye instrucciones y un manifiesto SHA-256. No es una API de producción.
 
 El caso muestra alcance, hipótesis y controles negativos, recorrido entre las dos identidades, diferencia entre las políticas reales y los 48 intercambios de sus 18 escenarios. Las transcripciones se generan desde el resultado ejecutado. El explorador permite elegir identidad, objeto y GET/PATCH entre ocho combinaciones registradas, con URL compartible, recarga y Atrás/Adelante. Cambiar controles no hace solicitudes ni ejecuta pruebas nuevas. La comparación inicial y todas las transcripciones siguen disponibles sin JavaScript. El recorrido breve y el resumen inglés priorizan este caso propio, con los mismos resultados y límites. La grabación está postergada; su guion permanece en las instrucciones del ZIP.
+
+`sesiones-seguras.html` añade un caso propio sobre cierre de sesión, cambio de contraseña, revocación por dispositivo y caducidad. `content/labs/session-security/` contiene un servidor HTTP demostrativo con sesiones en memoria, dos identidades sintéticas y un reloj controlado. Sus 24 escenarios registran 154 intercambios entre las variantes vulnerable y corregida. El ZIP incluye código, evidencia, instrucciones y manifiesto; puede repetirse localmente o en Docker sin conexiones externas. La página y sus transcripciones siguen disponibles sin JavaScript. No es un sistema de autenticación para producción.
 
 Para actualizar report-gen, espera su Release verificada y guarda los JSON reales de la Release y de sus workflows. Comprueba que la etiqueta apunte al commit aprobado y reproduce el paquete con `scripts/build-release.py` en ese checkout. Sincroniza así:
 
@@ -81,6 +91,9 @@ npm run test:report-assets
 npm run test:public-cv
 npm run test:release-sync
 npm run test:performance
+npm run test:experience
+npm run test:brand
+npm run test:feed
 npm run test:compatibility
 npm run test:skills
 npm run test:intro
@@ -95,6 +108,7 @@ npm run test:notebook
 npm run test:guide-progress
 npm run test:graphs
 npm run test:http-case
+npm run test:session-case
 npm run test:layout
 ```
 
@@ -125,3 +139,11 @@ SITE_COMPAT_BROWSERS=webkit SITE_COMPAT_HEADED=1 npm run test:compatibility
 Los trabajos de Linux y macOS descargan el mismo `dist/`, incluido `.nojekyll`, y comprueban cada archivo por SHA-256 contra el manifiesto de la construcción antes de probarlo. La publicación descarga esa misma distribución y exige que ambos trabajos terminen correctamente, que sus recibos pertenezcan al mismo commit y que todos los archivos coincidan con el manifiesto y con los probados por ambos motores.
 
 `audit-v14.6/compatibility/results.json` registra sistema, modo de ejecución, inventario de archivos y motores completados. Cada trabajo acredita únicamente su motor; la cobertura conjunta se verifica antes de publicar y queda resumida en GitHub Actions. Los archivos `*-intro-trace.json` conservan muestras y eventos reales del desvanecimiento. Ante un fallo, el diagnóstico también se imprime en CI. Los artefactos de distribución y evidencia se conservan siete días en esa ejecución, separados de los archivos públicos del sitio.
+
+## Experiencia medida y revisión externa
+
+`test:experience` mide cinco recorridos con Chromium, contextos nuevos, recursos gzip, CPU limitada por un factor de cuatro, 1,6 Mbps y 150 ms de latencia. Registra LCP, CLS, tareas largas, transición Matrix y latencias de búsqueda/guardado hasta el siguiente contenido pintado. La latencia medida de una tarea no es INP; estas muestras de laboratorio no son métricas de visitantes ni una prueba con un teléfono físico. Los tiempos son informativos; el comando falla por estados incorrectos, recursos rotos o mediciones ausentes, no por comparar máquinas distintas contra un tiempo arbitrario.
+
+El valor por defecto es tres repeticiones por recorrido. En CI se usa `SITE_EXPERIENCE_RUNS=1` y se conserva `audit-v14.9/experience.json`. Puedes seleccionar la ruta con `SITE_EXPERIENCE_OUTPUT`; fuera de CI la salida por defecto está en una carpeta temporal. No incluyas mediciones locales ni observaciones de participantes en el repositorio.
+
+`tests/human-experience-protocol.json` define tareas, entornos y un registro vacío para móvil físico y lector de pantalla. Conserva `execution_status: not_run` hasta obtener observaciones reales. Las pruebas automáticas y la preparación del registro no completan esta revisión. En report-gen también siguen pendientes Word de escritorio y las cinco sesiones de primer uso.

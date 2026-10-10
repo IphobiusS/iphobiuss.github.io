@@ -11,6 +11,8 @@ import site_intro
 import site_portfolio_144
 import site_skills_map
 import site_http_access
+import site_session_security
+import site_feed
 import site_search_144
 import site_report_status_144
 import ai_boundary_case
@@ -184,7 +186,7 @@ def professional_contact():
   '<p>Busco una oportunidad como Pentester Junior en Santiago. Puedes revisar mis proyectos y casos, y contactarme para conversar sobre mi trabajo.</p></div>'
   f'<div class="actions">{contact_links()}</div></section>')
 
-def footer():return f'''<footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss</a><p>{NAME}, Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="cuaderno.html">Mi cuaderno</a><a href="recorrido.html">Recorrido breve</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener" target="_blank">GitHub</a><a href="{LINKEDIN}" rel="noopener" target="_blank">LinkedIn</a><a href="index.html#contacto">Contacto</a>{cv_link()}</div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p>'''
+def footer():return f'''<footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss</a><p>{NAME}, Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="cuaderno.html">Mi cuaderno</a><a href="recorrido.html">Recorrido breve</a><a href="feed.xml">Novedades (RSS)</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener" target="_blank">GitHub</a><a href="{LINKEDIN}" rel="noopener" target="_blank">LinkedIn</a><a href="index.html#contacto">Contacto</a>{cv_link()}</div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p>'''
 
 def search_form(where='home',value=''):
  return f'''<form class="search-form" role="search" action="buscar.html" method="get"><label><span class="sr-only">Buscar técnicas, herramientas y guías</span><input class="search-input" type="search" name="q" id="search-input-{where}" placeholder="DCSync, SQL injection, Cap…" autocomplete="off" spellcheck="false" value="{E(value)}"></label><button class="button primary" type="submit">Buscar</button></form>'''
@@ -200,6 +202,8 @@ def document(filename,title,description,body,active='',article=False,social=None
  modified=date_modified or PAGE_EDITIONS.get(filename,DATE)
  robots_meta='<meta name="robots" content="noindex,follow">' if filename in NOINDEX_PAGES else ''
  url=BASE+(filename if filename!='index.html' else '')
+ if filename in {'cap-caso.html','forest-caso.html','api-acceso.html','ia-limites.html','sesiones-seguras.html'}:
+  social='assets/img/'+filename.removesuffix('.html')+'-og.png'
  if not social or not (OUT/social).is_file():social='og-image.png' if (OUT/'og-image.png').is_file() else None
  social_alt=f'report-gen {REPORT["version"]}: editor local de informes de pentesting. PDF, Word, Markdown y HTML portátil.' if social and 'report-gen-og' in social else title
  image=social_image(social,social_alt)
@@ -233,7 +237,7 @@ def document(filename,title,description,body,active='',article=False,social=None
  if filename=='buscar.html':scripts='<script src="assets/js/search-index.js" defer></script><script src="assets/js/search-core.js" defer></script>'+scripts
  page=f'''<!doctype html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-{sh}' 'sha256-{jh}'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'"><meta name="theme-color" content="#0a0d0b"><script>{js_class_script}</script><meta name="color-scheme" content="dark light"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="{E(NAME)}">
-<title>{E(title)} // iphobiuss</title><meta name="description" content="{E(description)}">{robots_meta}<link rel="canonical" href="{url}"><meta property="og:title" content="{E(title)}"><meta property="og:description" content="{E(description)}"><meta property="og:type" content="{'article' if article else 'website'}"><meta property="og:url" content="{url}"><meta name="twitter:card" content="{'summary_large_image' if social else 'summary'}"><meta name="twitter:title" content="{E(title)}"><meta name="twitter:description" content="{E(description)}">{social_meta}<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="Guías de laboratorio de iphobiuss" href="feed.xml"><link rel="preload" href="assets/fonts/1a9cad03d35e.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/b0c618f6d8ea.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/feead6344d56.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/site.css"><link rel="stylesheet" href="assets/css/identity.css">{extra_css}<script type="application/ld+json">{structured}</script>{scripts}</head>
+<title>{E(title)} // iphobiuss</title><meta name="description" content="{E(description)}">{robots_meta}<link rel="canonical" href="{url}"><meta property="og:title" content="{E(title)}"><meta property="og:description" content="{E(description)}"><meta property="og:type" content="{'article' if article else 'website'}"><meta property="og:url" content="{url}"><meta name="twitter:card" content="{'summary_large_image' if social else 'summary'}"><meta name="twitter:title" content="{E(title)}"><meta name="twitter:description" content="{E(description)}">{social_meta}<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="Proyectos, bitácora y guías de iphobiuss" href="feed.xml"><link rel="preload" href="assets/fonts/1a9cad03d35e.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/b0c618f6d8ea.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/feead6344d56.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/site.css"><link rel="stylesheet" href="assets/css/identity.css">{extra_css}<script type="application/ld+json">{structured}</script>{scripts}</head>
 <body data-page="{filename[:-5]}">{icon_sprite()}<canvas class="net" data-net aria-hidden="true"></canvas>{nav(active)}<main class="site-main" id="contenido" tabindex="-1">{body}</main>{footer()}</body></html>'''
  tree=html.fromstring(page)
  # Match each heading to the actual content container, including non-article routes.
@@ -285,6 +289,7 @@ def document(filename,title,description,body,active='',article=False,social=None
  site_portfolio_144.enhance_document(filename,tree)
  site_skills_map.enhance_document(filename,tree)
  site_http_access.enhance_document(filename,tree)
+ site_session_security.enhance_document(filename,tree)
  site_search_144.enhance_document(filename,tree)
  site_report_status_144.enhance_document(filename,tree)
  site_intro.enhance_document(filename,tree)
@@ -458,7 +463,7 @@ def shot_main(cls=''):return project_shot('editor',cls)
 def shot_hallazgos(cls=''):return project_shot('entrega',cls)
 def shot_readme():
  # A compact identity card, not a scaled dashboard. Labels remain real text.
- return ('<div class="report-brand-card"><img src="assets/img/report-gen-brand-mark.webp" width="900" height="600" loading="lazy" decoding="async" alt="Prometeo y Evaristo, mascotas de report-gen">'
+ return ('<div class="report-brand-card"><img src="assets/img/report-gen-brand-mark.webp" srcset="assets/img/report-gen-brand-mark-108.webp 108w, assets/img/report-gen-brand-mark-216.webp 216w, assets/img/report-gen-brand-mark-432.webp 432w, assets/img/report-gen-brand-mark-648.webp 648w" sizes="auto, 6rem" width="900" height="600" loading="lazy" decoding="async" alt="Prometeo y Evaristo, mascotas de report-gen">'
   '<strong class="report-brand-name">report-gen</strong><span class="report-brand-formats">PDF · Word · Markdown · HTML</span></div>')
 
 def download_size():
@@ -575,7 +580,7 @@ def build_home():
  certs=''.join(explorer_row(sec['id']+'/',f'Notas de preparación de {sec["code"]}',plural(len(sec['techs']),'técnica','técnicas'),f'tecnicas.html?cert={sec["id"]}','folder') for sec in DATA['DATA'])
  tools=''.join(explorer_row(slug(g['h'])+'/',g['h'],plural(len(g['t']),'herramienta','herramientas'),f'herramientas.html#grupo-{slug(g["h"])}','term') for g in DATA['ARSENAL'])
  tools+=explorer_row('cheatsheet/','Comandos por objetivo, con referencia en Markdown',plural(len(DATA['CHEAT']),'grupo','grupos'),'herramientas.html#cheatsheet','file')
- folders=[('readme','README.md','','file'),('proyectos','proyectos/','3','folder'),('guias','guias/',str(len(SERIES)),'folder'),('tecnicas','tecnicas/',str(techs_total),'folder'),('herramientas','herramientas/',str(tools_total),'folder')]
+ folders=[('readme','README.md','','file'),('proyectos','proyectos/','4','folder'),('guias','guias/',str(len(SERIES)),'folder'),('tecnicas','tecnicas/',str(techs_total),'folder'),('herramientas','herramientas/',str(tools_total),'folder')]
  tree=''.join(f'<a href="#{k}" data-folder="{k}">{pi(icon)}<span class="tree-name">{E(label)}</span>'+(f'<span class="count">{count}</span>' if count else '')+'</a>' for k,label,count,icon in folders)
  readme=(f'<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss$ cat README.md</p><div class="readme-intro"><h2 class="profile-title">Biblioteca del laboratorio</h2>'
   '<p class="pitch">Guías con pistas, técnicas y herramientas para practicar. Cada carpeta tiene su propia dirección y puedes guardar tus lecturas en el cuaderno local.</p>'
@@ -593,11 +598,12 @@ def build_home():
  proyectos=('<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/proyectos$ ls</p><h2 class="pane-title">Proyectos</h2>'
   '<p>Abre cada proyecto para consultar su estado, documentación y descargas.</p><ul class="explorer-list">'
   +explorer_row('report-gen/','Editor local de hallazgos y evidencias',f'v{REPORT["version"]}','proyectos.html#report-gen','folder')
-  +explorer_row('api-acceso/','Caso propio: fallo de autorización, parche y retest','HTTP local','api-acceso.html','folder')+'</ul>'
+  +explorer_row('api-acceso/','Caso propio: fallo de autorización, parche y retest','HTTP local','api-acceso.html','folder')
+  +explorer_row('sesiones-seguras/','Caso propio: cierre, contraseña, dispositivo y caducidad','HTTP local','sesiones-seguras.html','folder')+'</ul>'
   +prometheus_card(home=True))
  guias=(f'<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/guias$ ls</p><h2 class="pane-title">Guías de laboratorio</h2>'
   '<p class="lead">Máquinas de Hack The Box explicadas con hipótesis, pruebas, pistas y conceptos transferibles. Empieza por la guía 00 si es tu primer laboratorio.</p>'
-  f'{guide_group()}<p class="feed-line">{pi("file")}<a href="feed.xml">Suscribirse a las guías (RSS)</a></p>')
+  f'{guide_group()}<p class="feed-line">{pi("file")}<a href="feed.xml">Seguir proyectos, bitácora y guías (RSS)</a></p>')
  tecnicas=(f'<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/tecnicas$ ls</p><h2 class="pane-title">Técnicas</h2>{search_form()}'
   f'<p class="lead">Busca entre {plural(techs_total,"técnica","técnicas")}, {plural(tools_total,"herramienta","herramientas")} y {plural(len(SERIES),"guía","guías")}, o entra por área. Las convenciones y el glosario están en <a href="fundamentos.html">Fundamentos</a>.</p>'
   f'<ul class="area-ledger" aria-label="Técnicas por área">{ledger}</ul><p class="group-label">Por certificación</p><ul class="explorer-list">{certs}</ul>')
@@ -614,18 +620,12 @@ def build_home():
   f'<p class="statusbar"><span id="window-status">{plural(len(folders),"entrada","entradas")} en ~/iphobiuss</span><span>Cada carpeta tiene su propia dirección; el botón Atrás vuelve a la anterior.</span></p></div></details></section>'
   +professional_contact()+'</div>')
 
- document('index.html',NAME+', Pentester Junior','Base de conocimiento de pentesting: guías de laboratorio, 52 técnicas, 36 herramientas y report-gen. Por iphobiuss.',body,'index',social='og-image.png' if (OUT/'og-image.png').exists() else None)
+ document('index.html',NAME+', Pentester Junior','Sebastián Latorre Muñoz, Pentester Junior en Santiago: proyectos propios, casos reproducibles y report-gen, mi editor local de informes de seguridad.',body,'index',social='og-image.png' if (OUT/'og-image.png').exists() else None)
  (OUT/'assets/img/favicon.svg').write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges"><rect width="24" height="24" fill="#0a0d0b"/><g fill="#6ee283"><rect x="8" y="3" width="8" height="2"/><rect x="7" y="5" width="2" height="4"/><rect x="15" y="5" width="2" height="4"/><rect x="5" y="9" width="14" height="12"/></g><g fill="#0a0d0b"><rect x="11" y="12" width="2" height="4"/><rect x="10" y="16" width="4" height="2"/></g></svg>',encoding='utf-8')
 
 def build_feed():
- items=''
- for i,n in enumerate(SERIES):
-  g=GUIDES[n]
-  item_title=f'Guía {i:02d}: {g["title"]}'
-  items+=f'<item><title>{E(item_title)}</title><link>{BASE}{n}.html</link><guid isPermaLink="true">{BASE}{n}.html</guid><description>{E(g["brief"])}</description><category>{E(g["os"])}</category></item>'
- built=datetime.date.fromisoformat(max([DATE,*PAGE_EDITIONS.values()])).strftime('%a, %d %b %Y 00:00:00 GMT')
- feed=f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Guías de laboratorio de iphobiuss</title><link>{BASE}guias.html</link><atom:link href="{BASE}feed.xml" rel="self" type="application/rss+xml"/><description>Máquinas de Hack The Box explicadas paso a paso, de la VPN a Active Directory.</description><language>es</language><lastBuildDate>{built}</lastBuildDate>{items}</channel></rss>'
- (OUT/'feed.xml').write_text(feed,encoding='utf-8')
+ site_feed.build_feed(ROOT,OUT,BASE,SERIES,GUIDES,PAGE_DATES)
+
 
 def prometheus_card(home=False):
  heading='h3' if home else 'h2'
@@ -655,7 +655,7 @@ def build_projects():
  <figure class="project-screenshot">{shot_hallazgos()}<figcaption>{project_caption('entrega')}</figcaption></figure><section class="project-section" aria-labelledby="getting-started-title"><h2 id="getting-started-title">Empieza con la demo Nimbus</h2><ol class="project-steps"><li><strong>Instala en Linux o Kali.</strong> Desde la carpeta extraída, ejecuta <code>python3 scripts/install.py --desktop</code>. Abre report-gen desde el menú de aplicaciones o con <code>~/.local/bin/report-gen</code>.</li><li><strong>Abre «Probar Nimbus».</strong> Entra en <code>http://127.0.0.1:8080</code> desde el navegador. El ejemplo ficticio incluye 12 hallazgos para recorrer el flujo sin usar datos de un cliente.</li><li><strong>Trabaja, revisa y entrega.</strong> Edita una evidencia, guarda una revisión y prepara los formatos desde Entregar. Comprueba los archivos y su presentación antes de compartirlos.</li></ol><div class="actions"><a class="button" href="{E(REPORT['guide'])}">Guía de uso</a><a class="button" href="{SAMPLE_REPORT}">Ver informe Nimbus (PDF)</a></div><p class="project-requirements">Requiere Python 3.10 o posterior y las dependencias indicadas en el README. Conserva la carpeta extraída y su entorno <code>.venv</code>: el acceso los necesita, no es un ejecutable autónomo. En Windows y macOS, sigue la guía de instalación.</p><p>El instalador guarda los datos en <code>$XDG_DATA_HOME/report-gen</code> o, por defecto, <code>~/.local/share/report-gen</code>. Puedes elegir otra carpeta con <code>--workspace</code>; consulta la guía para trasladar proyectos antiguos.</p><p>Para pedir ayuda, abre «Comprobar instalación», revisa el diagnóstico sintético y descárgalo. Incluye versión, sistema y comprobaciones; excluye proyectos, rutas y nombres de usuario.</p></section>
  </article>'''
  pending=prometheus_card()
- catalog='<nav class="project-catalog" aria-label="Proyectos propios"><a href="#report-gen">report-gen</a><a href="#prometheus">PrometheuS <span>En construcción</span></a></nav>'
+ catalog='<nav class="project-catalog" aria-label="Proyectos propios"><a href="#report-gen">report-gen</a><a href="api-acceso.html">Autorización HTTP</a><a href="sesiones-seguras.html">Revocación de sesiones</a><a href="#prometheus">PrometheuS <span>En construcción</span></a></nav>'
  body=page_head('Proyectos','Herramientas que construyo para documentar y mejorar mi trabajo en seguridad.',folder='proyectos',path='proyectos/')+'<div class="shell">'+catalog+proj+pending+'</div>'+professional_contact()
  body=body.replace('<section class="project-section pagination-note"', '<p><a class="button" href="report-gen-demo.html">Explorar tres tareas de reporting</a></p><section class="project-section pagination-note"',1)
  document('proyectos.html','Proyectos: report-gen y PrometheuS','report-gen '+REPORT['version']+': informes locales en cuatro formatos. PrometheuS: agente de pentesting por línea de comandos, en construcción.',body,'proyectos',social='assets/img/report-gen-og.png')
@@ -925,6 +925,7 @@ def main():
  build_cases();build_bank_case();evolution.build_routes(document,page_head,record,REPORT,ROOT);build_home()
  ai_boundary_case.build_case(document,page_head,record,ROOT)
  site_http_access.build_case(document,page_head,record,ROOT)
+ site_session_security.build_case(document,page_head,record,ROOT)
  evolution_142.build_routes(document,page_head,record,REPORT,ROOT)
  site_portfolio_144.build_routes(document,page_head,record,ROOT)
  build_search();build_feed()

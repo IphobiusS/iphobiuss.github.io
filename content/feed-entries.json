@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "date_policy": "Las fechas son editoriales, con precisión de día. No se derivan del reloj de compilación. Los registros existentes conservan su id y published_on; modified_on cambia solo al revisar el contenido. Las guías históricas conservan sus GUID y no reciben una fecha de publicación inventada. Añadir una versión de report-gen solo después de publicarla en GitHub Releases.",
+  "entries": [
+    {
+      "id": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.0",
+      "url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.0",
+      "title": "report-gen 0.31.0: respaldos verificados y editor modular",
+      "summary": "Copias locales opcionales con comprobación de restauración, validación estricta de CVSS 3.1 y preparación de entregas sin recomprimir imágenes. Incluye ensayos reproducibles con cientos de hallazgos y rechaza imágenes truncadas.",
+      "category": "report-gen",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/sesiones-seguras.html",
+      "path": "sesiones-seguras.html",
+      "title": "Cerrar una sesión debe revocar su acceso",
+      "summary": "Caso propio de laboratorio: cierre de sesión, cambio de contraseña, revocación de dispositivo y caducidad. Compara el estado del servidor y repite solicitudes con identidades sintéticas.",
+      "category": "Caso propio",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/api-acceso.html",
+      "path": "api-acceso.html",
+      "title": "Una sesión no autoriza todos los objetos",
+      "summary": "API propia, dos identidades y un fallo deliberado de autorización. Código, intercambios HTTP, parche y retest de lectura y escritura.",
+      "category": "Caso propio",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/ia-limites.html",
+      "path": "ia-limites.html",
+      "title": "La autorización pertenece al ejecutor, no al modelo",
+      "summary": "Ejercicio local reproducible: un adaptador determinista propone acciones y el servidor comprueba identidad, alcance y permisos antes de ejecutarlas. No evalúa un modelo de IA real.",
+      "category": "Caso propio",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://github.com/IphobiusS/report-gen/releases/tag/v0.30.0",
+      "url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.30.0",
+      "title": "report-gen 0.30.0: edición por lotes, entregas y actualización guiada",
+      "summary": "Editar responsables y plazos con revisión previa, preparar entregas por responsable y verificar una actualización oficial con respaldo recuperable. Herramienta local; release y código verificables en GitHub.",
+      "category": "report-gen",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/bitacora.html#imports",
+      "path": "bitacora.html#imports",
+      "title": "Una observación importada no es un hallazgo verificado",
+      "summary": "Por qué report-gen incorpora observaciones de escáneres con procedencia y deja pendiente su verificación.",
+      "category": "Bitácora",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/bitacora.html#native-web",
+      "path": "bitacora.html#native-web",
+      "title": "Mantener la lectura disponible sin JavaScript",
+      "summary": "Decisión del sitio: contenido y enlaces HTML, detalles nativos y mejoras progresivas con límites explícitos.",
+      "category": "Bitácora",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/bitacora.html#cap-credentials",
+      "path": "bitacora.html#cap-credentials",
+      "title": "Credenciales expuestas: una hipótesis para otro servicio",
+      "summary": "Retrospectiva HTB: distinguir el dato en una captura de la autenticación posterior documentada.",
+      "category": "Bitácora",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    },
+    {
+      "id": "https://iphobiuss.github.io/bitacora.html#forest-rights",
+      "path": "bitacora.html#forest-rights",
+      "title": "Derechos de replicación y membresía de grupos",
+      "summary": "Retrospectiva HTB: explicar DCSync y el acceso obtenido sin confundirlos con pertenencia a Domain Admins.",
+      "category": "Bitácora",
+      "published_on": "2026-10-10",
+      "modified_on": "2026-10-10"
+    }
+  ]
+}

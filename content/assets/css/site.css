@@ -40,6 +40,10 @@
   --toc-w:220px;
   --toc-gap:3.5rem;
   --nav-height:4.5rem;
+  --control-min-height:44px;
+  --panel-radius:5px;
+  --focus-width:3px;
+  --focus-offset:4px;
 }
 
 /* Controles mejorados (conmutadores, filtros, controles de guía y de la sesión):

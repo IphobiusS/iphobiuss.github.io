@@ -1,0 +1,1754 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "id": "alice_logout",
+      "label_es": "Alice: cerrar sesión invalida solo el token actual",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "POST",
+          "path": "/logout",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        }
+      ]
+    },
+    {
+      "id": "alice_password",
+      "label_es": "Alice: cambiar la contraseña invalida sus dos dispositivos",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/password",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{\"current_password\":\"demo-alice-initial\",\"new_password\":\"demo-alice-changed\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            }
+          },
+          "body": "{\"user\":\"alice\",\"password\":\"demo-alice-changed\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-issued-1"
+        }
+      ]
+    },
+    {
+      "id": "alice_device",
+      "label_es": "Alice: revocar el teléfono conserva las otras sesiones",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/alice-phone/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-phone"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-phone"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        }
+      ]
+    },
+    {
+      "id": "alice_cross_device",
+      "label_es": "Alice: no puede revocar el dispositivo ajeno",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/bruno-phone/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "alice_expiry",
+      "label_es": "Alice: activo antes del límite, rechazado al cumplirse 60 segundos",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "advance_seconds": 59
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "advance_seconds": 1
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            }
+          },
+          "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-issued-1"
+        }
+      ]
+    },
+    {
+      "id": "bruno_logout",
+      "label_es": "Bruno: cerrar sesión invalida solo el token actual",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        },
+        {
+          "method": "POST",
+          "path": "/logout",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            }
+          },
+          "token": "lab-bruno-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "bruno_password",
+      "label_es": "Bruno: cambiar la contraseña invalida sus dos dispositivos",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/password",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "changed": true,
+                "scope": "all_sessions_of_current_identity"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop",
+          "body": "{\"current_password\":\"demo-bruno-initial\",\"new_password\":\"demo-bruno-changed\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-bruno-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-initial\"}"
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            }
+          },
+          "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-changed\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-issued-1"
+        }
+      ]
+    },
+    {
+      "id": "bruno_device",
+      "label_es": "Bruno: revocar el teléfono conserva las otras sesiones",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/bruno-phone/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "revoked_session": "bruno-phone"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "revoked_session": "bruno-phone"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-bruno-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "bruno_cross_device",
+      "label_es": "Bruno: no puede revocar el dispositivo ajeno",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/alice-phone/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop"
+        }
+      ]
+    },
+    {
+      "id": "bruno_expiry",
+      "label_es": "Bruno: activo antes del límite, rechazado al cumplirse 60 segundos",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop",
+          "advance_seconds": 59
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-bruno-laptop",
+          "advance_seconds": 1
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "token": "lab-bruno-issued-1",
+                "session_id": "bruno-new-1",
+                "ttl_seconds": 60
+              }
+            }
+          },
+          "body": "{\"user\":\"bruno\",\"password\":\"demo-bruno-initial\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-issued-1"
+        }
+      ]
+    },
+    {
+      "id": "wrong_current_password",
+      "label_es": "Una contraseña actual incorrecta no cambia ni invalida nada",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/password",
+          "expected": {
+            "vulnerable": {
+              "status": 403,
+              "body": {
+                "error": "current_password_mismatch"
+              }
+            },
+            "fixed": {
+              "status": 403,
+              "body": {
+                "error": "current_password_mismatch"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{\"current_password\":\"incorrect-demo\",\"new_password\":\"demo-new\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            }
+          },
+          "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}"
+        }
+      ]
+    },
+    {
+      "id": "unchanged_password",
+      "label_es": "Rechazar una contraseña idéntica conserva la sesión",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/password",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "password_unchanged"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "password_unchanged"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{\"current_password\":\"demo-alice-initial\",\"new_password\":\"demo-alice-initial\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "anonymous",
+      "label_es": "Una solicitud anónima no obtiene identidad",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "unknown_token",
+      "label_es": "Un token inventado no obtiene identidad",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-unknown"
+        }
+      ]
+    },
+    {
+      "id": "duplicate_authorization",
+      "label_es": "Dos cabeceras de autenticación se rechazan",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "headers": [
+            [
+              "Authorization",
+              "Bearer lab-bruno-laptop"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "forged_identity",
+      "label_es": "Una cabecera declarada por el cliente no cambia al propietario",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/bruno-phone/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}",
+          "headers": [
+            [
+              "X-Lab-User",
+              "bruno"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "bruno",
+                "marker": "SYNTHETIC_BRUNO"
+              }
+            }
+          },
+          "token": "lab-bruno-phone"
+        }
+      ]
+    },
+    {
+      "id": "missing_device",
+      "label_es": "Un identificador inexistente responde igual que uno ajeno",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/unknown-device/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            },
+            "fixed": {
+              "status": 404,
+              "body": {
+                "error": "not_found"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "invalid_body",
+      "label_es": "Un JSON inválido no cambia la contraseña ni la sesión",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/password",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "client_token_injection",
+      "label_es": "Login rechaza campos adicionales y no adopta un token del cliente",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "invalid_body"
+              }
+            }
+          },
+          "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\",\"token\":\"chosen-by-client\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "chosen-by-client"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "get_cannot_logout",
+      "label_es": "GET no puede cerrar una sesión",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/logout",
+          "expected": {
+            "vulnerable": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            },
+            "fixed": {
+              "status": 405,
+              "body": {
+                "error": "method_not_allowed"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    },
+    {
+      "id": "revoked_cannot_mutate",
+      "label_es": "Una sesión revocada no puede revocar otro dispositivo",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/logout",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "signed_out": true
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "POST",
+          "path": "/sessions/alice-phone/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-phone"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        }
+      ]
+    },
+    {
+      "id": "self_device_revocation",
+      "label_es": "Revocar el dispositivo actual invalida su token",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/sessions/alice-laptop/revoke",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-laptop"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "revoked_session": "alice-laptop"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "body": "{}"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-phone"
+        }
+      ]
+    },
+    {
+      "id": "new_session_expiry",
+      "label_es": "Una sesión nueva también respeta su propio límite de vida",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/login",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "token": "lab-alice-issued-1",
+                "session_id": "alice-new-1",
+                "ttl_seconds": 60
+              }
+            }
+          },
+          "body": "{\"user\":\"alice\",\"password\":\"demo-alice-initial\"}",
+          "advance_seconds": 30
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            }
+          },
+          "token": "lab-alice-issued-1",
+          "advance_seconds": 59
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-issued-1",
+          "advance_seconds": 1
+        }
+      ]
+    },
+    {
+      "id": "query_rejected",
+      "label_es": "El reloj no se controla con un parámetro HTTP",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me?clock=0",
+          "expected": {
+            "vulnerable": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            },
+            "fixed": {
+              "status": 400,
+              "body": {
+                "error": "query_not_supported"
+              }
+            }
+          },
+          "token": "lab-alice-laptop",
+          "advance_seconds": 60
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expected": {
+            "vulnerable": {
+              "status": 200,
+              "body": {
+                "identity": "alice",
+                "marker": "SYNTHETIC_ALICE"
+              }
+            },
+            "fixed": {
+              "status": 401,
+              "body": {
+                "error": "unauthorized"
+              }
+            }
+          },
+          "token": "lab-alice-laptop"
+        }
+      ]
+    }
+  ]
+}

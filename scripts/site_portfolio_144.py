@@ -219,6 +219,7 @@ def journal_body(english=False):
         links = ''.join(f'<a href="{escape(href, quote=True)}">{escape(label)}</a>' for href, label in sources)
         sections += f'<article class="journal-entry" id="{identifier}" data-journal-kind="{"project" if index < 2 else "lab"}"><p class="journal-context">{escape(context)}</p><h3>{escape(title)}</h3><dl>{rows}</dl><div class="journal-sources" aria-label="{"Sources" if english else "Fuentes"}">{links}</div></article>'
     sections += '</section>'
+    sections += ('<p class="route-notice"><a href="sesiones-seguras.html" hreflang="es">Another own case: session revocation and server state (Spanish) →</a></p>' if english else '<p class="route-notice"><a href="sesiones-seguras.html">Otro caso propio: revocación de sesiones y estado del servidor →</a></p>')
     return f'<p class="lead">{escape(lead)}</p><p class="journal-scope">{escape(scope)}</p><nav class="journal-index" aria-label="{"Decisions on this page" if english else "Decisiones de esta página"}">{navigation}</nav>{sections}'
 
 
@@ -227,7 +228,7 @@ def enhance_document(filename, tree):
     relevant = cases | {'index.html', 'english.html', 'proyectos.html', 'report-gen-en.html'} | set(JOURNAL_PAGES)
     if filename not in relevant:
         return
-    site_evolution_142.add_resource(tree, 'link', rel='stylesheet', href='assets/css/portfolio-144.css')
+    site_evolution_142.add_resource(tree, 'link', rel='stylesheet', href='assets/css/reading.css')
     if filename == 'index.html':
         actions = tree.xpath('//*[' + has_class('welcome-links') + ']')[0]
         actions.append(link('downloads/cv-sebastian-latorre.pdf', 'CV (PDF)', download='', **{'class': 'text-link welcome-cv'}))
@@ -262,7 +263,7 @@ def enhance_document(filename, tree):
     if filename in JOURNAL_PAGES:
         if filename == 'engineering-notes.html':
             site_evolution_142.english_chrome(filename, tree)
-            site_evolution_142.add_resource(tree, 'link', rel='stylesheet', href='assets/css/evolution-142.css')
+            site_evolution_142.add_resource(tree, 'link', rel='stylesheet', href='assets/css/reading.css')
         head = tree.find('head')
         for script in tree.xpath('//script[@type="application/ld+json"]'):
             schema = json.loads(script.text)
