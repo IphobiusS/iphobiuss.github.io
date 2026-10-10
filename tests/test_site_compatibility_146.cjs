@@ -9,6 +9,7 @@ const root = path.resolve(process.env.SITE_COMPAT_DIST || path.join(__dirname, '
 const output = path.resolve(process.env.SITE_COMPAT_OUTPUT || path.join(__dirname, '../audit-v14.6/compatibility'));
 const budget = JSON.parse(fs.readFileSync(path.join(__dirname, 'performance_budget.json'), 'utf8'));
 const engines = (process.env.SITE_COMPAT_BROWSERS || 'firefox,webkit').split(',');
+const headed = process.env.SITE_COMPAT_HEADED === '1';
 assert.ok(engines.length && engines.every(name => ['chromium', 'firefox', 'webkit'].includes(name)), 'Unknown browser engine');
 const routes = fs.readdirSync(root).filter(file => file.endsWith('.html')).sort();
 assert.ok(routes.length, 'Build the website before running browser checks');
@@ -26,7 +27,7 @@ const server = http.createServer((request, response) => {
 });
 const results = [], versions = {}, completedEngines = []; let browser, engine, base;
 const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify({
-  requestedEngines: engines, versions, testedRoutes: routes, budgets: budget,
+  requestedEngines: engines, versions, browserMode: headed ? 'headed' : 'headless', testedRoutes: routes, budgets: budget,
   completedEngines,
   completeRequiredEngineCoverage: ['firefox', 'webkit'].every(name => completedEngines.includes(name)),
   limitations: ['WebKit is not native Safari.', 'Automated accessibility checks are not a human screen-reader evaluation.', 'Byte/request budgets are not field Web Vitals or network-time guarantees.'],
@@ -137,7 +138,7 @@ function observeNativeIntro() {
   base = 'http://127.0.0.1:' + server.address().port;
   for (engine of engines) {
     const executablePath = process.env['SITE_' + engine.toUpperCase()];
-    browser = await playwright[engine].launch({ headless: true, timeout: 30000, ...(executablePath ? { executablePath } : {}), ...(engine === 'chromium' ? { args: ['--no-sandbox'] } : {}) });
+    browser = await playwright[engine].launch({ headless: !headed, timeout: 30000, ...(executablePath ? { executablePath } : {}), ...(engine === 'chromium' ? { args: ['--no-sandbox'] } : {}) });
     versions[engine] = browser.version();
     await check('Matrix modal opens, reveals the page and releases keyboard focus', async () => {
       const state = await fresh({ reducedMotion: 'no-preference' }); const { page, context } = state;
@@ -164,11 +165,11 @@ function observeNativeIntro() {
         assert.equal(await page.locator('a.skip').evaluate(link => link === document.activeElement), true);
         await settled(page); await healthy(state);
         fs.writeFileSync(path.join(output, engine + '-intro-trace.json'), JSON.stringify(automaticTrace, null, 2) + '\n');
-        console.log(JSON.stringify({ engine, introSamples: automaticTrace.frames.length, fadeWitness: fade, closedAt: automaticTrace.closedAt }));
+        console.log(JSON.stringify({ engine, browserMode: headed ? 'headed' : 'headless', introSamples: automaticTrace.frames.length, fadeWitness: fade, closedAt: automaticTrace.closedAt }));
         await context.close(); return { automaticReveal: true, escapeDismissal: true, fade, introTrace: automaticTrace };
       } catch (error) {
         const currentTrace = await page.evaluate(() => window.__compatIntro).catch(failure => ({ unavailable: failure.message }));
-        error.evidence = { automaticTrace: automaticTrace || null, currentTrace };
+        error.evidence = { browserMode: headed ? 'headed' : 'headless', automaticTrace: automaticTrace || null, currentTrace };
         fs.writeFileSync(path.join(output, engine + '-intro-trace.json'), JSON.stringify(error.evidence, null, 2) + '\n');
         console.error('INTRO DIAGNOSTIC ' + JSON.stringify(error.evidence));
         throw error;

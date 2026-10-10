@@ -85,3 +85,12 @@ Las pruebas de navegador usan Playwright y axe-core fijados en `package-lock.jso
 Las comprobaciones automáticas no sustituyen una revisión humana de accesibilidad ni pruebas con usuarios. Las evidencias de cada entrega deben distinguir las pruebas realizadas de las pendientes.
 
 `test:performance` controla pesos estáticos; `test:compatibility` recorre Firefox y WebKit, comprueba entrada, teclado, temas, filtros, CV, 320 px con texto al 200 % y las rutas móviles. El presupuesto inicial por página es 1 MiB sin comprimir y 24 peticiones. Son medidas locales de recursos, no métricas de visitantes ni puntuaciones de velocidad. WebKit no acredita Safari nativo. La revisión humana con lector de pantalla sigue pendiente y debe registrar sistema, navegador, lector, tarea, resultado y evidencia.
+
+En CI, la batería de compatibilidad ejecuta ambos motores con ventana sobre Xvfb. Esto permite observar la composición de la entrada en el puerto GTK de WebKit para Linux; el modo headless usa el puerto WPE. Para reproducir esa configuración, instala también las dependencias del navegador y ejecuta:
+
+```bash
+npx playwright install --with-deps chromium firefox webkit
+SITE_COMPAT_HEADED=1 xvfb-run -a npm run test:compatibility
+```
+
+La prueba conserva los mismos tiempos y exige una muestra real de ambas superficies desvaneciéndose después de «Bienvenido». `audit-v14.6/compatibility/results.json` registra el modo de ejecución y los motores completados; los archivos `*-intro-trace.json` conservan las muestras y eventos de la entrada. Ante un fallo, el diagnóstico completo también se imprime en el registro de CI. Esos resultados son temporales y no se publican con el sitio.
