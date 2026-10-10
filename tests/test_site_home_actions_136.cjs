@@ -20,7 +20,7 @@ const expectActions = async page => {
  const external = page.locator('.home-contact a[href*="linkedin.com"]');
  assert.equal(await external.getAttribute('target'), '_blank'); assert.match(await external.getAttribute('rel'), /\bnoopener\b/);
  assert.match(await external.textContent(), /abre otra pestaña/);
- assert.deepEqual(await page.locator('.home-presentation>.shell').evaluateAll(nodes => nodes.map(node => node.className)), ['welcome shell','shell home-featured','shell casos','shell home-certifications','shell lab','shell home-contact']);
+ assert.deepEqual(await page.locator('.home-presentation>.shell').evaluateAll(nodes => nodes.map(node => node.className)), ['welcome shell','shell home-featured','shell casos','shell skills-map','shell home-certifications','shell lab','shell home-contact']);
  assert.equal(await page.locator('.session-shell').getAttribute('open'), null);
  assert.equal(await page.locator('[data-library]').getAttribute('open'), null);
  assert.equal(await page.locator('[data-intro][open]').count(), 0);
