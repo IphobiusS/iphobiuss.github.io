@@ -233,37 +233,12 @@ html:not(.js) .pane+.pane{border-top:1px solid var(--line)}
 .credentials-summary{display:flex;flex-wrap:wrap;gap:.25rem 1rem;align-items:center;margin:0 0 var(--s3);font:.9375rem/1.6 var(--sans);color:var(--dim)}
 .credentials-summary a{display:inline-flex;align-items:center;min-height:44px}
 .hero-linkedin{display:inline-flex;align-items:center;min-height:44px;font:600 .875rem/1.5 var(--mono)}
-/* Ventana de proyecto: marco de ventana, captura a todo el ancho, texto y sesión debajo */
-
-
-
-
-.pw-shot{display:block;border:1px solid var(--line-strong);background:var(--surface);line-height:0}
-.pw-shot img{display:block;width:100%;height:auto}
+/* Presentation card and optional English summary. */
 .readme-project{margin-top:var(--s4)}
 .readme-en{margin-top:var(--s4)}
 .readme-project-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2) var(--s4);padding:var(--s3);border:1px solid var(--line-strong);border-top:0;background:var(--surface)}
 .readme-project-foot p{margin:0;color:var(--dim);max-width:60ch}
-.readme-project-kicker{font:600 .8125rem/1.5 var(--mono);color:var(--acc);margin:0 0 .35rem}
-.project-window{margin:0 0 var(--s4);box-shadow:5px 5px 0 var(--shadow);border:1px solid var(--line-strong)}
-.project-window .pw-shot{border:0;border-bottom:1px solid var(--line)}
-.pw-facts-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem var(--s2);padding:.55rem 1rem;border-bottom:1px solid var(--line);background:var(--surface);font:.8125rem/1.5 var(--mono);color:var(--dim)}
-.pw-facts-bar b{color:var(--acc);font-weight:600}
-.pw-facts-bar span:first-child::before{content:'[]';color:var(--acc);margin-right:.6rem}
-.pw-body{padding:var(--s3) var(--s3) var(--s4);border:1px solid var(--line-strong);border-top:0;background:var(--surface)}
-.project-window .pw-body{border:0}
-.pw-session .code-block{margin:0 0 var(--s3)}
-.pw-row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--s3) var(--s4)}
-.pw-copy .lead{max-width:none;margin-bottom:var(--s2)}
-.pw-actions .group-label{margin:0 0 .5rem}
-.pw-actions .actions{margin-top:0;flex-direction:column;align-items:stretch}
-.pw-actions .button{justify-content:flex-start}
-.pw-link{margin:var(--s2) 0 0}
 .pane#proyectos{max-width:none}
-.project-highlights{list-style:none;padding:0;margin:0;color:var(--dim);font-size:.9375rem}
-.project-highlights li{margin:.5rem 0;padding-left:1.2rem;position:relative}
-.project-highlights li::before{content:'';width:5px;height:5px;background:var(--acc);position:absolute;left:0;top:.65em}
-.project-highlights b{color:var(--ink)}
 .group-label{font:.75rem/1.5 var(--mono);color:var(--dim);margin:var(--s4) 0 .5rem}
 .area-ledger{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
 .area-ledger a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25rem var(--s2);align-items:baseline;min-height:56px;padding:.85rem .5rem;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
@@ -320,8 +295,6 @@ html:not(.js) .pane+.pane{border-top:1px solid var(--line)}
 /* Casos destacados (portada) y páginas de caso. Reutiliza entry-card, takeaways y callouts; solo tokens. */
 .casos{margin-top:var(--s8)}
 .casos-head{margin-bottom:var(--s4)}
-.casos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.card-cta{margin-top:auto;padding-top:var(--s3);color:var(--acc);font:600 .8125rem/1.5 var(--mono)}
 .case-cta{display:flex;flex-wrap:wrap;gap:.85rem;margin-top:var(--s6)}
 .case-source{margin-top:var(--s4);color:var(--dim);font-size:.9rem}
 .mitig-breaks{display:block;margin-top:.45rem;color:var(--dim);font-size:.9rem}
@@ -596,7 +569,7 @@ html[data-retro=on] .site-header{box-shadow:inset 0 -2px #a6f36b55}
 html[data-retro=on] .lab-window,html[data-retro=on] .page-head{background-image:linear-gradient(#a6f36b09 1px,transparent 1px),linear-gradient(90deg,#a6f36b09 1px,transparent 1px);background-size:24px 24px}
 html[data-retro=on] h1{color:#c5ff9b;text-shadow:3px 3px 0 #385d29}
 html[data-retro=on] .entry-card{box-shadow:4px 4px 0 #a6f36b44}
-html[data-retro=on] .lab-window,html[data-retro=on] .project-window{box-shadow:6px 6px 0 #a6f36b44}
+html[data-retro=on] .lab-window{box-shadow:6px 6px 0 #a6f36b44}
 }
 
 /* ------------------------------------------------------------------
@@ -625,10 +598,6 @@ html[data-retro=on] .lab-window,html[data-retro=on] .project-window{box-shadow:6
 .readme-start p{color:var(--dim);max-width:65ch;margin-bottom:0;font-size:1rem}
 .readme-start .actions{margin-top:1rem}
 
-.readme-project-kicker{color:var(--acc)!important}
-.readme-project-foot>div{flex:1 1 27rem;min-width:0}
-.readme-project-foot .readme-project-kicker{margin-bottom:.55rem}
-.readme-project-foot h2{font:600 1.4rem/1.35 var(--sans);margin:0 0 .65rem}
 .guide-state{flex:1 1 100%;margin:0;color:var(--dim);font:.8125rem/1.6 var(--mono);max-width:74ch}
 .entry-details[open]>summary{color:var(--ink-bright);background:var(--raised)}
 .project-section>h2{max-width:30ch}
@@ -657,7 +626,6 @@ html[data-retro=on] .lab-window,html[data-retro=on] .project-window{box-shadow:6
 .js .site-nav:not(.is-open):not(:target){display:none}
 .js .site-nav:target{display:flex}
 .entry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.pw-row{grid-template-columns:1fr}
 .article-layout{display:block}
 .article-toc{display:none}
 .mobile-toc{display:block;margin-bottom:2rem;border:1px solid var(--line);padding:.6rem 1rem;background:var(--surface)}
@@ -727,8 +695,6 @@ html{scroll-padding-top:1rem}
 .pitch,.lead{font-size:1rem;line-height:1.75}
 .hero-actions{gap:.75rem;margin-bottom:1.5rem}
 
-.pw-body{padding:1.25rem}
-.pw-facts-bar{padding:.75rem 1rem;line-height:1.65}
 .notice,.why,.fcard,.warn{padding:1rem 1.15rem}
 .article-content .sec-head{gap:.65rem}
 .sec-head .sec-name{min-width:0;overflow-wrap:break-word}
@@ -809,14 +775,10 @@ p,li{orphans:3;widows:3}
 .hero-stats dt{font-size:8pt}
 .status-line{margin-bottom:1rem;padding:.5rem .75rem}
 .readme-start{margin-top:1rem;padding:.75rem;break-inside:avoid}
-.readme-project,.project-window,.project-screenshot{display:block;margin:1rem 0;break-inside:auto;page-break-inside:auto}
-.pw-shot,.project-screenshot>picture{display:block;break-inside:avoid;page-break-inside:avoid}
-.readme-project img,.project-window img,.project-screenshot img{display:block;width:auto;height:auto;max-width:100%;max-height:58mm;object-fit:contain;margin:0 auto .5rem}
+.readme-project,.project-screenshot{display:block;margin:1rem 0;break-inside:auto;page-break-inside:auto}
+.project-screenshot>picture{display:block;break-inside:avoid;page-break-inside:avoid}
+.readme-project img,.project-screenshot img{display:block;width:auto;height:auto;max-width:100%;max-height:58mm;object-fit:contain;margin:0 auto .5rem}
 .readme-project-foot{display:block;padding:.75rem}
-.pw-facts-bar{padding:.4rem .75rem;font-size:8pt}
-.pw-body{padding:.75rem;border:0}
-.pw-row{display:block}
-.pw-actions{margin-top:.75rem}
 .entry-grid,.gloss,.feature-list{display:block}
 .entry-card,.term,.feature-list li,.area-ledger li,.explorer-list li{break-inside:avoid;page-break-inside:avoid;margin-bottom:.5rem}
 .entry-card{padding:.75rem}
@@ -829,7 +791,6 @@ p,li{orphans:3;widows:3}
    autoexpandido del navegador: cubre page.pdf directo. Coincide con preparePrint, que abre todos los details. */
 details:not([open])>*:not(summary){display:block!important}
 details::details-content{content-visibility:visible!important;display:block!important}
-.pw-session details{break-inside:avoid-page;page-break-inside:avoid}
 .spoiler:has(.chain){break-inside:avoid;page-break-inside:avoid}
 /* Tres columnas mantienen completas las etiquetas del recorrido en A4. */
 .chain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -869,7 +830,7 @@ body[data-page=index] .pane+.pane{padding-top:.75rem}
 body[data-page=index] .hero-actions{margin-bottom:1rem}
 body[data-page=index] .hero-stats{margin:.75rem 0;padding:.5rem 0}
 body[data-page=index] .credentials-summary{margin-bottom:1rem}
-body[data-page=index] .readme-project,body[data-page=index] .project-window{margin:.75rem 0}
+body[data-page=index] .readme-project{margin:.75rem 0}
 body[data-page=index] .readme-en{margin-top:1rem;padding:.5rem .75rem}
 body[data-page=index] .readme-en>summary{min-height:0;padding:0;font-size:9pt}
 body[data-page=index] .readme-en>summary::after{display:none}
@@ -886,8 +847,6 @@ body[data-page=index] .area-ledger a{min-height:0;padding:.55rem .35rem}
 body[data-page=index] .area-ledger .area-name{font-size:10.5pt}
 body[data-page=index] .area-ledger .area-desc{font-size:9.5pt}
 body[data-page=index] .area-ledger .area-count{font-size:9pt}
-body[data-page=index] .pw-actions .actions{flex-direction:row;align-items:center}
-body[data-page=index] .project-highlights{font-size:10.5pt}
 a{text-decoration:underline}
 .button{box-shadow:none;padding:.35rem .65rem;min-height:0;font-size:8.5pt}
 }
