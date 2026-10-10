@@ -1,0 +1,63 @@
+{
+  "version": "0.27.0",
+  "download": "https://github.com/IphobiusS/report-gen/archive/3596d3f55597f9ebb9437139f7437990a352df16.zip",
+  "guide": "https://github.com/IphobiusS/report-gen/blob/3596d3f55597f9ebb9437139f7437990a352df16/docs/guide.es.md",
+  "formats": [
+    "PDF",
+    "DOCX",
+    "Markdown",
+    "HTML portátil"
+  ],
+  "sample": "downloads/report-gen-informe-ejemplo.pdf",
+  "sample_banca": "downloads/report-gen-informe-banco-lumbre.pdf",
+  "sample_banca_pages": 60,
+  "sample_banca_bytes": 1619366,
+  "sample_banca_sha256": "4b3a63aff5a83a9891fb58659783238d62942d371af14d8b0569597d816aa0d5",
+  "features": [
+    {
+      "title": "Una revisión, cuatro formatos",
+      "text": "Genera PDF, Word, Markdown y HTML desde una copia guardada. Prepara además entregas técnicas, ejecutivas o públicas con inclusión explícita."
+    },
+    {
+      "title": "Importación con revisión",
+      "text": "Nuclei JSONL incorpora hallazgos sin verificar; Nmap XML añade activos y servicios a la cobertura pendiente. Revisa la selección y su procedencia antes de incorporarla."
+    },
+    {
+      "title": "Revisar antes de compartir",
+      "text": "Consulta revisión, SHA-256 y controles por archivo. Inspecciona el PDF y solicita OCR local opcional para detectar posibles datos sensibles; requiere revisión manual."
+    },
+    {
+      "title": "Evidencia y decisiones",
+      "text": "Relaciona afirmaciones con evidencias y sus límites en un espacio privado. Explica prioridades de negocio y comunícalas en el resumen ejecutivo."
+    },
+    {
+      "title": "Anexos revisados",
+      "text": "Incluye copias seleccionadas en el paquete ZIP, con huellas verificables. Un anexo obligatorio pendiente o alterado bloquea la entrega."
+    },
+    {
+      "title": "HTML que puedes llevar contigo",
+      "text": "Comparte un informe autónomo con búsqueda, filtros por tipo y severidad, vista ejecutiva e impresión; la lectura completa funciona sin JavaScript."
+    },
+    {
+      "title": "Remediación y retest",
+      "text": "Documenta responsables, plazos, cobertura y nuevas evidencias de comprobación, separando el estado del trabajo de su valoración técnica."
+    },
+    {
+      "title": "Recuperación y respaldo privado",
+      "text": "Recupera capturas y formularios compatibles del mismo navegador. Crea respaldos cifrados de proyectos guardados; las copias pendientes del navegador se gestionan por separado."
+    }
+  ],
+  "sample_banca_html": "downloads/report-gen-banco-lumbre-0.25.0.html",
+  "sample_banca_html_bytes": 1087106,
+  "sample_banca_html_sha256": "24b9cbdc52434c95bb1633f4ad1404f7b46e0e0fe058b533e389980e57770cf0",
+  "sample_banca_html_export_version": "0.25.0",
+  "sample_banca_html_source_yaml_sha256": "90c0e774698b51922dfc97a044a735f6aecd169bca05b01769e52ae2ed69cff6",
+  "sample_banca_html_public_snapshot_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f",
+  "sample_banca_html_historical": "downloads/report-gen-informe-banco-lumbre.html",
+  "sample_banca_html_historical_export_version": "0.23.0",
+  "sample_banca_html_historical_source_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f",
+  "download_name": "report-gen-0.27.0.zip",
+  "guide_name": "Guía de uso",
+  "distribution": "github-immutable-commit",
+  "source_commit": "3596d3f55597f9ebb9437139f7437990a352df16"
+}

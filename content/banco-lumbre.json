@@ -1,0 +1,65 @@
+{
+  "title": "Banco Lumbre: banca digital y riesgo empresarial",
+  "summary_page": "banco-lumbre.html",
+  "date_modified": "2026-10-09",
+  "source_date": "2026-10-07",
+  "findings": 12,
+  "assets": 8,
+  "max_business_index": 20,
+  "index_scale_max": 25,
+  "business_distribution": {
+    "critical": 1,
+    "high": 8,
+    "moderate": 3
+  },
+  "technical_distribution": {
+    "critical": 0,
+    "high": 2,
+    "medium": 9,
+    "low": 0,
+    "info": 1
+  },
+  "priorities": {
+    "P0": 5,
+    "P1": 4,
+    "P2": 3
+  },
+  "proposed_budget_clp": 24180000,
+  "retests": 0,
+  "source_yaml_sha256": "90c0e774698b51922dfc97a044a735f6aecd169bca05b01769e52ae2ed69cff6",
+  "risks": [
+    {
+      "finding": "F02",
+      "risk": "R02",
+      "title": "Pagos sin aprobación independiente",
+      "index": 20,
+      "level": "Crítico",
+      "priority": "P0",
+      "scenario": "El preparador puede aprobar su propio pago en el guion. No se ejecutó una liquidación real ni se demostró un perjuicio económico.",
+      "decision": "Separar preparación y aprobación, comprobar la autorización en el servidor y probar que una misma identidad no pueda completar ambas funciones."
+    },
+    {
+      "finding": "F07",
+      "risk": "R07",
+      "title": "Privilegios de despliegue excesivos",
+      "index": 15,
+      "level": "Alto",
+      "priority": "P0",
+      "scenario": "Una credencial sintética expuesta en CI representa un acceso de despliegue demasiado amplio. No se realizó ningún despliegue en una entidad real.",
+      "decision": "Retirar y rotar el secreto expuesto, reducir el alcance de la identidad y exigir aprobación e integridad de los artefactos antes de desplegar."
+    },
+    {
+      "finding": "F10",
+      "risk": "R10",
+      "title": "Auditoría financiera modificable",
+      "index": 15,
+      "level": "Alto",
+      "priority": "P0",
+      "scenario": "La identidad de aplicación del modelo puede modificar eventos históricos. No se demostró fraude ni manipulación de un registro bancario real.",
+      "decision": "Separar escritura y administración de registros, conservar una copia con protección frente a alteraciones y verificar que los cambios no borren la trazabilidad."
+    }
+  ],
+  "historical_public_snapshot_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f",
+  "source_recovery_note": "HTML 0.25.0 reexportado desde la fuente original pública recuperada. La copia de publicación coincide con la huella del YAML público histórico registrada; el PDF y el HTML 0.23.0 permanecen íntegros.",
+  "current_html_public_snapshot_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f"
+}

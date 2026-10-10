@@ -1,0 +1,41 @@
+{
+  "cap": {
+    "title": "De una captura distinta a UID 0",
+    "scope": "Síntesis editorial de mi guía de Cap, capítulos 02 a 05. Cada flecha indica el salto descrito y necesita su evidencia propia; el diagrama no es una ejecución nueva.",
+    "nodes": [
+      {"id": "own-capture", "lines": ["Captura propia", "/data/1"], "text": "La guía identifica /data/1 como la captura propia y vacía.", "evidence": [{"url": "cap.html#idor", "label": "Guía: comparación de capturas"}]},
+      {"id": "other-capture", "lines": ["Captura distinta", "/data/0"], "text": "La comparación con /data/0 documenta acceso a una captura anterior con tráfico. No demuestra acceso a todas las capturas.", "evidence": [{"url": "cap.html#idor", "label": "Guía: autorización por objeto"}]},
+      {"id": "ftp-credentials", "lines": ["Credenciales FTP", "en la captura"], "text": "El análisis del tráfico describe campos de autenticación FTP legibles. El expediente omite sus valores.", "evidence": [{"url": "cap.html#pcap", "label": "Guía: análisis del PCAP"}]},
+      {"id": "ssh-nathan", "lines": ["SSH como nathan"], "text": "La guía documenta reutilización de esas credenciales y acceso SSH como nathan; leer el PCAP por sí solo no prueba ese acceso.", "evidence": [{"url": "cap.html#access", "label": "Guía: acceso por SSH"}]},
+      {"id": "uid-zero", "lines": ["Identidad final", "UID 0"], "text": "CAP_SETUID en /usr/bin/python3.8 permite el cambio de identidad. La documentación incluye la comprobación final de UID 0.", "evidence": [{"url": "cap.html#privesc", "label": "Guía: capability e identidad"}]}
+    ],
+    "edges": [
+      {"from": "own-capture", "to": "other-capture", "label": "Comparación por cambio de identificador"},
+      {"from": "other-capture", "to": "ftp-credentials", "label": "Lectura del tráfico FTP"},
+      {"from": "ftp-credentials", "to": "ssh-nathan", "label": "Reutilización comprobada en la guía"},
+      {"from": "ssh-nathan", "to": "uid-zero", "label": "CAP_SETUID del intérprete"}
+    ],
+    "limit": "No se recibió el PCAP original ni una transcripción independiente. Los saltos son resultados históricos documentados; no prueban comportamiento actual, una remediación eficaz ni un retest."
+  },
+  "forest": {
+    "title": "Membresías y permisos sobre el dominio",
+    "scope": "Síntesis editorial de las relaciones descritas en mi guía de Forest. MemberOf indica pertenencia; GenericAll y WriteDacl indican permisos sobre el objeto de destino. La adaptación a BloodHound CE es editorial.",
+    "nodes": [
+      {"id": "svc-alfresco", "lines": ["svc-alfresco"], "text": "La cuenta de servicio es el origen de la cadena documentada. La guía describe previamente material AS-REP, cracking offline y acceso por WinRM como saltos separados.", "evidence": [{"url": "forest.html#asrep", "label": "Guía: condición AS-REP"}, {"url": "forest.html#foothold", "label": "Guía: acceso por WinRM"}]},
+      {"id": "service-accounts", "lines": ["Service Accounts"], "text": "svc-alfresco pertenece a Service Accounts.", "evidence": [{"url": "forest.html#bloodhound", "label": "Guía: membresías"}]},
+      {"id": "privileged-it", "lines": ["Privileged", "IT Accounts"], "text": "Service Accounts pertenece a Privileged IT Accounts. Es una membresía anidada, no un permiso directo sobre el dominio.", "evidence": [{"url": "forest.html#bloodhound", "label": "Guía: grupos anidados"}]},
+      {"id": "account-operators", "lines": ["Account Operators"], "text": "Privileged IT Accounts pertenece a Account Operators.", "evidence": [{"url": "forest.html#bloodhound", "label": "Guía: Account Operators"}]},
+      {"id": "exchange-permissions", "lines": ["Exchange Windows", "Permissions"], "text": "Account Operators tiene GenericAll sobre Exchange Windows Permissions. La guía describe añadir svc-alfresco a este grupo y verificar esa membresía.", "evidence": [{"url": "forest.html#bloodhound", "label": "Guía: GenericAll"}, {"url": "forest.html#privesc", "label": "Guía: alta y comprobación"}]},
+      {"id": "domain", "lines": ["htb.local", "Objeto de dominio"], "text": "Exchange Windows Permissions tiene WriteDacl sobre el dominio htb.local. Modificar su DACL permite conceder los derechos de replicación descritos en la guía.", "evidence": [{"url": "forest.html#privesc", "label": "Guía: WriteDacl y replicación"}]}
+    ],
+    "edges": [
+      {"from": "svc-alfresco", "to": "service-accounts", "label": "MemberOf"},
+      {"from": "service-accounts", "to": "privileged-it", "label": "MemberOf"},
+      {"from": "privileged-it", "to": "account-operators", "label": "MemberOf"},
+      {"from": "account-operators", "to": "exchange-permissions", "label": "GenericAll"},
+      {"from": "exchange-permissions", "to": "domain", "label": "WriteDacl"}
+    ],
+    "result": "Después de conceder derechos de replicación, la guía describe DCSync, obtención de material de autenticación de Administrator (RID 500) y acceso con esa identidad mediante Pass-the-Hash. DCSync no equivale a pertenecer a Domain Admins.",
+    "limit": "No se recibieron ACLs exportadas, AS-REP original, ZIP de recolección ni transcripción independiente. El grafo no acredita un nuevo pentest, remediación eficaz o retest actual."
+  }
+}

@@ -1,0 +1,65 @@
+LÍMITES DE HERRAMIENTAS EN UN AGENTE: LABORATORIO LOCAL 1.0.0
+
+Requisitos: Python 3.10 o posterior. Solo biblioteca estándar; sin instalación.
+No utiliza una API, un modelo de lenguaje, una red ni datos personales reales.
+
+Desde la carpeta descomprimida:
+  python3 lab.py --verify resultados.json
+
+Salida esperada:
+  PASS: 28/28 checks; complete evidence identical
+
+Para inspeccionar todos los resultados:
+  python3 lab.py
+
+Para registrar una nueva ejecución sin sobrescribir la evidencia incluida:
+  python3 lab.py --write nueva-ejecucion.json
+
+El código de salida es 0 si todas las expectativas coinciden; 1 ante una
+diferencia o comprobación fallida; 2 si --verify no puede leer la evidencia.
+
+METODOLOGÍA Y ALCANCE
+Un adaptador programado extrae bloques <tool-call> del documento recuperado
+no confiable y los convierte en propuestas de herramientas. Es una elección
+del simulador que representa una planificación YA comprometida. No predice
+si un LLM aceptaría esas instrucciones ni mide su resistencia a prompt injection.
+
+Se ejecutan los mismos 14 escenarios sobre dos puertas de acceso: la versión
+vulnerable despacha la propuesta; la corregida exige sesión activa, herramienta
+de lectura permitida, esquema estricto, tenant correcto, permiso explícito por
+documento y presupuesto disponible. Cada llamada vuelve a comprobar la sesión.
+
+Los documentos son tres registros sintéticos en memoria. Cada escenario y modo
+reciben una copia nueva. Ninguna herramienta abre archivos, ejecuta comandos o
+realiza conexiones. --write solo guarda el informe JSON donde tú lo solicitas.
+
+INTERPRETACIÓN DE LAS 28 COMPROBACIONES
+No significan 28 controles de seguridad aprobados en la versión vulnerable.
+Son 14 escenarios x 2 modos comparados contra expectativas explícitas: en el
+modo vulnerable se espera demostrar lecturas privadas, una escritura indebida
+y otros incumplimientos; en el corregido se espera impedirlos, manteniendo la
+lectura legítima. Hay controles negativos que ya fallan en ambos modos.
+
+EVIDENCIA Y REPRODUCIBILIDAD
+resultados.json conserva propuestas, resultados observados, expectativas y
+SHA-256 del código y los fixtures. No incluye hora, versión del intérprete ni
+identificadores aleatorios para permitir comparación exacta entre ejecuciones.
+--verify ejecuta de nuevo y compara TODO el JSON, incluyendo las huellas.
+MANIFEST.sha256, incluido en el ZIP, cubre las cuatro fuentes de la entrega.
+
+LÍMITES
+Esto es un ejemplo mínimo de autorización, no un gateway de producción. No
+prueba un LLM real, RAG/vector stores, concurrencia, aislamiento de procesos,
+SSRF, rutas de archivos, autenticación de red, ni eficacia de filtros de prompts.
+La revocación se cambia secuencialmente en memoria, sin carreras concurrentes.
+No es una auditoría de un tercero ni un pentest de un servicio desplegado.
+
+ENGLISH SUMMARY
+This deterministic lab simulates an already-compromised planning step. A scripted
+adapter turns explicit tool-call markup in untrusted retrieved text into tool
+proposals. No actual language model or external target is used. Fourteen scenarios
+run against an intentionally vulnerable dispatcher and a checked gateway.
+The fixed gateway independently enforces session status, a read-only allowlist,
+strict arguments, tenant and document grants, and a two-call budget. All documents
+are synthetic and exist only in memory. Run python3 lab.py --verify resultados.json
+to reproduce all 28 expectation checks and compare the full evidence.

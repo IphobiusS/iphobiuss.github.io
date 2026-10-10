@@ -1,0 +1,45 @@
+{
+  "tool_version": "0.21.2",
+  "code_archive_sha256": "c56c9bcdf2ace871a8d91922f663f6d1c71c9ddd85fdf9017ded747bb43497a1",
+  "nested_manifest_files_checked": 614,
+  "nested_manifest_mismatches": 0,
+  "source": "examples/nimbus-demo-project.zip (from report-gen 0.21.2)",
+  "source_engagement_sha256": "f17065308ed81f808098ba3ac19f53dc81d21640c822f7d10ebfcf2ff5a28699",
+  "source_modifications": [
+    {
+      "path": "report.sections[0].body",
+      "from": "report-gen 0.14.0",
+      "to": "report-gen 0.21.2",
+      "occurrences": 1
+    },
+    {
+      "path": "report.sections[1].distribution",
+      "from": "report-gen 0.14.0",
+      "to": "report-gen 0.21.2",
+      "occurrences": 1
+    },
+    {
+      "path": "report.sections[10].tools_used",
+      "from": "report-gen 0.14.0",
+      "to": "report-gen 0.21.2",
+      "occurrences": 1
+    }
+  ],
+  "command": "python export.py reports/nimbus-public/engagement.yaml -f pdf -o report-gen-informe-ejemplo.pdf",
+  "renderer": "WeasyPrint 70.0",
+  "pages": 38,
+  "image_placements": 19,
+  "finding_titles_expected": 12,
+  "finding_titles_missing": [],
+  "bytes": 1388078,
+  "sha256": "f598b88e05691668f8cd598de58e22af533e8e461e3824631c053a8820adef52",
+  "visual_review": "38 páginas renderizadas con Poppler; revisión visual completa y ampliaciones de portada, procedencia y tabla de cobertura.",
+  "limitations": [
+    "Demostración ficticia; no se ejecutaron ataques.",
+    "Esta exportación y la integridad del paquete no sustituyen la suite completa de report-gen.",
+    "No se ejecutó Microsoft Word nativo, LibreOffice estable ni Firefox en esta actualización del sitio."
+  ],
+  "source_original_sha256": "e5fb8292ea8837b06eced5d68b3510a90739b4823d49552f53626d80c5450e29",
+  "source_project_archive_sha256": "4e5dda5aba5915038205d7373585f0f5aab47a17c6cd87eab6e1945b70501c82",
+  "published_yaml": "content/report-gen-ejemplo.yaml"
+}
