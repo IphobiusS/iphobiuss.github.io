@@ -115,7 +115,10 @@ const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     const context = await browser.newContext();
     await context.addInitScript(()=>{for(const name of ['getItem','setItem','removeItem'])Object.defineProperty(Storage.prototype,name,{value(){throw new DOMException('denied','SecurityError');}});});
     const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base+'/report-gen-en.html');
-    await page.locator('#finding-title').fill('Unsaved example');await page.locator('[data-finding-form] button[type=submit]').click();
+    await page.locator('[data-site-intro][open]').waitFor({state:'hidden'});
+    await page.locator('#finding-title').fill('Unsaved example');
+    assert.equal(await page.locator('#finding-title').inputValue(),'Unsaved example');
+    await page.locator('[data-finding-form] button[type=submit]').click();
     assert.equal(await page.locator('[data-finding-output="title"]').first().innerText(),'Unsaved example');await page.reload();
     assert.notEqual(await page.locator('#finding-title').inputValue(),'Unsaved example');assert.deepEqual(errors,[]);await context.close();return {storageRequired:false,reloadRestores:true};
   });
