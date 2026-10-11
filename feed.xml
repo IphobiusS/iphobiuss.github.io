@@ -8,6 +8,15 @@
     <lastBuildDate>Sun, 11 Oct 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://iphobiuss.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>report-gen 0.31.2: auditoría de estrés y recuperación</title>
+      <link>https://github.com/IphobiusS/report-gen/releases/tag/v0.31.2</link>
+      <guid isPermaLink="true">https://github.com/IphobiusS/report-gen/releases/tag/v0.31.2</guid>
+      <description>Aislamiento de borradores entre proyectos, recuperación tras interrupciones durante la preparación, límites de respaldo antes de cargar archivos y conservación de contenido Markdown en las exportaciones.</description>
+      <category>report-gen</category>
+      <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-11</dcterms:modified>
+    </item>
+    <item>
       <title>report-gen 0.31.1: correcciones de la auditoría</title>
       <link>https://github.com/IphobiusS/report-gen/releases/tag/v0.31.1</link>
       <guid isPermaLink="true">https://github.com/IphobiusS/report-gen/releases/tag/v0.31.1</guid>
