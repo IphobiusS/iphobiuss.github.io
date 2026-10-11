@@ -508,7 +508,8 @@
         return;
       }
       const pane = search.closest('.pane');
-      if (lab && pane && pane.hidden) lab.show(pane.id);
+      // The selected pane can still be inside a library the reader folded.
+      if (lab && pane) lab.show(pane.id);
       search.focus();
     }
     if (event.key === 'Escape') {
