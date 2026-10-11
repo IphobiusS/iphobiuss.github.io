@@ -47,6 +47,21 @@ class PublishedFeedTests(unittest.TestCase):
             if item.findtext('pubDate'):
                 self.assertLessEqual(parsedate_to_datetime(item.findtext('pubDate')).date(), FEED._day(modified))
 
+    def test_visible_editions_and_structured_dates_match_sitemap(self):
+        sitemap = etree.parse(str(ROOT / 'dist/sitemap.xml'))
+        ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+        for entry in sitemap.xpath('//s:url', namespaces=ns):
+            url = entry.findtext('s:loc', namespaces=ns)
+            modified = entry.findtext('s:lastmod', namespaces=ns)
+            filename = urlsplit(url).path.lstrip('/') or 'index.html'
+            tree = html.parse(str(ROOT / 'dist' / filename))
+            for source in tree.xpath('//script[@type="application/ld+json"]/text()'):
+                schema = json.loads(source)
+                if 'dateModified' in schema:
+                    self.assertEqual(schema['dateModified'], modified, filename)
+            for visible in tree.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," edition-line ") or contains(concat(" ",normalize-space(@class)," ")," article-meta ")]//time[not(starts-with(normalize-space(.), "Informe original:"))]/@datetime'):
+                self.assertEqual(visible, modified, filename)
+
     def test_pages_expose_one_consistent_feed_and_social_metadata(self):
         for path in sorted((ROOT / 'dist').glob('*.html')):
             tree = html.parse(str(path))

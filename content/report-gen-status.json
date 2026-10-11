@@ -1,44 +1,44 @@
 {
   "schema_version": 1,
-  "version": "0.31.0",
-  "source_commit": "ce2f9dad0549fcdcc56434b3905322731ada2fbd",
-  "reviewed_on": "2026-10-10",
+  "version": "0.31.1",
+  "source_commit": "6065bc8f3618672118d01870f8724adf4bcc076c",
+  "reviewed_on": "2026-10-11",
   "repository": "https://github.com/IphobiusS/report-gen",
   "checks": [
     {
       "key": "tests",
-      "run_id": 38083809302,
+      "run_id": 38109909479,
       "workflow": ".github/workflows/tests.yml",
-      "head_sha": "ce2f9dad0549fcdcc56434b3905322731ada2fbd",
+      "head_sha": "6065bc8f3618672118d01870f8724adf4bcc076c",
       "conclusion": "success",
-      "completed_at": "2026-10-10T20:32:49Z",
+      "completed_at": "2026-10-11T04:00:39Z",
       "environment": "Ubuntu 24.04; Python 3.12; Chromium"
     },
     {
       "key": "browsers",
-      "run_id": 38083809396,
+      "run_id": 38109909497,
       "workflow": ".github/workflows/browser-acceptance.yml",
-      "head_sha": "ce2f9dad0549fcdcc56434b3905322731ada2fbd",
+      "head_sha": "6065bc8f3618672118d01870f8724adf4bcc076c",
       "conclusion": "success",
-      "completed_at": "2026-10-10T20:29:57Z",
+      "completed_at": "2026-10-11T03:57:24Z",
       "environment": "Ubuntu 24.04; Python 3.12; Chromium and Firefox"
     },
     {
       "key": "windows",
-      "run_id": 38083809437,
+      "run_id": 38109909498,
       "workflow": ".github/workflows/windows.yml",
-      "head_sha": "ce2f9dad0549fcdcc56434b3905322731ada2fbd",
+      "head_sha": "6065bc8f3618672118d01870f8724adf4bcc076c",
       "conclusion": "success",
-      "completed_at": "2026-10-10T20:36:50Z",
+      "completed_at": "2026-10-11T04:06:10Z",
       "environment": "Windows Server 2025; Python 3.12; Chromium"
     },
     {
       "key": "source",
-      "run_id": 38083809421,
+      "run_id": 38109909496,
       "workflow": ".github/workflows/source-package.yml",
-      "head_sha": "ce2f9dad0549fcdcc56434b3905322731ada2fbd",
+      "head_sha": "6065bc8f3618672118d01870f8724adf4bcc076c",
       "conclusion": "success",
-      "completed_at": "2026-10-10T20:28:04Z",
+      "completed_at": "2026-10-11T03:55:35Z",
       "environment": "Ubuntu 24.04; Python 3.12"
     }
   ],
@@ -49,15 +49,15 @@
   "limits_source": "docs/guide.es.md#materiales-para-las-comprobaciones-externas",
   "verification_method": "GitHub workflow run receipts for this immutable commit; native Word and human usability remain pending. Not a live monitor.",
   "release": {
-    "id": 409192233,
-    "tag": "v0.31.0",
-    "html_url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.0",
-    "published_at": "2026-10-10T20:37:17Z",
-    "source_commit": "ce2f9dad0549fcdcc56434b3905322731ada2fbd",
-    "asset_id": 628938008,
-    "asset_name": "report-gen-0.31.0-ce2f9dad0549.zip",
-    "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.31.0/report-gen-0.31.0-ce2f9dad0549.zip",
-    "sha256": "fa60728d81a0f0be9bfad5b53e9480e4ec0f61d7dd1841ab5bd988a5a95c32aa",
-    "bytes": 16415919
+    "id": 409401503,
+    "tag": "v0.31.1",
+    "html_url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.1",
+    "published_at": "2026-10-11T04:06:33Z",
+    "source_commit": "6065bc8f3618672118d01870f8724adf4bcc076c",
+    "asset_id": 629730138,
+    "asset_name": "report-gen-0.31.1-6065bc8f3618.zip",
+    "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.31.1/report-gen-0.31.1-6065bc8f3618.zip",
+    "sha256": "4f145b4532957b16de4e70730a65d2c33214bfa9ed82a7d845413441210dfd83",
+    "bytes": 16449779
   }
 }

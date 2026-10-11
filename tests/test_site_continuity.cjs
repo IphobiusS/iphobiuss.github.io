@@ -59,6 +59,19 @@ const server = http.createServer((req, res) => { const pathname = decodeURICompo
    const prevented = await page.evaluate(() => { const event = new KeyboardEvent('keydown', { key: '/', shiftKey: true, bubbles: true, cancelable: true }); document.body.dispatchEvent(event); return event.defaultPrevented; });
    assert.equal(prevented, true); assert.equal(await page.locator('input[name=q]').evaluate(el => el === document.activeElement), true);
   });
+  await check('search shortcut reopens a closed library when its search pane is already selected', async () => {
+   await page.goto(base + '/index.html'); await page.keyboard.press('/');
+   const field = page.locator('#search-input-home');
+   assert.equal(await field.evaluate(el => el === document.activeElement), true);
+   await page.locator('[data-library]>summary').click();
+   assert.equal(await page.locator('[data-library]').getAttribute('open'), null);
+   assert.equal(await page.locator('#tecnicas').getAttribute('hidden'), null);
+   await page.keyboard.press('/'); assert.equal(await field.isVisible(), true);
+   assert.equal(await field.evaluate(el => el === document.activeElement), true);
+   await page.locator('[data-library]>summary').click(); await page.keyboard.press('Control+k');
+   assert.equal(await field.isVisible(), true); assert.equal(await field.evaluate(el => el === document.activeElement), true);
+   await page.goto(base + '/buscar.html');
+  });
   await check('recent choice stores explicit submitted searches only', async () => {
    const field = page.locator('input[name=q]'); await field.fill('private draft'); await page.waitForTimeout(200); assert.equal(await page.evaluate(() => localStorage.getItem('iphobiuss:search-recents:v1')), null);
    await page.locator('.search-recents>summary').click(); await page.locator('[data-search-history-optin]').check(); await field.fill('dcsync'); await page.waitForTimeout(200); assert.equal(await page.evaluate(() => localStorage.getItem('iphobiuss:search-recents:v1')), null);

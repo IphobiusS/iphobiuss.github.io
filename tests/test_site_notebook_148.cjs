@@ -32,6 +32,28 @@ async function hold(context) { const locker = await other(context, '404.html'); 
 (async () => {
  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve)); base = 'http://127.0.0.1:' + server.address().port;
  browser = await chromium.launch({ executablePath: process.env.SITE_CHROMIUM || process.env.RG_CHROMIUM_EXECUTABLE, headless: true, args: ['--no-sandbox'] });
+ await check('saving a note keeps the keyboard on its action and the next Tab in its item', async () => {
+  const { page } = await setup(); await note(page).fill('Nota guardada con teclado');
+  const button = note(page).locator('xpath=ancestor::article').getByRole('button', { name: 'Guardar nota', exact: true });
+  await button.focus(); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem('iphobiuss:notebook:v1')).items[0].note === 'Nota guardada con teclado');
+  assert.equal(await button.evaluate(el => el === document.activeElement), true);
+  await page.keyboard.press('Tab'); assert.equal(await page.locator('[data-notebook-copy="cap.html"]').evaluate(el => el === document.activeElement), true);
+ });
+ await check('external updates preserve focused actions and manual Markdown selection', async () => {
+  const { context, page } = await setup(), b = await other(context, '404.html');
+  const copy = page.locator('[data-notebook-copy="cap.html"]'); await copy.focus();
+  await seed(b, book([item('cap.html', 'Nota original'), item('forest.html', 'Cambio 1')]));
+  await page.waitForFunction(() => document.querySelector('[data-notebook-note="forest.html"]').value === 'Cambio 1');
+  assert.equal(await copy.evaluate(el => el === document.activeElement), true);
+  await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw Error('denied'); } } }));
+  await copy.click(); const manual = page.locator('[data-notebook-markdown="cap.html"]'), before = await manual.inputValue();
+  await manual.evaluate(el => el.setSelectionRange(2, 12, 'backward'));
+  await seed(b, book([item('cap.html', 'Nota original'), item('forest.html', 'Cambio 2')]));
+  await page.waitForFunction(() => document.querySelector('[data-notebook-note="forest.html"]').value === 'Cambio 2');
+  assert.equal(await manual.isVisible(), true); assert.equal(await manual.inputValue(), before);
+  assert.deepEqual(await manual.evaluate(el => [el === document.activeElement, el.selectionStart, el.selectionEnd, el.selectionDirection]), [true, 2, 12, 'backward']);
+ });
  await check('invalid control characters never poison saved notes or unrelated entries', async () => {
   const { page } = await setup(), original = await raw(page); await note(page).fill('Pegado\u000bcon control'); await save(page);
   await page.waitForFunction(() => document.querySelector('[data-notebook-status]').textContent.includes('entrada inválida'));

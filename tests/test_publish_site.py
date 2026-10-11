@@ -86,6 +86,27 @@ class Publication(unittest.TestCase):
             PUBLISH.publish_tree(self.sha)
         self.assertEqual(git_at(self.remote, 'rev-parse', 'main'), expected)
 
+    def test_source_advanced_during_preparation_does_not_publish(self):
+        original_main = git_at(self.remote, 'rev-parse', 'main')
+        base_git = PUBLISH.git
+        advanced = []
+
+        def racing_git(*args, cwd=None):
+            result = base_git(*args, cwd=cwd)
+            if 'commit' in args and cwd is not None and Path(cwd).name == 'main':
+                git_at(self.source, 'commit', '--allow-empty', '-m', 'New source during preparation')
+                git_at(self.source, 'push', 'origin', 'source')
+                advanced.append(git_at(self.source, 'rev-parse', 'HEAD'))
+            return result
+
+        PUBLISH.git = racing_git
+        self.assertIsNone(PUBLISH.publish_tree(self.sha))
+        self.assertEqual(len(advanced), 1)
+        self.assertEqual(git_at(self.remote, 'rev-parse', 'source'), advanced[0])
+        self.assertEqual(git_at(self.remote, 'rev-parse', 'main'), original_main)
+        # Even the skipped detached commit must not leave an extra worktree.
+        self.assertEqual(git_at(self.source, 'worktree', 'list', '--porcelain').count('worktree '), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

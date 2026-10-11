@@ -138,7 +138,13 @@
   }
  };
  const render=(capture=true)=>{
-  const active=document.activeElement,focusedURL=active?.dataset.notebookNote,selection=focusedURL?[active.selectionStart,active.selectionEnd]:null;
+  const active=document.activeElement;
+  const focusAttribute=['note','save','copy','remove','open','conflict','markdown','restore','orphan-download','orphan'].map(name=>'data-notebook-'+name).find(name=>active?.hasAttribute(name));
+  const focusedURL=focusAttribute?active.getAttribute(focusAttribute):null;
+  const selection=focusAttribute&&typeof active.selectionStart==='number'?[active.selectionStart,active.selectionEnd,active.selectionDirection]:null;
+  // A cross-tab update must not discard the manual clipboard fallback while it
+  // is selected for copying. Keep its snapshot until the reader copies again.
+  const manualCopies=new Map([...document.querySelectorAll('[data-notebook-markdown]')].filter(input=>!input.parentElement.hidden).map(input=>[input.dataset.notebookMarkdown,input.value]));
   if(capture)captureDrafts();for(const [url,draft] of drafts){if(!data.items.some(item=>item.url===url)){orphans.set(url,draft);drafts.delete(url);}}
   for(const button of document.querySelectorAll('[data-bookmark]')){
    const saved=data.items.some(item=>item.url===button.dataset.bookmark);button.setAttribute('aria-pressed',String(saved));button.title=saved?'Pulsa de nuevo para quitar este favorito':'Guardar este enlace como favorito local';const mark=button.querySelector('[data-bookmark-mark]');if(mark)mark.textContent=saved?'✓':'';
@@ -146,11 +152,11 @@
   const list=document.querySelector('[data-notebook-list]');if(list){
    list.replaceChildren();if(!data.items.length)list.append(node('p','Todavía no hay favoritos. Abre una guía, técnica o caso y pulsa «Guardar en mi cuaderno».'));
    for(const [index,item] of data.items.entries()){
-    const article=node('article',undefined,'notebook-item'),h=node('h3');h.append(link(item));article.append(h);
+    const article=node('article',undefined,'notebook-item'),h=node('h3'),open=link(item);open.dataset.notebookOpen=item.url;h.append(open);article.append(h);
     const draft=drafts.get(item.url),conflict=draft&&draft.base!==item.note;
     if(draft)draft.conflict=Boolean(conflict);
     const label=node('label','Nota personal'),input=node('textarea');input.rows=3;input.maxLength=2000;input.value=draft?draft.value:item.note;input.dataset.notebookNote=item.url;input.dataset.savedNote=item.note;input.dataset.notebookTitle=item.title;input.dataset.updated=item.updated;input.id='note-'+index;label.htmlFor=input.id;article.append(label,input);
-    const actions=node('div',undefined,'actions'),saveButton=node('button',conflict?'Guardar mi borrador sobre la versión revisada':'Guardar nota','button');saveButton.type='button';
+    const actions=node('div',undefined,'actions'),saveButton=node('button',conflict?'Guardar mi borrador sobre la versión revisada':'Guardar nota','button');saveButton.type='button';saveButton.dataset.notebookSave=item.url;
     if(conflict){const details=node('div'),savedLabel=node('label','Versión guardada en otra pestaña'),saved=node('textarea');saved.id='conflict-'+index;saved.readOnly=true;saved.rows=3;saved.value=item.note;saved.dataset.notebookConflict=item.url;savedLabel.htmlFor=saved.id;details.append(node('p','La nota guardada cambió en otra pestaña. Compara ambas versiones antes de guardar tu borrador sobre ella.'),savedLabel,saved);article.append(details);}
     saveButton.addEventListener('click',async()=>{
      const value=input.value,expected=item.note;
@@ -159,14 +165,18 @@
     });
     const copy=node('button','Copiar nota en Markdown','button');copy.type='button';copy.dataset.notebookCopy=item.url;
     const copyHint=node('p','La copia incluye el texto actual de la nota, aunque aún no lo hayas guardado.','muted');
-    const fallback=node('div');fallback.hidden=true;const fallbackLabel=node('label','Markdown para copiar manualmente'),fallbackInput=node('textarea');fallbackInput.readOnly=true;fallbackInput.rows=6;fallbackInput.id='markdown-'+index;fallbackInput.dataset.notebookMarkdown=item.url;fallbackLabel.htmlFor=fallbackInput.id;fallback.append(fallbackLabel,fallbackInput);
+    const fallback=node('div');fallback.hidden=!manualCopies.has(item.url);const fallbackLabel=node('label','Markdown para copiar manualmente'),fallbackInput=node('textarea');fallbackInput.readOnly=true;fallbackInput.rows=6;fallbackInput.value=manualCopies.get(item.url)||'';fallbackInput.id='markdown-'+index;fallbackInput.dataset.notebookMarkdown=item.url;fallbackLabel.htmlFor=fallbackInput.id;fallback.append(fallbackLabel,fallbackInput);
     copy.addEventListener('click',async()=>{const text=markdown({...item,note:input.value});try{if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(text);fallback.hidden=true;status(input.value===item.note?'Nota copiada en Markdown.':'Texto actual copiado en Markdown; los cambios de la nota todavía no se han guardado.');}catch{fallbackInput.value=text;fallback.hidden=false;fallbackInput.focus();fallbackInput.select();status('No se pudo usar el portapapeles. El Markdown está seleccionado; cópialo con el menú del navegador o Ctrl+C / Command+C.');}});
-    const remove=node('button','Quitar favorito','button');remove.type='button';remove.addEventListener('click',async()=>{const ok=await mutate(base=>{const target=base.items.find(row=>row.url===item.url);if(target&&JSON.stringify(target)!==JSON.stringify(item))throw Error('El favorito cambió en otra pestaña. Revisa su contenido antes de retirarlo.');base.items=base.items.filter(row=>row.url!==item.url);return base;},'Favorito retirado; cualquier borrador sin guardar sigue disponible para recuperarlo.');if(ok){render();const next=document.querySelector('[data-notebook-restore]')||document.querySelector('[data-notebook-list] a')||document.querySelector('[data-notebook-export]');next?.focus();}});actions.append(saveButton,copy,remove);article.append(actions,copyHint,fallback);list.append(article);
+    const remove=node('button','Quitar favorito','button');remove.type='button';remove.dataset.notebookRemove=item.url;remove.addEventListener('click',async()=>{const ok=await mutate(base=>{const target=base.items.find(row=>row.url===item.url);if(target&&JSON.stringify(target)!==JSON.stringify(item))throw Error('El favorito cambió en otra pestaña. Revisa su contenido antes de retirarlo.');base.items=base.items.filter(row=>row.url!==item.url);return base;},'Favorito retirado; cualquier borrador sin guardar sigue disponible para recuperarlo.');if(ok){render();const next=document.querySelector('[data-notebook-restore]')||document.querySelector('[data-notebook-list] a')||document.querySelector('[data-notebook-export]');next?.focus();}});actions.append(saveButton,copy,remove);article.append(actions,copyHint,fallback);list.append(article);
    }
   }
-  if(focusedURL){const replacement=[...document.querySelectorAll('textarea[data-notebook-note]')].find(input=>input.dataset.notebookNote===focusedURL);if(replacement){replacement.focus({preventScroll:true});replacement.setSelectionRange(...selection);}}
   const resume=document.querySelector('[data-notebook-resume]');if(resume){resume.replaceChildren();if(!data.reading.length)resume.append(node('p','Aún no hay puntos de lectura. Se guardan al recorrer una guía o un caso con JavaScript activo.'));for(const item of [...data.reading].reverse()){const p=node('p');p.append(link(item));resume.append(p);}}
   recoveryPanel();renderOrphans();renderProgress();
+  if(focusAttribute){
+   const replacement=[...document.querySelectorAll('['+focusAttribute+']')].find(el=>el.getAttribute(focusAttribute)===focusedURL);
+   if(replacement){replacement.focus({preventScroll:true});if(selection)replacement.setSelectionRange(...selection);}
+   else {const next=[...document.querySelectorAll('[data-notebook-restore]')].find(el=>el.dataset.notebookRestore===focusedURL)||document.querySelector('[data-notebook-list] a')||document.querySelector('[data-notebook-export]');next?.focus({preventScroll:true});}
+  }
  };
  document.querySelectorAll('[data-bookmark]').forEach(button=>button.addEventListener('click',async()=>{
   const url=cleanURL(button.dataset.bookmark);if(!url)return;const found=data.items.find(item=>item.url===url);

@@ -3,6 +3,7 @@ from html import escape
 import base64
 import hashlib
 import json
+from datetime import date
 from lxml import html
 
 ENGLISH_PAGES = {
@@ -122,7 +123,9 @@ def english_chrome(filename, tree):
     # document() creates CSP hashes before this language-specific transformation.
     for script in tree.xpath('//script[@type="application/ld+json"]'):
         old = script.text or ''
-        schema = json.loads(old); schema['inLanguage'] = 'en'; schema['dateModified'] = '2026-10-10'
+        schema = json.loads(old); schema['inLanguage'] = 'en'
+        edition = tree.xpath('string(//*[contains(concat(" ",normalize-space(@class)," ")," edition-line ")]//time/@datetime)')
+        if edition: schema['dateModified'] = edition
         new = json.dumps(schema, ensure_ascii=False).replace('<', '\\u003c')
         script.text = new
         csp = tree.xpath('//meta[@http-equiv="Content-Security-Policy"]')[0]
@@ -178,6 +181,10 @@ def build_routes(document, page_head, record, report, root):
         source = source.replace('{{FINDING_DEMO}}', demo_widget('en'))
         source = source.replace('{{HTTP_SCENARIOS}}', str(http_summary['scenarios']))
         source = source.replace('{{HTTP_EXCHANGES}}', str(http_summary['http_exchanges']))
-        header = f'<div class="page-head"><div class="shell narrow"><p class="crumbs"><a href="english.html">English overview</a> / <a href="{spanish}" lang="es" hreflang="es">Español</a></p><h1>{escape(title)}</h1><p>{escape(description)}</p><p class="edition-line">Updated <time datetime="2026-10-10">10 October 2026</time></p></div></div>'
-        document(filename, title, description, header + '<div class="shell narrow professional-route" lang="en">' + source + '</div>', date_modified='2026-10-10')
+        edition = (report.get('release', {}).get('published_at') or '2026-10-10')[:10] if filename == 'report-gen-en.html' else '2026-10-10'
+        day = date.fromisoformat(edition)
+        month = ('January','February','March','April','May','June','July','August','September','October','November','December')[day.month-1]
+        edition_label = f'{day.day} {month} {day.year}'
+        header = f'<div class="page-head"><div class="shell narrow"><p class="crumbs"><a href="english.html">English overview</a> / <a href="{spanish}" lang="es" hreflang="es">Español</a></p><h1>{escape(title)}</h1><p>{escape(description)}</p><p class="edition-line">Updated <time datetime="{edition}">{edition_label}</time></p></div></div>'
+        document(filename, title, description, header + '<div class="shell narrow professional-route" lang="en">' + source + '</div>', date_modified=edition)
         record(title + ' (English)', filename, 'English', description, 'Portafolio')

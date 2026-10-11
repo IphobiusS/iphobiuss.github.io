@@ -51,6 +51,13 @@ def publish_tree(source_sha):
                 'user.email=41898282+github-actions[bot]@users.noreply.github.com',
                 'commit', '-m', f'Publish website from source {source_sha}', cwd=checkout)
             commit = git('rev-parse', 'HEAD', cwd=checkout)
+            # Preparing the worktree can overlap a new source push. Recheck
+            # after preparation so a superseded build does not become public.
+            git('fetch', '--no-tags', 'origin',
+                '+refs/heads/source:refs/remotes/origin/source')
+            if git('rev-parse', 'refs/remotes/origin/source') != source_sha:
+                print('A newer source commit arrived during preparation; skipping this publication.')
+                return None
             # A regular fast-forward push rejects concurrent changes to main.
             git('push', 'origin', 'HEAD:refs/heads/main', cwd=checkout)
             return commit
