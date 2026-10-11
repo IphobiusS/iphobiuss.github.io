@@ -1,5 +1,5 @@
 /* Shared dossier and local reading utilities. Uses the three existing theme palettes. */
-.dossier-page{padding-bottom:var(--s6)}
+.dossier-page{padding-bottom:var(--s6);container-type:inline-size}
 .dossier{margin-block:var(--s6);padding:var(--s3);border:1px solid var(--line-strong);border-radius:6px;background:var(--surface)}
 .dossier h2{margin-top:0;font-family:var(--sans);font-size:1.65rem;line-height:1.35}
 .dossier-kicker,.demo-label{color:var(--dim);font: .8rem/1.5 var(--mono);letter-spacing:.06em}
@@ -63,6 +63,8 @@ html[data-paused] .dossier-reveal{animation:none}
 .journey h2{font:600 1.3rem/1.4 var(--sans);margin:.2rem 0}
 .journey-time{font:.8rem/1.5 var(--mono);color:var(--dim);margin:0 0 .5rem}
 @media(max-width:760px){.journey-layout{display:block}.journey-rail{position:static;margin-bottom:1.5rem}.journey-rail ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.3rem .75rem}.journey-rail li{padding:0}.journey-rail li::after{display:none}.journey-rail a{min-height:52px}}
+@container(max-width:44rem){.journey-layout{display:block}.journey-rail{position:static;margin-bottom:1.5rem}.journey-rail ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.3rem .75rem}.journey-rail li{padding:0}.journey-rail li::after{display:none}.journey-rail a{min-height:52px}}
+@container(max-width:22rem){.journey-rail ol{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:400px){.journey-rail ol{grid-template-columns:minmax(0,1fr)}}
 @media print{.journey-layout{display:block}.journey-rail{position:static;margin-bottom:1rem}.journey-rail li::after{display:none}.journey-rail a[aria-current=location]{color:inherit}}
 .demo-tabs{display:flex;flex-wrap:wrap;gap:.7rem;margin:1.5rem 0}

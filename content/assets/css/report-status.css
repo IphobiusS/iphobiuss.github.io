@@ -8,6 +8,7 @@
   background:var(--surface);
   scroll-margin-top:6rem;
   overflow-wrap:anywhere;
+  container-type:inline-size;
 }
 .report-status h2{margin:0 0 .75rem;font:600 1.5rem/1.4 var(--sans)}
 .report-status .report-status-intro{margin:0;color:var(--dim);max-width:76ch}
@@ -29,6 +30,10 @@
 .report-status .report-status-limits{margin:1rem 0 0;color:var(--dim);font-size:.9rem;max-width:90ch}
 @media(max-width:700px){
   .report-status,.professional-route>.report-status{padding:min(1rem,4vw);margin-block:1.5rem}
+  .report-status-facts{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr));gap:1rem}
+  .report-status-revision{grid-column:1/-1}
+}
+@container(max-width:38rem){
   .report-status-facts{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr));gap:1rem}
   .report-status-revision{grid-column:1/-1}
 }

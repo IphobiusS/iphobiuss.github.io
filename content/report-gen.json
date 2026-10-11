@@ -1,7 +1,7 @@
 {
-  "version": "0.31.1",
-  "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.31.1/report-gen-0.31.1-6065bc8f3618.zip",
-  "guide": "https://github.com/IphobiusS/report-gen/blob/6065bc8f3618672118d01870f8724adf4bcc076c/docs/guide.es.md",
+  "version": "0.31.2",
+  "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.31.2/report-gen-0.31.2-d5accd81b711.zip",
+  "guide": "https://github.com/IphobiusS/report-gen/blob/d5accd81b711d752b83f41e3f8311d995c882758/docs/guide.es.md",
   "formats": [
     "PDF",
     "DOCX",
@@ -56,22 +56,22 @@
   "sample_banca_html_historical": "downloads/report-gen-informe-banco-lumbre.html",
   "sample_banca_html_historical_export_version": "0.23.0",
   "sample_banca_html_historical_source_yaml_sha256": "6f23d0912d91069fa32720fa148553a08e1f3b11ddd0aa4919b11afc343cab1f",
-  "download_name": "report-gen-0.31.1-6065bc8f3618.zip",
+  "download_name": "report-gen-0.31.2-d5accd81b711.zip",
   "guide_name": "Guía de uso",
   "distribution": "github-release",
-  "source_commit": "6065bc8f3618672118d01870f8724adf4bcc076c",
-  "download_sha256": "4f145b4532957b16de4e70730a65d2c33214bfa9ed82a7d845413441210dfd83",
-  "download_bytes": 16449779,
+  "source_commit": "d5accd81b711d752b83f41e3f8311d995c882758",
+  "download_sha256": "2c47ba8fc7143d402c0267c6a409f3bbe0411e9d9346774bcbe8d1c07e727833",
+  "download_bytes": 16496930,
   "release": {
-    "id": 409401503,
-    "tag": "v0.31.1",
-    "html_url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.1",
-    "published_at": "2026-10-11T04:06:33Z",
-    "source_commit": "6065bc8f3618672118d01870f8724adf4bcc076c",
-    "asset_id": 629730138,
-    "asset_name": "report-gen-0.31.1-6065bc8f3618.zip",
-    "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.31.1/report-gen-0.31.1-6065bc8f3618.zip",
-    "sha256": "4f145b4532957b16de4e70730a65d2c33214bfa9ed82a7d845413441210dfd83",
-    "bytes": 16449779
+    "id": 409426153,
+    "tag": "v0.31.2",
+    "html_url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.2",
+    "published_at": "2026-10-11T04:57:34Z",
+    "source_commit": "d5accd81b711d752b83f41e3f8311d995c882758",
+    "asset_id": 629823295,
+    "asset_name": "report-gen-0.31.2-d5accd81b711.zip",
+    "download": "https://github.com/IphobiusS/report-gen/releases/download/v0.31.2/report-gen-0.31.2-d5accd81b711.zip",
+    "sha256": "2c47ba8fc7143d402c0267c6a409f3bbe0411e9d9346774bcbe8d1c07e727833",
+    "bytes": 16496930
   }
 }

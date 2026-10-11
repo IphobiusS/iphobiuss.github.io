@@ -3,6 +3,15 @@
   "date_policy": "Las fechas son editoriales, con precisión de día. No se derivan del reloj de compilación. Los registros existentes conservan su id y published_on; modified_on cambia solo al revisar el contenido. Las guías históricas conservan sus GUID y no reciben una fecha de publicación inventada. Añadir una versión de report-gen solo después de publicarla en GitHub Releases.",
   "entries": [
     {
+      "id": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.2",
+      "url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.2",
+      "title": "report-gen 0.31.2: auditoría de estrés y recuperación",
+      "summary": "Aislamiento de borradores entre proyectos, recuperación tras interrupciones durante la preparación, límites de respaldo antes de cargar archivos y conservación de contenido Markdown en las exportaciones.",
+      "category": "report-gen",
+      "published_on": "2026-10-11",
+      "modified_on": "2026-10-11"
+    },
+    {
       "id": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.1",
       "url": "https://github.com/IphobiusS/report-gen/releases/tag/v0.31.1",
       "title": "report-gen 0.31.1: correcciones de la auditoría",

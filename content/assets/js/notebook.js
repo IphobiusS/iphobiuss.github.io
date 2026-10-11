@@ -44,7 +44,7 @@
  const now=()=>new Date().toISOString();
  const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
  const link=item=>{const a=node('a',item.title||item.url);a.href=item.url;return a;};
- const drafts=new Map(),orphans=new Map();
+ const drafts=new Map(),orphans=new Map();let copyGeneration=0;
  const captureDrafts=()=>document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>{
   const url=input.dataset.notebookNote,previous=drafts.get(url);
   if(input.value!==input.dataset.savedNote||previous?.conflict)drafts.set(url,{...previous,value:input.value,base:previous?.base??input.dataset.savedNote,item:previous?.item??{url,title:input.dataset.notebookTitle,note:input.dataset.savedNote,updated:input.dataset.updated}});
@@ -166,7 +166,20 @@
     const copy=node('button','Copiar nota en Markdown','button');copy.type='button';copy.dataset.notebookCopy=item.url;
     const copyHint=node('p','La copia incluye el texto actual de la nota, aunque aún no lo hayas guardado.','muted');
     const fallback=node('div');fallback.hidden=!manualCopies.has(item.url);const fallbackLabel=node('label','Markdown para copiar manualmente'),fallbackInput=node('textarea');fallbackInput.readOnly=true;fallbackInput.rows=6;fallbackInput.value=manualCopies.get(item.url)||'';fallbackInput.id='markdown-'+index;fallbackInput.dataset.notebookMarkdown=item.url;fallbackLabel.htmlFor=fallbackInput.id;fallback.append(fallbackLabel,fallbackInput);
-    copy.addEventListener('click',async()=>{const text=markdown({...item,note:input.value});try{if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(text);fallback.hidden=true;status(input.value===item.note?'Nota copiada en Markdown.':'Texto actual copiado en Markdown; los cambios de la nota todavía no se han guardado.');}catch{fallbackInput.value=text;fallback.hidden=false;fallbackInput.focus();fallbackInput.select();status('No se pudo usar el portapapeles. El Markdown está seleccionado; cópialo con el menú del navegador o Ctrl+C / Command+C.');}});
+    copy.addEventListener('click',async()=>{
+     const generation=++copyGeneration,value=input.value,text=markdown({...item,note:value});
+     // A browser permission may resolve after a storage event rebuilds this item.
+     // Find its current control and retain the requested snapshot, never a detached textarea.
+     const currentFallback=()=>generation===copyGeneration?document.querySelector('[data-notebook-markdown="'+CSS.escape(item.url)+'"]'):null;
+     try{
+      if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(text);
+      const current=currentFallback();if(!current)return;current.parentElement.hidden=true;
+      status(value===item.note?'Nota copiada en Markdown.':'Texto seleccionado copiado en Markdown; los cambios de la nota todavía no se han guardado.');
+     }catch{
+      const current=currentFallback();if(!current)return;current.value=text;current.parentElement.hidden=false;current.focus();current.select();
+      status('No se pudo usar el portapapeles. El Markdown está seleccionado; cópialo con el menú del navegador o Ctrl+C / Command+C.');
+     }
+    });
     const remove=node('button','Quitar favorito','button');remove.type='button';remove.dataset.notebookRemove=item.url;remove.addEventListener('click',async()=>{const ok=await mutate(base=>{const target=base.items.find(row=>row.url===item.url);if(target&&JSON.stringify(target)!==JSON.stringify(item))throw Error('El favorito cambió en otra pestaña. Revisa su contenido antes de retirarlo.');base.items=base.items.filter(row=>row.url!==item.url);return base;},'Favorito retirado; cualquier borrador sin guardar sigue disponible para recuperarlo.');if(ok){render();const next=document.querySelector('[data-notebook-restore]')||document.querySelector('[data-notebook-list] a')||document.querySelector('[data-notebook-export]');next?.focus();}});actions.append(saveButton,copy,remove);article.append(actions,copyHint,fallback);list.append(article);
    }
   }
@@ -223,7 +236,7 @@
  const closeClear=()=>{clearGeneration++;confirm.hidden=true;clear.setAttribute('aria-expanded','false');clear.focus();};
  clear?.addEventListener('click',()=>{clearGeneration++;confirm.hidden=false;clear.setAttribute('aria-expanded','true');document.querySelector('[data-notebook-clear-cancel]')?.focus();});
  document.querySelector('[data-notebook-clear-cancel]')?.addEventListener('click',closeClear);
- document.querySelector('[data-notebook-clear-yes]')?.addEventListener('click',async()=>{const generation=clearGeneration;await locked(()=>{if(generation!==clearGeneration)return;data=blank();drafts.clear();orphans.clear();document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>input.dataset.savedNote=input.value);let removed=true;try{localStorage.removeItem(KEY);persistent=Boolean(navigator.locks?.request);recovery=null;}catch{removed=false;persistent=false;}closeClear();render();status(removed?'Cuaderno eliminado de este navegador. Los archivos exportados permanecen en tu equipo.':'Se vació el cuaderno de esta página; no pudo confirmarse el borrado del almacenamiento del navegador.');});});
+ document.querySelector('[data-notebook-clear-yes]')?.addEventListener('click',async()=>{const generation=clearGeneration;await locked(()=>{if(generation!==clearGeneration)return;copyGeneration++;data=blank();drafts.clear();orphans.clear();document.querySelectorAll('textarea[data-notebook-note]').forEach(input=>input.dataset.savedNote=input.value);let removed=true;try{localStorage.removeItem(KEY);persistent=Boolean(navigator.locks?.request);recovery=null;}catch{removed=false;persistent=false;}closeClear();render();status(removed?'Cuaderno eliminado de este navegador. Los archivos exportados permanecen en tu equipo.':'Se vació el cuaderno de esta página; no pudo confirmarse el borrado del almacenamiento del navegador.');});});
  confirm?.addEventListener('keydown',event=>{if(event.key==='Escape'&&!confirm.hidden){event.stopPropagation();closeClear();}});
  const progress=document.querySelector('[data-reader-progress]');
  if(progress){

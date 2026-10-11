@@ -1,4 +1,4 @@
-# iphobiuss · sitio estático v14.9.1
+# iphobiuss · sitio estático v14.9.2
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
 
@@ -6,7 +6,7 @@ Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuent
 
 La primera entrada de cada sesión y una recarga explícita muestran una terminal durante unos 2,5 segundos, sobre un fondo opaco con lluvia verde de caracteres. Tras «Bienvenido», terminal y fondo se desvanecen durante medio segundo para revelar el sitio. Un cierre independiente a los 2,6 segundos evita depender del evento de transición. Puedes omitirla con el botón o Escape. La navegación interna, los enlaces con fragmento, volver atrás, la pausa del sitio y la reducción de movimiento conservan el acceso directo. En Apariencia puedes desactivar o reactivar la entrada; la preferencia se guarda únicamente en el navegador.
 
-Los atajos `/` y `Ctrl+K` reabren la biblioteca si está plegada y llevan el foco al buscador de la terminal. Las cabeceras y los índices del grafo conservan su lectura con texto ampliado.
+Los atajos `/` y `Ctrl+K` reabren la biblioteca si está plegada y llevan el foco al buscador de la terminal. Las cabeceras y los índices del grafo conservan su lectura con texto ampliado. Los resúmenes, recorridos y controles se reorganizan según el ancho disponible del bloque; en pantallas bajas, la terminal y Apariencia reducen sus márgenes para mantener accesibles los controles.
 
 La secuencia es decorativa y no representa escaneos ni verificaciones de seguridad. El contenido permanece disponible sin JavaScript, y la apertura y el cierre no dependen de que termine una descarga de recursos.
 
@@ -46,7 +46,7 @@ El buscador permite filtrar por tipo e idioma y compartir la selección mediante
 
 ## Cuaderno y recuperación
 
-Guardar una nota o recibir un cambio de otra pestaña conserva el foco del teclado, la selección y el texto de copia manual que esté abierto.
+Guardar una nota o recibir un cambio de otra pestaña conserva el foco del teclado, la selección y el texto de copia manual que esté abierto. Si el permiso del portapapeles termina después de una actualización, la copia manual aparece en el control vigente; las respuestas antiguas o posteriores al borrado se descartan.
 
 Las notas se validan antes de escribirlas: un carácter de control no puede invalidar silenciosamente todo el cuaderno. Si los datos guardados no se pueden interpretar, **Revisar cuaderno** permite descargar el original exacto, revisar las entradas válidas y exportar una copia revisada sin sobrescribirlo. **Descargar esta pestaña** conserva los datos que aún estén en memoria.
 

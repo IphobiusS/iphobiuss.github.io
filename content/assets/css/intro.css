@@ -66,3 +66,8 @@
   .intro-skip>span{display:none}
 }
 @media print{.site-intro,.site-intro::backdrop{display:none!important}}
+@media screen and (max-height:420px){
+  .intro-titlebar{padding:.3rem .85rem}
+  .intro-terminal{padding:.4rem 14px}
+  .intro-footer{padding:.25rem .85rem}
+}

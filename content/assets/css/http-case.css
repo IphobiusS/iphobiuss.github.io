@@ -1,5 +1,5 @@
 /* Keep native disclosure markers and usable text width at 200% on narrow screens. */
-.http-explorer{margin-block:1rem}
+.http-explorer{margin-block:1rem;container-type:inline-size}
 .http-explorer [hidden]{display:none!important}
 .http-explorer fieldset{min-width:0;margin:1rem 0;padding:1rem;border:1px solid var(--line-strong)}
 .http-explorer legend{max-width:100%;padding-inline:.4rem;font-weight:600}
@@ -16,6 +16,7 @@
 .http-comparison pre code{white-space:pre-wrap;overflow-wrap:anywhere!important}
 .http-explorer [data-http-state]{color:var(--dim);font-size:.9375rem}
 @media(max-width:700px){.http-fields,.http-comparison{grid-template-columns:minmax(0,1fr)}.http-explorer fieldset,.http-comparison article{padding:.75rem}}
+@container(max-width:36rem){.http-fields,.http-comparison{grid-template-columns:minmax(0,1fr)}.http-explorer fieldset,.http-comparison article{padding:min(.75rem,4vw)}}
 @media print{.http-explorer form,.http-explorer [data-http-state]{display:none}.http-comparison{display:block}.http-comparison article{break-inside:avoid;margin-block:1rem}}
 @media screen{
   .entry-details[data-http-scenario]>summary{display:list-item;list-style:revert;padding-inline:min(1rem,4vw)}
