@@ -109,7 +109,7 @@ const save=fatal=>fs.writeFileSync(path.join(output,'results.json'),JSON.stringi
   });
   for(const width of [320,390])for(const scale of [100,200])await check(`Selected labels and result position remain stable while query counts change ${width}/${scale}`,async()=>{
     const {context,page}=await create({viewport:{width,height:1000}});await page.goto(base+'/buscar.html');await ready(page);await page.evaluate(()=>document.fonts.ready);
-    if(scale===200)await page.addStyleTag({content:'html{font-size:200%!important}'});
+    if(scale===200)await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; });
     const setQuery=async query=>{
       await page.evaluate(query=>{const input=document.querySelector('input[name=q]');input.value=query;input.dispatchEvent(new Event('input',{bubbles:true}));},query);
       await page.waitForFunction(query=>new URL(location.href).searchParams.get('q')===(query||null),query);
@@ -134,7 +134,7 @@ const save=fatal=>fs.writeFileSync(path.join(output,'results.json'),JSON.stringi
   for(const theme of ['dark','paper','retro'])for(const [width,scale] of [[1440,100],[320,100],[320,200]])await check(`Layout and accessibility ${theme}/${width}/${scale}`,async()=>{
     const {context,page}=await create({viewport:{width,height:1000}});await context.addInitScript(theme=>{if(theme==='paper')localStorage.setItem('iphobiuss:theme','paper');if(theme==='retro')localStorage.setItem('iphobiuss:retro','on');window.__csp=[];document.addEventListener('securitypolicyviolation',e=>window.__csp.push(e.violatedDirective));},theme);
     const errors=[];page.on('pageerror',error=>errors.push(error.message));await page.goto(base+'/buscar.html?tipo=casos&idioma=en');await ready(page);await page.evaluate(()=>document.fonts.ready);
-    if(scale===200)await page.addStyleTag({content:'html{font-size:200%!important}'});
+    if(scale===200)await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; });
     await page.locator('#search-type').focus();assert.equal(await page.locator('#search-type').evaluate(n=>n===document.activeElement),true);
     const selectedSummary=page.locator('[data-search-filter-selection]');
     assert.equal(await selectedSummary.isVisible(),width<=480);

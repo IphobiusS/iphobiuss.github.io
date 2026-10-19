@@ -1,0 +1,66 @@
+IPHOBIUSS 15.0.0: LA PORTADA LE HABLA A QUIEN EVALÚA
+19 de octubre de 2026
+
+BASE
+iphobiuss-proyecto-v14.11.0.zip (entrega del mismo día). Entrega local; no se
+ha publicado en GitHub.
+
+CAMBIOS (las ocho propuestas aprobadas por el autor, más el lote E)
+1. Hero para quien evalúa: una sola acción principal; panel `cat
+   evidencia.txt` con report-gen, la API con dos identidades, sesiones seguras
+   y las credenciales (enlaces normales, completos sin JavaScript), más una
+   línea de disponibilidad.
+2. Terminal interactiva en el hero (content/assets/js/shell.js): help, whoami,
+   ls, cd, certs, cat cv, contacto, clear; Tab completa, flechas recorren el
+   historial, comandos sugeridos como botones. Responde sólo con #shell-data,
+   generado en el build. Sin red, sin eval, sin HTML a partir de lo escrito.
+3. Trabajo real en las tarjetas: recorte de la captura real de report-gen y el
+   intercambio HTTP «Alice intenta leer el informe de Bruno», leído de
+   content/labs/http-access/resultados.json (200 vulnerable, 404 corregido).
+4. Casos HTB dentro de «Habilidades con evidencia» (sistema, dificultad,
+   cadena y expediente); se retiró la sección «Casos HTB» repetida.
+   index.html#casos sigue llegando a los casos. Las rutas de estudio pasaron
+   a «Mi laboratorio». Las habilidades siguen a los trabajos propios.
+5. Disponibilidad en la cabecera de todas las páginas (traducida en inglés;
+   oculta bajo 360 px para no partir la cabecera).
+6. Técnicas: filtro de texto con la búsqueda del sitio (sinónimos), áreas como
+   botones, primera línea del comando en cada fila (acortada en el build, sin
+   recorte visual). q, area y cert viven en la URL.
+7. Guías y casos: pasos leídos marcados (localStorage de este navegador),
+   atajos j/k, índice lateral que sigue al paso actual, barra de paso actual
+   en móvil (fija, sin desplazar el texto al aparecer).
+8. Móvil: nombre, rol, acción principal y la primera prueba caben en la
+   primera pantalla de 390 x 844 (acción a 540 px, primera prueba a 685 px).
+E. Índices con nombre propio, role="group" donde había aria-label sin rol,
+   enlaces sueltos de 24 px o más, colores de Retro como tokens.
+
+CORRECCIONES RESPECTO DE LO ANUNCIADO
+- El índice lateral de las guías no estaba cortado: la captura terminaba ahí.
+  Se añadió igualmente que siga al paso actual.
+- La portada no quedó más corta: se retiró la sección de casos repetida, pero
+  la evidencia nueva ocupa más. Escritorio 1440: 3598 a 4137 px; móvil 390:
+  6597 a 7631 px. Las cuatro habilidades se mantienen (decisión anterior,
+  cubierta por test_site_skills_map).
+- Peso de la portada: 431 a 510 KB sin compresión (captura y shell.js).
+  tecnicas.html carga search-core.js (sinónimos del filtro).
+
+PRUEBAS
+28 de 28 scripts test:* pasan sobre el build definitivo: layout 274/274
+(70/70 dirigidas, 0 estados con infracciones de axe), compatibility 39/39,
+journey, home-actions, pets-project, intro, experience, skills y el resto. Durante el trabajo las pruebas encontraron y se corrigieron:
+desborde con texto al 200 % (línea de comandos y fragmento HTTP), contraste
+de un bloque de código en papel, texto recortado con puntos suspensivos en
+controles, un salto de diseño (CLS 0,98) al mostrar la barra de paso, un
+enlace a #contacto inexistente en recorrido.html y objetivos de 36 px.
+Pruebas ajustadas porque el diseño cambió a propósito (misma intención):
+test_site_home_actions_136 (una acción, evidencia, orden de teclado de 18
+controles del hero, nuevo orden de secciones), test_site_journey_133 y
+test_site_pets_prometheus_135 (la evidencia reemplaza a «Ver casos HTB»;
+#casos sigue llegando), test_site_layout_138 (un recorte de captura en la
+tarjeta), test_site_skills_map (10 enlaces; el primero es el caso Cap).
+
+ENTORNO Y LÍMITES
+Linux, Python 3.12, Node 22.22.0, Playwright 1.62.1, Chromium 153.0.8010.0
+(paquete de npm), axe-core 4.14.0. compatibility sólo con Chromium. No se probó
+en teléfonos reales ni con lectores de pantalla reales. La aceptación visual y
+el despliegue quedan a cargo del autor.

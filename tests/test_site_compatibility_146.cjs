@@ -131,6 +131,7 @@ function observeNativeIntro() {
       at: number(performance.now()), origin, open: active.open,
       modal: active.matches(':modal'), leaving: active.hasAttribute('data-intro-leaving'),
       opacity: number(style.opacity), backdrop: number(backdrop.opacity),
+      cleared: number((/inset\(0(?:px)? 0(?:px)? ([\d.]+)%/.exec(style.clipPath) || [0, 0])[1]),
       welcome: welcome ? number(getComputedStyle(welcome).opacity) : null,
       focusInside: active.contains(document.activeElement), visibility: document.visibilityState
     };
@@ -201,8 +202,9 @@ function observeNativeIntro() {
         assert.deepEqual(automaticTrace.events.filter(event => ['showModal', 'close'].includes(event.type)).map(event => event.type), ['showModal', 'close']);
         assert.ok(automaticTrace.frames.some(frame => frame.origin === 'showModal' && frame.open && frame.modal && frame.focusInside), 'Native opening must actually capture keyboard focus');
         assert.ok(automaticTrace.frames.some(frame => frame.open && !frame.leaving && frame.opacity === 1 && frame.backdrop === 1), 'The site must remain opaque before the reveal');
-        const fade = automaticTrace.frames.find(frame => frame.origin === 'animation-frame' && frame.open && frame.modal && frame.leaving && frame.opacity > 0 && frame.opacity < 1 && frame.backdrop > 0 && frame.backdrop < 1 && frame.welcome === 1);
-        assert.ok(fade, 'No rendered frame shows both intro surfaces fading together after Bienvenido');
+        // V14.11: the exit clears the screen upward instead of fading it.
+        const fade = automaticTrace.frames.find(frame => frame.origin === 'animation-frame' && frame.open && frame.modal && frame.leaving && frame.cleared > 0 && frame.cleared < 100 && frame.backdrop < 1 && frame.welcome === 1);
+        assert.ok(fade, 'No rendered frame shows the intro partly cleared after Bienvenido');
         assert.equal(await page.locator('main h1').isVisible(), true);
         assert.equal(await page.evaluate(() => !!document.activeElement?.closest('[data-site-intro]')), false);
         await settled(page);
@@ -360,7 +362,7 @@ function observeNativeIntro() {
       const inspected = [];
       for (const route of ['index.html', 'buscar.html', 'api-acceso.html'].filter(route => routes.includes(route))) {
         await page.goto(base + '/' + route);
-        await settled(page); await page.addStyleTag({ content: 'html{font-size:200%!important}' });
+        await settled(page); await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; });
         if (route === 'buscar.html') {
           await page.locator('#search-type').selectOption('herramientas');
           await page.locator('#search-language').selectOption('es');

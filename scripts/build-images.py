@@ -17,6 +17,7 @@ root = Path(__file__).resolve().parents[1]
 prepare_assets(preserve_generated=True)
 dist = root / 'dist'
 provenance_paths = [root / 'content/report-gen-capturas-procedencia.json']
+provenance_paths.append(root / 'content/report-gen-045-capturas-procedencia.json')
 demo_provenance = root / 'content/report-gen-demo-procedencia.json'
 if demo_provenance.is_file():
     provenance_paths.append(demo_provenance)
@@ -94,7 +95,7 @@ if len(brand_bytes) != brand['bytes'] or digest(brand_bytes) != brand['sha256']:
     raise SystemExit(f'{brand_source}: el logo original no coincide con su procedencia.')
 with Image.open(BytesIO(brand_bytes)) as original:
     source = original.convert('RGBA')
-    widths = (108, 216, 432, 648)
+    widths = (108, 216)
     geometry = [(f'assets/img/report-gen-brand-mark-{width}.webp', width,
                  round(width * source.height / source.width)) for width in widths]
     variants = brand.get('variants', [])

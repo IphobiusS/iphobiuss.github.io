@@ -18,6 +18,7 @@ def main():
         ['scripts/site_assets.py'],
         ['scripts/build-fonts.py'],
         ['scripts/build-images.py'],
+        ['scripts/build-illustration.py'],
         ['scripts/build-social.py'],
         ['scripts/optimize-report-html.py', '--in-place', '--manifest',
          'content/report-gen-html-optimization.json'],

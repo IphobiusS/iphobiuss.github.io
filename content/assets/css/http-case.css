@@ -9,7 +9,7 @@
 .http-explorer .actions{margin-block:1rem 0}
 .http-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
 .http-comparison article{min-width:0;padding:1rem;border:1px solid var(--line-strong);background:var(--surface)}
-.http-comparison h4{margin:0 0 .75rem;font:600 1.125rem/1.4 var(--sans)}
+.http-comparison h4{margin:0 0 .75rem;font:600 1.125rem/1.4 var(--mono)}
 .http-comparison p{margin-block:.75rem .5rem}
 .http-comparison .code-block{margin:.5rem 0 1rem}
 .http-comparison pre{max-width:100%;margin:0;padding:.6rem;white-space:pre-wrap;font:.875rem/1.65 var(--mono)}

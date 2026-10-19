@@ -1,0 +1,106 @@
+IPHOBIUSS.GITHUB.IO 15.1.1 — AUDITORÍA PREVIA A PUBLICACIÓN
+19 de octubre de 2026
+
+ENTRADA Y ALCANCE
+Entrega auditada: iphobiuss-proyecto-v15.1.0 (1).zip.
+SHA-256: eb6f8d455305d71fd27719c6fa1cf9224c1f52b2574aecc96aa1c44573f0fdd9.
+Base remota source: 5b4137eb0ce62bd5ac88fe639bfdcff7cff1e204.
+Base remota main: 1dcd0084d5ddc54b014af69e29a22aeac778b5b3.
+Se revisaron fuentes, generadores, distribución, enlaces, navegación,
+terminal, búsqueda, cuaderno, marcas de lectura, idiomas, política CSP,
+metadatos, recursos y flujo de publicación. No se modificó report-gen.
+
+INTEGRIDAD Y CONSTRUCCIÓN
+- ZIP: 355 entradas, sin rutas peligrosas ni enlaces simbólicos.
+- Los 320 archivos del manifiesto recibido coinciden con sus SHA-256.
+- La primera reconstrucción produjo los 125 archivos públicos del ZIP
+  idénticos byte a byte; la auditoría parte de fuentes reproducibles.
+- La versión corregida también superó test_clean_build: dos reconstrucciones
+  idénticas, eliminación de salida obsoleta y fuentes de entrada inalteradas.
+- 30 páginas principales y 2 muestras HTML descargables.
+- 1.950 destinos locales verificados: sin enlaces ni recursos ausentes.
+- Sin IDs duplicados, imágenes sin alt o variantes srcset inexistentes.
+- Sintaxis de los scripts y git diff --check correctos.
+
+HALLAZGOS CORREGIDOS
+1. Saltos registrados como lectura. El índice y el atajo j podían marcar
+   como leída la sección abandonada sin haberla recorrido. Las marcas ahora
+   exigen desplazamiento de lectura; anclas, j/k, cambios de geometría y
+   restauración de navegación no acreditan lectura por sí mismos.
+2. Borrado inconsistente entre pestañas. Borrar el cuaderno en otra pestaña
+   dejaba marcas visibles y el siguiente desplazamiento podía restaurarlas.
+   Se escuchan cambios de almacenamiento y se consulta el estado vigente
+   antes de guardar, conservando sólo las nuevas secciones recorridas.
+3. Texto inicial en inglés. Cinco páginas EN contenían inicialmente
+   «Desactivado», aunque JavaScript lo corregía. Ahora el generador entrega
+   On/Off desde el HTML inicial, antes de ejecutar JavaScript.
+4. Falso positivo del verificador de fuentes. Un carácter combinante literal
+   dentro de la expresión regular de la terminal se contaba como glifo de
+   interfaz ausente. Se expresó el mismo rango mediante escapes Unicode;
+   la normalización de acentos y el repertorio de fuentes no cambian.
+
+REGRESIONES Y PRUEBAS
+- Seis nuevas regresiones de lectura: 6/6 en la distribución corregida.
+  Cuatro fallaban contra la distribución original, demostrando los defectos.
+- Ocho comprobaciones nuevas de la terminal: 8/8. Comandos, enlaces, alias,
+  acentos, historial/borrador, Tab, clear, cd, propiedades heredadas,
+  entradas HTML inertes, móvil y fallback sin JavaScript.
+- Ambas regresiones se integran en test:guide-progress y test:home-actions,
+  respectivamente, para ejecutarse también en la publicación continua.
+- 16 grupos de pruebas funcionales de navegador: 351/351 comprobaciones,
+  incluidas las seis regresiones de lectura. La terminal suma sus 8 pruebas.
+- Los 28 grupos test:* de package.json quedaron cubiertos, más la validación
+  de fuentes, las regresiones nuevas y comprobaciones directas de contenido.
+- Matriz visual: 274/274 estados y 70/70 comprobaciones dirigidas. Móvil y
+  escritorio, tres temas, texto ampliado, controles, navegación y CSP.
+- Repetición final de las páginas inglesas afectadas: 45/45 estados.
+- Compatibilidad Firefox 153 en Linux: 39/39 comprobaciones, 30 páginas.
+- Laboratorio HTTP: 10/10 pruebas Python. Sesiones: 7/7 pruebas Python;
+  recursos de marca: 2/2. Simulador IA local: 28/28 comprobaciones.
+- npm audit: cero vulnerabilidades conocidas notificadas para el lockfile
+  consultado en esta ejecución. No es una garantía de ausencia de fallos.
+
+TRAZABILIDAD DE LA EJECUCIÓN
+La matriz completa y journey/graphs/pets/home-actions se ejecutaron sobre la
+reconstrucción idéntica de 15.1.0. Después se regeneró 15.1.1. Guía, evolution
+e intro se repitieron íntegramente sobre la distribución final; las restantes
+suites, terminal, Firefox, páginas EN y mediciones finales usaron 15.1.1.
+El fallo esperado de las nuevas regresiones sobre la distribución original
+se conserva como evidencia de reproducción; no se contabiliza como aprobado.
+GitHub vuelve a ejecutar su flujo completo sobre el commit publicado.
+
+DISEÑO, ACCESIBILIDAD Y RENDIMIENTO
+Se conservan la nueva portada, el estilo retro, las mascotas, la ilustración,
+los temas y la terminal. Las capturas de escritorio y móvil se inspeccionaron.
+Axe no detectó infracciones en la matriz; 182 estados tuvieron comprobaciones
+incompletas de contraste que requieren juicio humano. No se afirma una
+certificación completa de accesibilidad ni una prueba con lector de pantalla.
+Los presupuestos estáticos de 30 páginas pasan. Una medición de laboratorio
+móvil con CPU x4 y red limitada observó LCP entre 1,08 y 1,63 s en cinco rutas;
+CLS máximo 0,000014. La intro descubrió el contenido a los 3,67 s bajo ese
+perfil. Son observaciones de una ejecución, no métricas reales de usuarios.
+
+CONTENIDO Y SEGURIDAD
+Release 0.45.0 de report-gen, sus tres assets y los cuatro workflows enlazados
+verificados en GitHub: misma revisión 9693c808ee35d0fa438159ff8752af7f5345b31f.
+Las muestras históricas conservan sus versiones. Los enlaces ES/EN,
+canonical, sitemap y exclusiones noindex son coherentes. El CV público pasó
+sus comprobaciones de datos y enlaces. La terminal no ejecuta comandos del
+sistema; construye nodos de texto y enlaces a partir de datos del sitio.
+No se confirmaron más defectos de seguridad ni código muerto adicional en
+los componentes revisados. Se conservaron las retiradas de código y recursos
+incluidas por el autor. Metadatos de empaquetado y capturas de QA quedan
+excluidos de los commits mediante .gitignore.
+
+LÍMITES Y PUBLICACIÓN
+Entorno local: Python 3.12.14, Node 24.19.0, Playwright 1.62.1, Chromium
+153.0.8010.0 y Firefox 153.0. No se usaron teléfonos físicos ni lector de
+pantalla real. WebKit local no se ejecutó por dependencias del sistema;
+el flujo de GitHub exige WebKit en macOS, además de Firefox en Linux.
+No se alteraron credenciales, declaraciones profesionales, políticas del
+repositorio, ni el estado editorial de PrometheuS recibido en el ZIP.
+La publicación continúa por source -> distribución verificada -> main.
+El workflow exige que ambos motores prueben los mismos archivos, espera a
+GitHub Pages y compara todos los bytes públicos con la distribución probada.
+El resultado final y el commit desplegado son verificables en:
+https://github.com/IphobiusS/iphobiuss.github.io/actions

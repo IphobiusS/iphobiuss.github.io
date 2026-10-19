@@ -74,7 +74,7 @@ const save = error => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
         if (theme === 'retro') localStorage.setItem('iphobiuss:retro', 'on');
       }, theme);
       const page = await context.newPage(); await page.goto(base + '/sesiones-seguras.html#evidencia-alice_expiry');
-      if (size.scale === 200) await page.addStyleTag({ content: 'html{font-size:200%!important}' });
+      if (size.scale === 200) await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; });
       await page.evaluate(() => document.fonts.ready);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'No page overflow');
       const geometry = await page.locator('[data-session-scenario] > summary').evaluateAll(nodes => nodes.map(node => {

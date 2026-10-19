@@ -87,7 +87,7 @@ const save = fatal => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     await page.locator('[data-appearance]>summary').click();
     assert.equal(await page.locator('[data-appearance]>summary').innerText(), 'Appearance');
     await page.locator('[data-paper-toggle]').click();
-    assert.match(await page.locator('[data-paper-toggle]').getAttribute('aria-label'), /^Paper ON/);
+    assert.match(await page.locator('[data-paper-toggle]').getAttribute('aria-label'), /^Paper on/);
     assert.match(await page.locator('#action-status').innerText(), /^Paper enabled/);
     await page.locator('[data-retro-toggle]').click();
     assert.match(await page.locator('[data-retro-toggle]').getAttribute('aria-label'), /CRT appearance/);

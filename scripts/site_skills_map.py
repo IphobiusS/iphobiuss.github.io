@@ -15,6 +15,10 @@ SKILLS = (
         "scope": "Retrospectiva documentada; no incluye el PCAP original ni un retest.",
         "sources": (("cap.html#idor", "Leer el análisis de IDOR"),
                     ("cap-caso.html#expediente", "Seguir las decisiones del caso")),
+        # V15: el caso HTB vive aquí (antes también en una sección «Casos HTB» aparte).
+        "case": {"href": "cap-caso.html", "title": "Caso Cap", "meta": "Linux · Easy",
+                 "chain": ("captura ajena", "FTP", "SSH", "CAP_SETUID", "root"),
+                 "label": "Cadena documentada: captura de otra sesión, credenciales FTP, acceso SSH, CAP_SETUID, root"},
     },
     {
         "id": "ad",
@@ -24,6 +28,9 @@ SKILLS = (
         "scope": "Retrospectiva documentada; DCSync no acredita pertenencia a Domain Admins.",
         "sources": (("forest.html#bloodhound", "Revisar grupos y permisos"),
                     ("forest.html#privesc", "Leer la escalada documentada")),
+        "case": {"href": "forest-caso.html", "title": "Caso Forest", "meta": "Windows · Easy",
+                 "chain": ("AS-REP", "WinRM", "WriteDacl", "DCSync", "PtH"),
+                 "label": "Cadena documentada: AS-REP, WinRM, WriteDacl, DCSync, Pass-the-Hash"},
     },
     {
         "id": "automation",
@@ -46,6 +53,16 @@ SKILLS = (
 )
 
 
+def case_block(case):
+    """Sistema, dificultad y cadena del caso, con enlace a su expediente."""
+    if not case:
+        return ""
+    chain = "".join(f"<span>{escape(step)}</span>" for step in case["chain"])
+    return (f'<a class="skill-case" href="{escape(case["href"], quote=True)}">'
+            f'<span class="case-meta">{escape(case["meta"])}</span><strong>{escape(case["title"])}</strong>'
+            f'<span class="case-chain" role="img" aria-label="{escape(case["label"], quote=True)}">{chain}</span></a>')
+
+
 def render_home():
     """Use ordinary links so evidence remains reachable without scripts."""
     cards = []
@@ -61,13 +78,15 @@ def render_home():
             f'<h3 id="{identifier}">{escape(skill["name"])}</h3>'
             f'<p class="skill-contribution">{escape(skill["contribution"])}</p>'
             f'<p class="skill-scope">{escape(skill["scope"])}</p>'
+            + case_block(skill.get("case")) +
             f'<div class="skill-sources">{links}</div></article>'
         )
     return (
         '<section class="shell skills-map" id="habilidades" aria-labelledby="habilidades-title">'
         '<div class="skills-map-heading"><h2 id="habilidades-title">Habilidades con evidencia</h2>'
-        '<p>Qué aporto en cada área y dónde puedes revisarlo. Cada ejemplo indica su contexto y sus límites.</p></div>'
-        '<div class="skills-map-grid">' + "".join(cards) + '</div></section>'
+        '<p>Qué aporto en cada área y dónde puedes revisarlo, con los casos HTB documentados. Cada ejemplo indica su contexto y sus límites.</p></div>'
+        # Los enlaces antiguos a index.html#casos llegan a esta misma rejilla.
+        '<div class="skills-map-grid" id="casos" tabindex="-1">' + "".join(cards) + '</div></section>'
     )
 
 
@@ -78,9 +97,8 @@ def enhance_document(filename, tree):
     add_resource(tree, "link", rel="stylesheet", href="assets/css/skills-map.css")
     if tree.xpath('//*[@id="habilidades"]'):
         return
-    certifications = tree.xpath(
-        '//section[contains(concat(" ", normalize-space(@class), " "), " home-certifications ")]'
-    )
-    if len(certifications) != 1:
-        raise ValueError("The skills map requires one home certifications section")
-    certifications[0].addprevious(html.fragment_fromstring(render_home()))
+    # V15: la evidencia sigue a los trabajos propios (antes iba junto a las certificaciones).
+    featured = tree.xpath('//section[@id="proyecto-destacado"]')
+    if len(featured) != 1:
+        raise ValueError("The skills map requires the featured work section")
+    featured[0].addnext(html.fragment_fromstring(render_home()))

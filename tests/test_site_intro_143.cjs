@@ -113,10 +113,13 @@ async function dismiss(page) {
     assert.deepEqual(beforeExit, { opacity: '1', backdrop: '1' }, 'the site remains fully covered before the deliberate reveal');
     await page.waitForFunction(() => document.querySelector('[data-site-intro]').hasAttribute('data-intro-leaving'));
     await page.waitForTimeout(170);
-    const midway = await page.locator('[data-site-intro]').evaluate(dialog => ({ open: dialog.open, modal: dialog.matches(':modal'), opacity: Number(getComputedStyle(dialog).opacity), backdrop: Number(getComputedStyle(dialog, '::backdrop').opacity), welcome: Number(getComputedStyle(dialog.querySelector('.intro-line-ready')).opacity), card: getComputedStyle(dialog.querySelector('.intro-card')).transform }));
-    assert.equal(midway.open, true); assert.equal(midway.modal, true, 'the native modal remains active while it is fading');
-    assert.ok(midway.opacity > 0 && midway.opacity < 1, 'the dialog is visibly between opaque and transparent');
-    assert.ok(midway.backdrop > 0 && midway.backdrop < 1, 'the native backdrop fades too, so it cannot conceal the reveal');
+    // V14.11: the exit is a `clear` wipe. Midway, part of the screen is uncovered and the
+    // native backdrop has already stepped aside, so it cannot conceal the reveal.
+    const midway = await page.locator('[data-site-intro]').evaluate(dialog => ({ open: dialog.open, modal: dialog.matches(':modal'), clip: getComputedStyle(dialog).clipPath, backdrop: Number(getComputedStyle(dialog, '::backdrop').opacity), welcome: Number(getComputedStyle(dialog.querySelector('.intro-line-ready')).opacity), card: getComputedStyle(dialog.querySelector('.intro-card')).transform }));
+    const uncovered = (/inset\(0(?:px)? 0(?:px)? ([\d.]+)%/.exec(midway.clip) || [])[1];
+    assert.equal(midway.open, true); assert.equal(midway.modal, true, 'the native modal remains active while it clears');
+    assert.ok(Number(uncovered) > 0 && Number(uncovered) < 100, 'the screen is partly cleared, neither covered nor gone: ' + midway.clip);
+    assert.ok(midway.backdrop < 1, 'the native backdrop steps aside, so it cannot conceal the reveal');
     assert.equal(midway.welcome, 1, 'the welcome line finishes before the exit starts');
     assert.notEqual(midway.card, 'none', 'the terminal moves gently as it leaves');
     await page.screenshot({ path: path.join(output, 'intro-reveal-midpoint.png') });

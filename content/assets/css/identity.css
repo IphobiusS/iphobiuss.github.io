@@ -8,9 +8,9 @@
   body{background-image:none}
 
   /* Tipografía: Plex Mono estructura, Plex Sans lectura. Pixel solo en Retro. */
-  h1,h2,h3,h4,.pane h1,.pane-title,.sec-name,.entry-details>summary,.result-item h2,.feature-list h3,.readme-start h2,.lab-box h2,.egg-box h2,.pagination-note h2,.search-empty h2,.project-page .proj-name,.project-tagline,.series-nav span{font-family:var(--mono);letter-spacing:0}
-  h1,.pane h1,.project-page .proj-name{font-weight:600;font-size:clamp(1.75rem,3.2vw,2.5rem);line-height:1.2;text-wrap:balance;overflow-wrap:anywhere}
-  h2{font-size:1.4rem;line-height:1.3}
+  h1,h2,h3,h4,.pane-title,.sec-name,.entry-details>summary,.result-item h2,.feature-list h3,.readme-start h2,.lab-box h2,.egg-box h2,.pagination-note h2,.search-empty h2,.project-page .proj-name,.project-tagline,.series-nav span{font-family:var(--mono);letter-spacing:0}
+  h1,.project-page .proj-name{font-weight:600;font-size:clamp(1.75rem,3.2vw,2.5rem);line-height:1.2;text-wrap:balance;overflow-wrap:anywhere}
+  h2{font-size:1.375rem;line-height:1.3}
   h3{font-size:1.0625rem}
   .pixel,.step-no .pixel{font-family:var(--mono)}
   .sec-id{font:600 .8125rem/1.5 var(--mono);color:var(--acc)}
@@ -47,7 +47,9 @@
 
   /* Controles: rectos, sin sombra pixel; el estado se ve en el borde. */
   .button{min-height:46px;padding:.75rem 1.1rem;border-radius:0;box-shadow:none;font:600 .875rem/1.4 var(--mono)}
-  .button:active{transform:none;box-shadow:none}
+  /* V14.11: al presionar, el botón cede un 3 % (respuesta táctil inmediata); el color sigue cambiando sin transición. */
+  .button{transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+  .button:active{transform:scale(.97);box-shadow:none}
   .button:hover{border-color:var(--acc);color:var(--ink-bright)}
   .button.primary{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
   .button.primary:hover{background:var(--acc-hover);border-color:var(--acc-hover);color:var(--on-acc)}
@@ -75,7 +77,7 @@
   .welcome-lead{position:relative;min-width:0}
   .welcome h1,.welcome-role,.welcome-description,.welcome-actions,.welcome-links{position:relative}
   .welcome-creds{position:relative;border:1px solid var(--line);background:var(--bg);padding:1.25rem 1.5rem}
-  .welcome-creds-label{margin:0 0 1rem;color:var(--ink-bright);font:600 1.1rem/1.5 var(--mono)}
+  .welcome-creds-label{margin:0 0 1rem;color:var(--ink-bright);font:600 1.125rem/1.5 var(--mono)}
   .welcome-badges{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:.5rem}
   .welcome-badges .badge{min-width:0;min-height:44px;justify-content:center}
   .welcome h1{font-size:clamp(1.8rem,3.2vw,2.5rem);line-height:1.15;margin:0 0 .35rem;text-wrap:initial;overflow-wrap:anywhere}
@@ -93,10 +95,14 @@
     .welcome-links{display:grid;grid-template-columns:minmax(0,1fr);gap:0;width:100%}
     .welcome-links a{justify-self:start}
   }
-  .button::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#ffffff22 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
-  .button:hover::before{transform:translateX(120%);transition:transform .6s ease}
+  /* V14.11: el brillo al pasar el puntero queda sólo en las acciones de la presentación y sólo con mouse;
+     el resto de los botones (cuaderno, filtros, entrada) responde con borde y color, sin decoración. */
   .button{position:relative;overflow:hidden}
-  .motion-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:.3rem .6rem;border:1px solid var(--line-strong);border-radius:0;color:var(--dim);background:var(--surface);font:600 .6875rem/1.5 var(--mono)}
+  @media(hover:hover) and (pointer:fine){
+    .welcome-actions .button::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#ffffff22 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
+    .welcome-actions .button:hover::before{transform:translateX(120%);transition:transform 450ms cubic-bezier(.23,1,.32,1)}
+  }
+  .motion-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:.3rem .6rem;border:1px solid var(--line-strong);border-radius:0;color:var(--dim);background:var(--surface);font:600 .75rem/1.5 var(--mono)}
   .motion-toggle:hover{border-color:var(--acc);color:var(--ink)}
   .motion-toggle[aria-pressed=true]{color:var(--acc);border-color:var(--acc)}
   .motion-toggle:disabled{cursor:default;border-color:var(--line-strong);color:var(--dim)}
@@ -118,7 +124,7 @@
   .spane-report{grid-area:report}
   .spane.active{box-shadow:inset 0 0 0 1px var(--acc)}
   .spane.active .ptitle b{color:var(--acc)}
-  .ptitle{display:flex;justify-content:space-between;gap:.75rem;margin:0 0 .5rem;color:var(--dim);font-size:.6875rem}
+  .ptitle{display:flex;justify-content:space-between;gap:.75rem;margin:0 0 .5rem;color:var(--dim);font-size:.75rem}
   .ptitle b{color:var(--ink);font-weight:600}
   .ptitle a{color:var(--link);text-decoration:none;white-space:normal;display:inline-flex;align-items:center;min-height:44px;margin:-.9rem 0}
   .ptitle a:hover{text-decoration:underline}
@@ -162,13 +168,13 @@
   .tty-404 .tcmd{color:var(--acc)}
   .tty-404 .prompt-output{color:var(--warn);margin:.25rem 0}
   .tty-404 .prompt-ls{color:var(--link);margin:.25rem 0 0}
-  .gcap{margin:.35rem 0 0;color:var(--dim);font:.6875rem/1.55 var(--sans);min-height:2.6em}
+  .gcap{margin:.35rem 0 0;color:var(--dim);font:.75rem/1.55 var(--sans);min-height:2.6em}
   .gph .gn{cursor:help}
   .gph .gn:focus-visible circle{stroke:var(--acc)}
   .gph .gn[data-current] circle{stroke:var(--acc);stroke-width:2.5}
   .gsteps{list-style:none;margin:.5rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.3rem}
   .gsteps li{margin:0}
-  .gstep{display:inline-flex;align-items:center;gap:.3rem;min-height:44px;padding:.4rem .6rem;border:1px solid var(--line);background:var(--surface);color:var(--dim);font:600 .6875rem/1.4 var(--mono)}
+  .gstep{display:inline-flex;align-items:center;gap:.3rem;min-height:44px;padding:.4rem .6rem;border:1px solid var(--line);background:var(--surface);color:var(--dim);font:600 .75rem/1.4 var(--mono)}
   button.gstep{cursor:pointer}
   button.gstep:hover{border-color:var(--acc);color:var(--ink)}
   .gstep[aria-pressed=true]{border-color:var(--acc);color:var(--acc)}
@@ -178,7 +184,7 @@
   .rbar{position:relative;height:10px;border:1px solid var(--line-strong);background:var(--bg);margin:.35rem 0}
   .rbar i{position:absolute;inset:0;background:var(--acc);transform-origin:left;transform:scaleX(1)}
   .rpct{display:flex;justify-content:space-between;font-size:.75rem}
-  .sev-head{margin:.35rem 0 0;color:var(--dim);font-size:.6875rem}
+  .sev-head{margin:.35rem 0 0;color:var(--dim);font-size:.75rem}
   .sev{display:grid;grid-template-columns:4.5rem minmax(0,1fr) 1.5rem;gap:.12rem .6rem;align-items:center;margin-top:.35rem}
   .sev .sb{display:block;width:100%;height:9px;background:var(--line)}
   .sev .sbi{transform-origin:0 0;transform:scaleX(1)}
@@ -195,16 +201,16 @@
   .session-status .sw{display:inline-block;margin-right:1rem}
   .session-status .sw.now::after{content:'*'}
   .session-right{font-weight:400;font-variant-numeric:tabular-nums}
-  html[data-retro=on] .session-status{background:#a6f36b;color:#0a160a}
+  html[data-retro=on] .session-status{background:var(--phosphor);color:var(--phosphor-ink)}
   /* Idea 5: encendido CRT al activar Retro (una vez, salvo movimiento reducido). */
-  .crt-on{position:fixed;inset:0;z-index:200;pointer-events:none;background:#c5ff9b}
+  .crt-on{position:fixed;inset:0;z-index:200;pointer-events:none;background:var(--phosphor-bright,#c5ff9b)}
   .crt-on.go{animation:crt-ignite .5s ease-out forwards}
   @keyframes crt-ignite{0%{opacity:0;transform:scaleY(.002)}30%{opacity:.9;transform:scaleY(.01)}60%{opacity:.5;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}
-  html[data-retro=on] .tl.tb{color:#c5ff9b;text-shadow:0 0 6px #a6f36b66}
+  html[data-retro=on] .tl.tb{color:var(--phosphor-bright);text-shadow:0 0 6px color-mix(in srgb,var(--phosphor) 40%,transparent)}
 
   /* Arranque: barrido de pantalla y estados previos a la animación (solo mientras arranca) */
-  .session::after{content:'';position:absolute;left:0;right:0;top:0;height:18%;background:linear-gradient(to bottom,transparent,#6ee28318,transparent);pointer-events:none;opacity:0;transform:translateY(-120%);will-change:transform}
-  .session.boot::after{animation:sweep 1.3s ease-in-out .1s both}
+  .session::after{content:'';position:absolute;left:0;right:0;top:0;height:18%;background:linear-gradient(to bottom,transparent,#6ee28318,transparent);pointer-events:none;opacity:0;transform:translateY(-120%)}
+  .session.boot::after{animation:sweep 1.3s ease-in-out .1s both;will-change:transform}
   .session.boot{animation:rise .35s ease-out both}
   .boot .tl{opacity:0;transform:translateY(3px)}
   .boot .tl.on{opacity:1;transform:none;transition:opacity .18s ease-out,transform .18s ease-out}
@@ -224,7 +230,20 @@
 
 
   /* Fondo: red de nodos y paquetes en canvas, solo en la portada, detrás de todo */
-  .net{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.9}
+  .net{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.9;transition:opacity 600ms cubic-bezier(.23,1,.32,1)}
+  /* V14.11: mientras la entrada cubre la pantalla, la red no se pinta; al cerrarse aparece y empieza a moverse. */
+  html[data-intro-active] .net{opacity:0;transition:none}
+  /* V14.11: tras la entrada, las tres pruebas de `cat evidencia.txt` se listan una a una (60 ms entre líneas),
+     como la salida del comando. Mientras la pantalla se limpia ya están reservadas pero sin pintar, así que no
+     parpadean. Sólo ocurre al llegar desde la entrada; una visita normal las encuentra en su sitio. */
+  @media(prefers-reduced-motion:no-preference){
+    html[data-intro-active]:not([data-paused]) .hero-evidence>li{opacity:0}
+    html[data-arrive]:not([data-paused]) .hero-evidence>li{animation:ls-in 240ms cubic-bezier(.23,1,.32,1) 120ms both}
+    html[data-arrive]:not([data-paused]) .hero-evidence>li:nth-child(2){animation-delay:180ms}
+    html[data-arrive]:not([data-paused]) .hero-evidence>li:nth-child(3){animation-delay:240ms}
+    html[data-arrive]:not([data-paused]) .hero-evidence>li:nth-child(4){animation-delay:300ms}
+  }
+  @keyframes ls-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   /* El fondo de paquetes está en todas las páginas, detrás del contenido. En páginas de lectura va más tenue. */
   .site-main,.footer{position:relative;z-index:1}
   .site-header{position:sticky;top:0;z-index:50}
@@ -237,13 +256,15 @@
   .js .page-head h1.scrambling{text-wrap:initial}
   .js .page-head h1.scrambling .ch{display:inline-block;width:1ch;text-align:center}
   /* Idea 2: tarjetas y filas de catálogo que aparecen al hacer scroll. Estado final visible sin JavaScript. */
-  .reveal-ready:not([data-paused]) .reveal{opacity:0;transform:translateY(10px)}
-  .reveal-ready:not([data-paused]) .reveal.in{opacity:1;transform:none;transition:opacity .4s ease-out,transform .4s cubic-bezier(.2,.9,.3,1)}
+  /* V14.11: el contenido nunca parte invisible. Lo que ya está en pantalla al cargar se muestra tal cual
+     (.reveal-instant); lo que entra con el scroll sube 6 px desde una opacidad legible, escalonado por fila. */
+  .reveal-ready:not([data-paused]) .reveal:not(.in){opacity:.4;transform:translateY(6px)}
+  .reveal-ready:not([data-paused]) .reveal.in{opacity:1;transform:none;transition:opacity 220ms cubic-bezier(.23,1,.32,1),transform 220ms cubic-bezier(.23,1,.32,1);transition-delay:calc(var(--reveal-i,0) * 40ms)}
+  .reveal-ready:not([data-paused]) .reveal.reveal-instant{transition:none}
   .reveal-ready[data-paused] .reveal,.reveal-ready[data-paused] .reveal.in{opacity:1;transform:none;transition:none}
   .reveal-ready:not([data-paused]) .reveal.reveal-focus,.reveal-ready:not([data-paused]) .reveal:focus-within{opacity:1;transform:none;transition:none}
-  /* Cambio de carpeta en la ventana del laboratorio: el panel entra con un fundido corto */
-  .js:not([data-paused]) .pane:not([hidden]){animation:pane-in .18s ease-out}
-  @keyframes pane-in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+  /* V14.11: el cambio de carpeta del árbol es inmediato. Se recorre con flechas, decenas de veces por visita:
+     un fundido ahí sólo retrasa la lectura (antes .pane-in de 180 ms en cada tecla). */
 
   /* La ventana del laboratorio: marco recto, árbol con conectores y línea de estado tipo tmux. */
   .lab{padding-top:1.5rem;padding-bottom:2rem}
@@ -273,9 +294,9 @@
   /* README y bloques de la portada */
   #readme{container-type:inline-size}
   .readme-intro{max-width:52rem}
-  .profile-title{font-size:1.6rem;margin-bottom:.35rem}
+  .profile-title{font-size:1.5rem;margin-bottom:.35rem}
   .status-line{border-left:2px solid var(--acc);border-radius:0}
-  .hero-stats dd{color:var(--acc);font:600 1.65rem/1.3 var(--mono)}
+  .hero-stats dd{color:var(--acc);font:600 1.5rem/1.3 var(--mono)}
   @container(max-width:16rem){
     .hero-stats{grid-template-columns:1fr}
     .hero-stats>div{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:baseline;gap:.75rem}
@@ -292,14 +313,9 @@
   /* v13.8: a compact identity illustration with live, scalable labels. */
   .readme-project{display:flex;flex-wrap:wrap;align-items:center;gap:1.25rem;padding:1.25rem;border:1px solid var(--line-strong);background:var(--surface)}
   .readme-project-foot{display:block;flex:1 1 22rem;min-width:0;padding:0;border:0}
-  .report-brand-card{flex:1 1 14rem;min-width:0;max-width:19rem;display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.5rem .75rem .75rem;margin-inline:auto;text-align:center}
-  .report-brand-card img{display:block;width:min(100%,13.5rem);height:auto;object-fit:contain}
-  .report-brand-name{font:600 1.35rem/1.4 var(--mono);color:var(--ink-bright)}
-  .report-brand-formats{font:500 .75rem/1.7 var(--mono);color:var(--dim);max-width:100%;overflow-wrap:anywhere}
-  body[data-page=index] .casos{margin-top:2rem}
   .readme-en>summary{font-size:.8125rem}
   .entry-card{padding:1.5rem;border-color:var(--line)}
-  .entry-card h2,.entry-card h3{font-size:1.2rem;line-height:1.35}
+  .entry-card h2,.entry-card h3{font-size:1.25rem;line-height:1.35}
   .entry-card:hover{border-color:var(--acc)}
   .step-no{font:600 .75rem/1.5 var(--mono);color:var(--ink)}
   .step-no .pixel{color:var(--ink)}
@@ -325,7 +341,7 @@
   .footer-note{font-family:var(--sans)}
 
   /* Retro: paleta fósforo y tipografía pixel, como siempre; el banner conserva su mono. */
-  html[data-retro=on] h1,html[data-retro=on] .pane h1,html[data-retro=on] .project-page .proj-name{font-family:var(--pixel);font-size:clamp(1.1rem,2.5vw,1.85rem);line-height:1.55;letter-spacing:0}
+  html[data-retro=on] h1,html[data-retro=on] .project-page .proj-name{font-family:var(--pixel);font-size:clamp(1.1rem,2.5vw,1.85rem);line-height:1.55;letter-spacing:0}
   html[data-retro=on] .welcome h1{font-size:clamp(1.2rem,2.6vw,1.9rem);line-height:1.6}
   html[data-retro=on] .page-head h1::before{content:none}
   html[data-retro=on] .pixel,html[data-retro=on] .step-no .pixel,html[data-retro=on] .lab-box h2,html[data-retro=on] .egg-box h2{font-family:var(--pixel)}
@@ -338,7 +354,7 @@
     .tree a::before,.tree a:last-child::before{content:none}
     html[data-retro=on] .tree a .pi,.tree a .pi{display:none}
   }
-  html[data-retro=on] .statusbar{background:#a6f36b;color:#0a160a}
+  html[data-retro=on] .statusbar{background:var(--phosphor);color:var(--phosphor-ink)}
 
   @media(max-width:1100px){
     .header-inner{gap:.75rem}
@@ -374,7 +390,6 @@
     .welcome-creds{align-self:stretch}
     .welcome-badges{grid-template-columns:repeat(4,minmax(0,1fr))}
     .readme-project{padding:min(1.25rem,8vw);gap:1rem}
-    body[data-page=index] .casos{margin-top:1.5rem}
     .welcome h1{font-size:clamp(1.65rem,7vw,2.3rem)}
     .welcome-role{font-size:1rem}
     .welcome-role>span{display:block}
@@ -405,7 +420,7 @@
     .welcome-actions{gap:.65rem}
     .welcome-actions{width:100%}
     .welcome-actions .button{flex:1 1 100%;justify-content:center;min-height:48px;padding:.75rem 1rem}
-    .motion-toggle{font-size:.625rem;padding:.3rem .5rem}
+    .motion-toggle{font-size:.75rem;padding:.3rem .5rem}
     .lab{padding:.75rem .75rem 1.25rem}
     .titlebar{padding:.7rem .85rem;font-size:.75rem}
     .pane{padding:1.6rem 1rem 1.85rem}
@@ -419,7 +434,7 @@
     .header-inner{gap:.35rem;padding:.55rem .65rem}
     .header-tools{gap:.2rem}
     .brand{font-size:.75rem}
-    .motion-toggle{font-size:.5625rem;padding:.4rem .4rem}
+    .motion-toggle{font-size:.75rem;padding:.4rem .4rem}
   }
 
 }
@@ -432,6 +447,7 @@
   .net{display:none}
   .button::before{display:none}
   .button,.tree a,.entry-card{transition:none}
+  .button:active{transform:none}
 }
 
 /* La portada impresa es un documento breve: identidad y README; la sesión animada no se imprime. */
@@ -489,7 +505,6 @@
     .case-synthesis,.entry-card,.entry-content,.readme-start,.result-item{padding-inline:min(1.25rem,8vw)}
     .notice{padding-inline:min(1.15rem,8vw)}
     .welcome-creds{padding-inline:min(1.1rem,8vw)}
-    body[data-page=index] .casos .entry-card{padding-inline:min(var(--s4),8vw)}
     .series-nav{grid-template-columns:minmax(0,1fr)}
   }
   @media(max-width:480px){
@@ -522,7 +537,7 @@ html.search-ready .search-fallback{display:none}
   .featured-tagline{font:600 1.125rem/1.5 var(--mono);color:var(--ink-bright);margin:0 0 .65rem}
   .readme-project-links{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem 1.25rem;margin:1.1rem 0 0}
   .readme-project-links .text-link{display:inline-flex;align-items:center;min-height:44px}
-  .home-certifications .welcome-creds>p{margin:1rem 0 0;color:var(--dim);font-size:.9rem}
+  .home-certifications .welcome-creds>p{margin:1rem 0 0;color:var(--dim);font-size:.875rem}
   .lab-intro>p:not(.section-eyebrow){max-width:66ch;color:var(--dim);margin-bottom:.5rem}
   .lab-intro h2{margin-bottom:.5rem}
   .lab-shortcuts{display:flex;flex-wrap:wrap;gap:0 1.5rem;margin-bottom:1rem}
@@ -538,14 +553,14 @@ html.search-ready .search-fallback{display:none}
   .home-contact>.actions{flex:0 1 24rem;margin:0}
   .home-contact .button{max-width:100%;overflow-wrap:anywhere}
   .case-contact{border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem}
-  .case-contact h2{font-size:1.2rem}
+  .case-contact h2{font-size:1.25rem}
   .appearance-controls{position:relative}
   .appearance-controls>summary{cursor:pointer;list-style:none;gap:.6rem}
   .appearance-controls>summary::-webkit-details-marker{display:none}
   .appearance-controls>summary::after{content:'+';color:var(--acc)}
   .appearance-controls[open]>summary::after{content:'−'}
   .appearance-panel{position:fixed;z-index:30;top:calc(var(--nav-height) + .35rem);right:1rem;width:min(21rem,calc(100vw - 2rem));max-height:calc(100dvh - var(--nav-height) - 1rem);overflow-y:auto;padding:1rem;border:1px solid var(--line-strong);background:var(--bg);display:grid;gap:.6rem}
-  .appearance-panel>p{margin:0 0 .2rem;font-size:.9rem;color:var(--dim)}
+  .appearance-panel>p{margin:0 0 .2rem;font-size:.875rem;color:var(--dim)}
   .header-tools .appearance-panel .icon-button{width:100%;justify-content:flex-start;padding:.65rem .75rem;gap:.5rem;min-height:44px}
   .header-tools .appearance-panel .tgl-text{position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip:auto;white-space:normal;border:0;text-align:left}
   .header-tools .appearance-panel .tgl-ico{flex:none;margin-right:0}
@@ -582,9 +597,7 @@ html.search-ready .search-fallback{display:none}
   .welcome-terminal .welcome-navigation{gap:.25rem 1.5rem}
   .terminal-prompt{margin:0 0 1.25rem;font:600 .875rem/1.5 var(--mono);color:var(--acc);overflow-wrap:anywhere}
   .terminal-prompt>span{color:var(--dim);margin-right:.5rem}
-  .welcome-terminal .section-eyebrow{font-size:.6875rem;line-height:1.7;letter-spacing:0;color:var(--dim)}
   .terminal-directory{min-width:0;padding:1.75rem;border-left:1px solid var(--line);background:var(--surface)}
-  .terminal-directory h2{font:600 .875rem/1.5 var(--mono);margin:0 0 .75rem;color:var(--ink)}
   .terminal-directory>a{display:grid;gap:.25rem;min-width:0;min-height:44px;padding:.8rem .85rem;border:1px solid var(--line);background:var(--bg);text-decoration:none;overflow-wrap:anywhere}
   .terminal-directory>a+a{margin-top:.55rem}
   .terminal-directory>a>span:last-child{font-size:.8125rem;line-height:1.5;color:var(--dim)}
@@ -600,7 +613,7 @@ html.search-ready .search-fallback{display:none}
   @media(max-width:900px){
     .welcome-terminal-body{grid-template-columns:minmax(0,1fr)}
     .terminal-directory{border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem}
-    .terminal-directory>.terminal-prompt,.terminal-directory>h2{grid-column:1/-1;margin-bottom:0}
+    .terminal-directory>.terminal-prompt{grid-column:1/-1;margin-bottom:0}
     .terminal-directory>a+a{margin-top:0}
   }
   @media(max-width:640px){
@@ -614,10 +627,9 @@ html.search-ready .search-fallback{display:none}
     .welcome-terminal .welcome-links{column-gap:1rem}
     .terminal-directory{grid-template-columns:minmax(0,1fr);gap:.5rem}
     .terminal-directory>a{grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:.75rem;align-items:center;padding:.65rem .7rem}
-    .terminal-directory>h2{margin-bottom:.3rem}
     .terminal-command>span{display:none}
     .welcome-terminal-footer{padding:.5rem 1rem;gap:.5rem 0}
-    .terminal-session-note{width:100%;font-size:.6875rem}
+    .terminal-session-note{width:100%;font-size:.75rem}
   }
   @media(max-width:360px){
     .welcome-terminal .welcome-id,.terminal-directory{padding:1rem .85rem}
@@ -626,34 +638,27 @@ html.search-ready .search-fallback{display:none}
   }
 }
 @media print {
-  .welcome-titlebar,.terminal-prompt,.terminal-directory,.welcome-terminal-footer{display:none}
+  .welcome-titlebar,.terminal-prompt,.terminal-directory,.welcome-terminal-footer,.shell-ui{display:none}
 }
 
 /* The home page presents two own works; full catalogues keep their native routes. */
 @media screen {
   .home-work-heading{margin-bottom:1rem;max-width:72ch}
-  .home-work-heading h2{font:600 1.5rem/1.4 var(--sans);margin:0 0 .6rem}
+  .home-work-heading h2{font:600 1.5rem/1.4 var(--mono);margin:0 0 .6rem}
   .home-work-heading p:last-child{color:var(--dim);margin:0}
   .home-work-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.25rem}
   .home-work-grid>article{min-width:0;margin:0;border:1px solid var(--line-strong);background:var(--surface);padding:1.5rem}
   .home-work-grid .readme-project{display:flex;flex-direction:column;align-items:stretch;gap:1.25rem}
   .home-work-grid .readme-project-foot{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:0;flex:1;min-width:0;margin:0;padding:0;background:none;border:0}
-  .home-work-grid h3{font:600 1.35rem/1.4 var(--sans);margin:0 0 .6rem;color:var(--ink-bright)}
+  .home-work-grid h3{font:600 1.375rem/1.4 var(--sans);margin:0 0 .6rem;color:var(--ink-bright)}
   .home-work-grid .section-eyebrow{margin:0 0 .7rem;color:var(--acc)}
   .home-work-grid p:not(.section-eyebrow){margin:0 0 .8rem;color:var(--dim)}
-  .home-work-grid .featured-tagline{font-size:.95rem;color:var(--ink)}
+  .home-work-grid .featured-tagline{font-size:.9375rem;color:var(--ink)}
   .home-work-grid .readme-project-links{flex:none;margin-top:auto;padding-top:1rem;gap:.65rem 1rem}
-  .home-work-grid .report-brand-card{flex:none;display:grid;grid-template-columns:6rem minmax(0,1fr);align-items:center;column-gap:.8rem;max-width:100%;width:100%;margin:0;padding:0;text-align:left;border:0;background:none}
-  .home-work-grid .report-brand-card img{grid-row:1/3;display:block;width:6rem;max-width:100%;height:auto;margin:0}
-  .home-work-grid .report-brand-name{align-self:end;margin:0;font-size:.95rem}
-  .home-work-grid .report-brand-formats{align-self:start;margin:0;font-size:.7rem}
   .home-api-work{display:flex;flex-direction:column;align-items:flex-start}
-  .home-api-work .home-work-scope{font-size:.88rem;line-height:1.65}
-  .home-case-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
-  .home-case-links a{display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:64px;padding:1rem;border:1px solid var(--line-strong);text-underline-offset:.25em;overflow-wrap:anywhere}
-  .home-case-links span{display:block;margin-top:.4rem;color:var(--dim);font-size:.9rem}
-  @media(max-width:900px){.home-work-grid{grid-template-columns:minmax(0,1fr)}.home-work-grid>article{padding:1.25rem}.home-work-grid .report-brand-card{max-width:23rem}}
-  @media(max-width:640px){.home-case-links{grid-template-columns:minmax(0,1fr)}.home-work-grid{gap:1rem}.home-work-grid>article{padding:1rem}}
+  .home-api-work .home-work-scope{font-size:.875rem;line-height:1.65}
+  @media(max-width:900px){.home-work-grid{grid-template-columns:minmax(0,1fr)}.home-work-grid>article{padding:1.25rem}}
+  @media(max-width:640px){.home-work-grid{gap:1rem}.home-work-grid>article{padding:1rem}}
   /* Use the panel's available reading width when text is enlarged on a tablet. */
   @container(max-width:28rem){
     .ptitle,.rpct{flex-wrap:wrap}
@@ -667,4 +672,273 @@ html.search-ready .search-fallback{display:none}
     .appearance-panel>p:first-child{display:none}
     .header-tools .appearance-panel .icon-button{padding-block:.2rem}
   }
+}
+
+/* Without the script that retracts the mobile header, keep native anchors clear. */
+@media screen and (max-width:640px){
+  html:not(.js) .site-header{position:relative}
+}
+
+/* ------------------------------------------------------------------
+   V14.11 · Fallos visibles de la portada
+------------------------------------------------------------------ */
+@media screen{
+  /* "Mi laboratorio" usa el mismo margen lateral que el resto de las secciones (antes 12 px en móvil, 20 px las demás). */
+  .home-presentation>.lab.shell{padding-inline:var(--s4)}
+  @media(max-width:900px){.home-presentation>.lab.shell{padding-inline:1.5rem}}
+  @media(max-width:640px){.home-presentation>.lab.shell{padding-inline:min(1.25rem,8vw)}}
+
+  /* El nombre es el titular de la portada: crece con la pantalla sin pasar a dos líneas en escritorio
+     (40 px antes en 1440, 29 px en tableta). */
+  .welcome h1{font-size:clamp(2rem,3.4vw,2.875rem);letter-spacing:-.01em}
+
+  /* Un solo estilo para los títulos de sección: Plex Mono estructura (antes "Dos trabajos…" iba en Sans y
+     "Certificaciones verificables" un tamaño más chico que las demás). */
+  .home-presentation :is(#featured-title,#habilidades-title,#certificaciones-title,#laboratorio-title,#contact-title){font:600 1.5rem/1.3 var(--mono);letter-spacing:-.01em;color:var(--ink-bright)}
+  @media(max-width:640px){.home-presentation :is(#featured-title,#habilidades-title,#certificaciones-title,#laboratorio-title,#contact-title){font-size:1.375rem}}
+}
+
+/* ------------------------------------------------------------------
+   V14.11 · Impacto de la portada
+------------------------------------------------------------------ */
+@media screen{
+  /* La terminal del laboratorio como sección propia: título, una frase y el resumen con sus tres ventanas. */
+  .home-session-heading{max-width:72ch;margin-bottom:1rem}
+  .home-session-heading h2{margin:0 0 .5rem;font:600 1.5rem/1.3 var(--mono);letter-spacing:-.01em;color:var(--ink-bright)}
+  .home-session-heading p{margin:0;color:var(--dim)}
+  @media(max-width:640px){.home-session-heading h2{font-size:1.375rem}}
+  .session-shell>.session-summary .session-summary-label{font:600 1rem/1.5 var(--mono);color:var(--ink-bright)}
+  .session-preview{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:.6rem;background:var(--line);border:1px solid var(--line)}
+  .session-preview>span{display:flex;flex-direction:column;gap:.2rem;min-width:0;padding:.8rem .9rem;background:var(--bg);font:400 .8125rem/1.5 var(--mono);color:var(--dim);overflow-wrap:anywhere}
+  .session-preview b{font-weight:600;color:var(--acc)}
+  .session-shell[open] .session-preview{display:none}
+  .session-shell>.session-summary:hover .session-preview>span{background:var(--surface)}
+  @media(max-width:640px){.session-preview{grid-template-columns:minmax(0,1fr)}.session-preview>span{flex-direction:row;flex-wrap:wrap;gap:.2rem .6rem}}
+
+  /* Casos HTB: sistema y dificultad arriba, y la cadena documentada como una línea de saltos. */
+
+
+  /* Certificaciones: sigla grande y emisor debajo, para que se lean como credenciales y no como etiquetas. */
+  .welcome-badges .badge{flex-direction:column;gap:.15rem;min-height:64px;padding:.7rem .5rem;background:var(--bg);border-color:var(--line-strong);text-align:center}
+  .welcome-badges .badge-name{font:600 1rem/1.3 var(--mono);color:var(--ink-bright)}
+  .welcome-badges .badge-issuer{font:400 .75rem/1.4 var(--sans);color:var(--dim)}
+  .welcome-badges a.badge:hover .badge-name,.welcome-badges a.badge:focus-visible .badge-name{color:var(--acc)}
+}
+
+/* ------------------------------------------------------------------
+   V15 · Hero para quien evalúa: evidencia y terminal interactiva
+------------------------------------------------------------------ */
+@media screen{
+  .hero-shell{display:flex;flex-direction:column;min-width:0;padding:1.75rem;border-left:1px solid var(--line);background:var(--surface)}
+  .hero-shell>h2{margin:0 0 .75rem;font:600 .875rem/1.5 var(--mono);color:var(--ink)}
+  .hero-evidence{display:grid;gap:.45rem;margin:0;padding:0;list-style:none}
+  .hero-evidence a{display:grid;gap:.15rem;min-height:44px;padding:.65rem .8rem;border:1px solid var(--line);background:var(--bg);text-decoration:none;overflow-wrap:anywhere}
+  .hero-evidence a:hover,.hero-evidence a:focus-visible{border-color:var(--acc);background:var(--raised)}
+  .hero-evidence .ev-key{font:600 .875rem/1.45 var(--mono);color:var(--link)}
+  .hero-evidence a:hover .ev-key{text-decoration:underline;text-underline-offset:.2em}
+  .hero-evidence .ev-text{font-size:.8125rem;line-height:1.5;color:var(--dim)}
+  .hero-availability{margin:.85rem 0 0;font:400 .8125rem/1.6 var(--mono);color:var(--ink)}
+  .hero-availability .status-dot{margin-right:.5rem;vertical-align:.05em}
+  .hero-availability a{display:inline-flex;align-items:center;min-height:44px;vertical-align:middle;font-weight:600}
+  .status-dot{display:inline-block;flex:none;width:.5rem;height:.5rem;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+
+  /* Terminal interactiva: oculta hasta que shell.js la cablea (atributo hidden). */
+  /* La línea de comandos ocupa todo el ancho al pie de la ventana, bajo identidad y evidencia. */
+  .welcome-terminal .welcome-id{align-content:start}
+  .shell-ui{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.6rem 1.25rem;align-items:center;padding:1.1rem 1.75rem 1.25rem;border-top:1px solid var(--line);background:var(--bg)}
+  .shell-ui[hidden]{display:none}
+  .shell-ui>.shell-log,.shell-ui>.shell-form{grid-column:1/-1;margin:0}
+  .shell-ui>.shell-chips{grid-column:1;grid-row:3}
+  .shell-ui>.shell-hint{grid-column:2;grid-row:3;margin:0;text-align:right}
+  @media(max-width:900px){.shell-ui{grid-template-columns:minmax(0,1fr)}.shell-ui>.shell-hint,.shell-ui>.shell-chips{grid-column:1;grid-row:auto;text-align:left}}
+  @media(max-width:640px){.shell-ui{padding:1rem 1.1rem}}
+  /* V15.1: lo escrito y lo respondido se distinguen como en una terminal real. La orden va en blanco y negrita
+     tras el prompt verde; la respuesta va sangrada, con un filete a la izquierda y columnas alineadas. */
+  .shell-log{max-height:16rem;overflow:auto;padding-right:.25rem;font:400 .875rem/1.6 var(--mono);color:var(--ink);overscroll-behavior:contain;scrollbar-width:thin}
+  .shell-log:empty{display:none}
+  .shell-entry+.shell-entry{margin-top:.9rem}
+  .shell-echo{display:flex;flex-wrap:wrap;gap:0 .6ch;margin:0;color:var(--ink-bright);font-weight:600;overflow-wrap:anywhere}
+  .shell-echo-prompt{flex:none;color:var(--acc);font-weight:600}
+  .shell-out{margin:.35rem 0 0 .35rem;padding:.15rem 0 .15rem .85rem;border-left:2px solid var(--line-strong);color:var(--dim)}
+  .shell-line{margin:0;overflow-wrap:anywhere}
+  .shell-line+.shell-list,.shell-line+.shell-line{margin-top:.25rem}
+  .shell-error{color:var(--warn)}
+  .shell-list{display:grid;gap:.1rem;margin:0;padding:0;list-style:none}
+  .shell-list li{display:grid;grid-template-columns:minmax(0,19ch) minmax(0,1fr);gap:0 1.5ch;align-items:center}
+  .shell-list a,.shell-key{display:inline-flex;align-items:center;min-height:24px;overflow-wrap:anywhere}
+  .shell-list a{color:var(--link);font-weight:600;text-underline-offset:.2em}
+  .shell-key{color:var(--ink);font-weight:600}
+  .shell-desc{display:flex;align-items:center;min-height:24px;color:var(--dim)}
+  @media(max-width:480px){.shell-prompt-host{display:none}.shell-list li{grid-template-columns:minmax(0,1fr)}.shell-desc{min-height:0;margin:-.1rem 0 .3rem}}
+  .shell-form{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;min-width:0;border:1px solid var(--line-strong);background:var(--bg);padding:0 0 0 .65rem}
+  .shell-form:focus-within{border-color:var(--acc);outline:2px solid var(--acc);outline-offset:2px}
+  .shell-form{flex-wrap:wrap}
+  .shell-prompt{flex:0 1 auto;min-width:0;overflow-wrap:anywhere;font:600 .8125rem/1.5 var(--mono);color:var(--acc)}
+  .shell-input{flex:1 1 8rem;min-width:0;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink-bright);font:400 .9375rem/1.5 var(--mono);caret-color:var(--acc)}
+  .shell-input:focus{outline:none}
+  .shell-run{flex:none;min-height:44px;padding:0 .8rem;border:0;border-left:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .75rem/1.5 var(--mono);cursor:pointer}
+  .shell-run:hover{color:var(--acc)}
+  .shell-run:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+  .shell-hint{margin:.6rem 0 .4rem;font-size:.75rem;line-height:1.5;color:var(--dim)}
+  .shell-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+  .shell-chip{min-height:44px;padding:.2rem .6rem;border:1px solid var(--line);background:var(--bg);color:var(--link);font:400 .8125rem/1.4 var(--mono);cursor:pointer;transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+  .shell-chip:hover{border-color:var(--acc);color:var(--ink-bright)}
+  .shell-chip:active{transform:scale(.97)}
+  .shell-chip:focus-visible{outline:var(--focus-width) solid var(--acc);outline-offset:2px}
+  @media(prefers-reduced-motion:reduce){.shell-chip{transition:none}.shell-chip:active{transform:none}}
+
+  @media(max-width:900px){
+    .hero-shell{border-left:0;border-top:1px solid var(--line)}
+    .hero-evidence{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  /* Móvil: el hero entero (nombre, rol, acción principal y la primera prueba) cabe en la primera pantalla. */
+  @media(max-width:640px){
+    .hero-shell{padding:1.1rem}
+    .hero-evidence{grid-template-columns:minmax(0,1fr)}
+    .hero-evidence a{padding:.55rem .7rem}
+    .welcome-terminal .welcome-id{padding-bottom:1rem}
+    .welcome-terminal .terminal-prompt{margin-bottom:.5rem}
+    .welcome-description{font-size:.9375rem}
+    .shell-hint{display:none}
+    .shell-log{max-height:11rem}
+  }
+  @media(max-width:360px){.hero-shell{padding:1rem .85rem}}
+}
+@media screen{
+  /* Rutas de estudio dentro de «Mi laboratorio»: tres columnas en escritorio, una en móvil. */
+  .terminal-directory.lab-routes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin:1rem 0 .5rem;padding:1.1rem;border:1px solid var(--line);border-left:1px solid var(--line)}
+  .terminal-directory.lab-routes>.terminal-prompt,.terminal-directory.lab-routes>h3{grid-column:1/-1;margin:0}
+  .terminal-directory.lab-routes>h3{font:600 .875rem/1.5 var(--mono);color:var(--ink)}
+  .terminal-directory.lab-routes>a+a{margin-top:0}
+  @media(max-width:640px){.terminal-directory.lab-routes{grid-template-columns:minmax(0,1fr);gap:.5rem;padding:1rem}}
+}
+@media screen{
+  /* V15 · Trabajo real en las tarjetas: recorte de la captura y un intercambio HTTP registrado. */
+  .work-fragment{margin:1rem 0;min-width:0}
+  .work-fragment figcaption{margin-top:.45rem;font-size:.75rem;line-height:1.5;color:var(--dim)}
+  .http-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+  .http-side{min-width:0;border:1px solid var(--line);background:var(--code-bg)}
+  .http-mode{margin:0;padding:.35rem .6rem;border-bottom:1px solid var(--line);font:600 .75rem/1.5 var(--mono);color:var(--code-dim)}
+  .http-vulnerable .http-mode{color:var(--warn)}
+  .http-fixed .http-mode{color:var(--acc)}
+  .http-exchange{display:grid;gap:.1rem;margin:0;padding:.55rem .6rem;overflow-wrap:anywhere;font:400 .75rem/1.55 var(--mono);color:var(--code-ink)}
+  .http-status{margin-top:.5rem}
+  .http-body{color:var(--code-ink)}
+  .http-req{color:var(--code-k)}
+  .http-hdr{color:var(--code-dim)}
+  .http-status{font-weight:600}
+  .http-status.s200{color:var(--warn)}
+  .http-status.s404{color:var(--acc)}
+  @media(max-width:480px){.http-pair{grid-template-columns:minmax(0,1fr)}}
+  html[data-theme=paper] .http-vulnerable .http-mode,html[data-theme=paper] .http-status.s200{color:#e9b949}
+  html[data-theme=paper] .http-fixed .http-mode,html[data-theme=paper] .http-status.s404{color:#6ee283}
+
+  /* V15 · El caso HTB dentro de su habilidad. */
+  .skill-case{display:grid;gap:.15rem;margin:.85rem 0 0;padding:.75rem .85rem;border:1px solid var(--line);background:var(--bg);text-decoration:none;min-width:0}
+  .skill-case:hover,.skill-case:focus-visible{border-color:var(--acc)}
+  .skill-case strong{font:600 .9375rem/1.4 var(--mono);color:var(--ink-bright);text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:.25em}
+  .skill-case:hover strong{text-decoration-color:var(--acc)}
+  .skill-case .case-meta{order:-1;font:600 .75rem/1.5 var(--mono);color:var(--acc)}
+  .skill-case .case-chain{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .5rem;margin-top:.35rem;font:400 .8125rem/1.5 var(--mono)}
+  .skill-case .case-chain>span{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.5rem;min-width:0;max-width:100%;color:var(--ink);overflow-wrap:anywhere}
+  .skill-case .case-chain>span+span::before{content:'→';color:var(--dim)}
+  .skill-case .case-chain>span:last-child{font-weight:600;color:var(--acc)}
+}
+@media screen{
+  /* V15 · Disponibilidad siempre visible, como una ventana de estado de tmux junto a la marca. */
+  .header-status{display:inline-flex;align-items:center;gap:.45rem;min-height:44px;padding:0 .2rem;font:400 .75rem/1.4 var(--mono);color:var(--dim);text-decoration:none;white-space:nowrap}
+  .header-status .status-word{color:var(--ink);font-weight:600}
+  .header-status:hover .status-word,.header-status:focus-visible .status-word{color:var(--acc);text-decoration:underline;text-underline-offset:.2em}
+  .header-status .status-dot{width:.45rem;height:.45rem}
+  @media(max-width:1280px){.header-status .status-detail{display:none}}
+  /* En pantallas muy estrechas queda el punto; la palabra sigue siendo el nombre del enlace. */
+}
+/* Bajo 480 px no cabe junto a la marca sin partir la cabecera; en la portada la disponibilidad sigue en el hero. */
+@media screen and (max-width:479px){.header-status{display:none}}
+@media print{.header-status{display:none}}
+@media screen{
+  /* V15 · Catálogo de técnicas: filtro de texto, áreas como pestañas y la primera línea del comando en cada fila. */
+  .filter-bar .filter-search{flex:2 1 18rem}
+  .filter-bar .filter-search input{min-height:44px;width:100%;padding:.5rem .75rem;border:1px solid var(--line-strong);border-radius:0;background:var(--bg);color:var(--ink);font:400 .9375rem/1.4 var(--mono)}
+  .filter-bar .filter-search input:focus-visible{border-color:var(--acc);outline:var(--focus-width) solid var(--acc);outline-offset:2px}
+  .filter-bar .filter-cert{flex:1 1 16rem;min-width:min(16rem,100%)}
+  .area-tabs{display:flex;flex-wrap:wrap;gap:.35rem;flex:1 1 100%;order:-1}
+  .area-tab{min-height:40px;padding:.35rem .8rem;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);font:600 .8125rem/1.4 var(--mono);cursor:pointer}
+  .area-tab:hover{border-color:var(--acc)}
+  .area-tab[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+  .area-tab:focus-visible{outline:var(--focus-width) solid var(--acc);outline-offset:2px}
+  #reset-filters:disabled{opacity:.55;cursor:default}
+  .catalog-section .entry-details>summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:.85rem;row-gap:.15rem;align-items:center}
+  .catalog-section .entry-details>summary .entry-number{grid-column:1;grid-row:1}
+  .catalog-section .entry-details>summary .entry-title{grid-column:2;grid-row:1}
+  .catalog-section .entry-details>summary::after{grid-column:3;grid-row:1/3;margin-left:0}
+  .entry-preview{grid-column:2;grid-row:2;min-width:0;overflow-wrap:anywhere;font:400 .8125rem/1.5 var(--mono);color:var(--dim)}
+  .entry-details[open] .entry-preview{display:none}
+}
+@media screen{
+  /* V15 · Lectura: pasos leídos, atajos y el paso actual en móvil. */
+  .article-toc a[data-seen]::before,.mobile-toc a[data-seen]::before{content:'✓ ' / '';color:var(--acc)}
+  .toc-keys{margin:1rem 0 0;font:400 .75rem/1.6 var(--mono);color:var(--dim)}
+  .toc-keys kbd{display:inline-block;min-width:1.4rem;padding:0 .3rem;border:1px solid var(--line-strong);text-align:center;font:600 .75rem/1.5 var(--mono);color:var(--ink)}
+  .article-toc nav{max-height:inherit;overflow:auto}
+  .step-bar{display:none}
+  @media(max-width:900px){
+    /* Queda bajo la cabecera: aparece cuando la cabecera se esconde al leer hacia abajo. */
+    /* Fija arriba y bajo la cabecera: al aparecer no desplaza el texto (sin saltos de diseño). */
+    .step-bar:not([hidden]){position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:.5rem;min-height:44px;margin:0;padding:.4rem 1rem;border:0;border-bottom:1px solid var(--line);background:var(--surface);color:var(--ink);font:400 .8125rem/1.4 var(--mono);text-align:left;cursor:pointer}
+    .step-bar-label{flex:none;font-weight:600;color:var(--acc)}
+    .step-bar-text{flex:1;min-width:0;overflow-wrap:anywhere}
+    .step-bar-icon{flex:none;color:var(--dim)}
+  }
+}
+@media print{.step-bar,.toc-keys{display:none!important}}
+
+@media screen{
+  /* Lote E: enlaces que no están dentro de una frase tienen al menos 24 px de alto (WCAG 2.5.8). */
+  .project-screenshot figcaption a{display:inline-block;min-height:24px;padding-block:.15rem}
+  a[href^="#evidencia-"]{display:inline-block;min-height:24px;padding-block:.1rem}
+}
+/* Más específico que .home-work-grid p:not(.section-eyebrow), que añade 0,8rem bajo cada párrafo de la tarjeta. */
+@media screen{.home-work-grid .http-side>.http-mode,.home-work-grid .http-side>.http-exchange{margin:0}}
+
+@media screen{
+  /* V15.1 · La ilustración de report-gen en su tarjeta, completa y sin recorte; el logo real en proyectos.html. */
+  .report-art{margin:1rem 0 1.1rem;border:1px solid var(--line-strong);background:#0b1510;overflow:hidden}
+  .report-art img{display:block;width:100%;height:auto;aspect-ratio:2/1}
+  .proj-top .proj-logo{width:4.5rem;height:auto;flex:none}
+}
+@media screen{
+  /* V15.1 · Un solo sistema de títulos: Plex Mono estructura (títulos), Plex Sans lectura (texto). */
+  .readme-project-foot>h3,.home-api-work>h3,.skill-evidence-card>h3,.report-status h2,.report-status h3,.project-pending>h2,article>h4{font-family:var(--mono)}
+  .readme-project-foot>h3,.home-api-work>h3{font-size:1.375rem;letter-spacing:-.01em}
+  .skill-evidence-card>h3{font-size:1.125rem}
+  /* Sin palabras sueltas en la última línea de un título. */
+  h2,h3{text-wrap:balance}
+}
+
+@media screen{
+  /* V15.1 · Ajustes finos de la auditoría visual. */
+  .site-header-lab .brand{margin-right:0}
+  .site-header-lab .header-status{margin-right:auto}
+  .header-status{margin-left:.25rem}
+  /* Mismo tamaño para todos los .button (el de cuaderno era más bajo) y búsqueda alineada. */
+  .button.notebook-control{min-height:46px;padding:.75rem 1.1rem}
+  .search-form{align-items:stretch}
+  .search-form .search-input,.search-form .button{min-height:46px}
+  /* Enlaces: un color de enlace y Plex Mono para los enlaces sueltos de las tarjetas. */
+  .welcome-specialties a,.welcome-language{color:var(--link)}
+  .readme-project-links .text-link,.skill-sources a{font:600 .875rem/1.5 var(--mono)}
+  /* Contacto: los tres botones en una fila en escritorio. */
+  @media(min-width:901px){.home-contact>.actions{flex:0 0 auto;flex-wrap:nowrap}}
+  /* Certificaciones: las siglas alineadas arriba aunque el emisor ocupe dos líneas. */
+  .welcome-badges .badge{justify-content:flex-start}
+  /* Tema papel: la sombra del hero no parece un hueco de render. */
+  html[data-theme=paper] .welcome-terminal{box-shadow:6px 6px 0 var(--line)}
+  @media(max-width:640px){html[data-theme=paper] .welcome-terminal{box-shadow:4px 4px 0 var(--line)}}
+  /* Guías en móvil: el destino de un ancla no queda bajo la barra de paso; resumen del índice centrado. */
+  @media(max-width:900px){.article-content section[id],.article-content h2[id],.article-content h3[id]{scroll-margin-top:calc(var(--nav-height) + 1rem)}}
+  .mobile-toc>summary{display:flex;align-items:center}
+  .table-scroll-hint{padding:.3rem .75rem;font-size:.75rem}
+  /* La cabecera de nmap en móvil: sin la columna VERSION, que ya no se alinea con las filas. */
+  @media(max-width:640px){.tl.trow.thd span:last-child{display:none}}
 }

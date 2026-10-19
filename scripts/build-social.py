@@ -32,9 +32,9 @@ LINE = '#243029'
 LINE_STRONG = '#5a7262'
 MINT = '#6ee283'
 LAVENDER = '#82cfe0'
-SANS = '1a9cad03d35e.woff'
-BOLD = '8da5dfcdccfb.woff'
-MONO = 'b0c618f6d8ea.woff'
+SANS = '2164a13d3b0b.woff'
+BOLD = 'd57ab90ffe32.woff'
+MONO = 'b8c1f0730a1b.woff'
 
 
 @lru_cache(maxsize=None)
@@ -205,14 +205,14 @@ def report_card():
     card.text('Del hallazgo a la entrega.', 64, 499, 21, SANS, INK)
     # Complete real screen, retaining its original aspect ratio. The mat is
     # editorial framing, not an invented UI or fabricated product output.
-    provenance = json.loads((ROOT / 'content/report-gen-capturas-procedencia.json').read_text(encoding='utf-8'))
-    editor = next(capture for capture in provenance['images'] if capture['stem'].endswith('-editor'))
+    provenance = json.loads((ROOT / 'content/report-gen-045-capturas-procedencia.json').read_text(encoding='utf-8'))
+    editor = next(capture for capture in provenance['images'] if capture['stem'].endswith('-catalogo'))
     screenshot = Image.open(OUT / editor['original']).convert('RGB')
     screenshot.thumbnail((546, 399), Image.Resampling.LANCZOS)
     card.rect(594, 124, 552, 410, SURFACE, radius=12, stroke=LINE)
     card.image.paste(screenshot, (597 + (546 - screenshot.width) // 2, 130 + (399 - screenshot.height) // 2))
-    card.text(f'Captura del editor {provenance["tool_version"]}', 597, 557, 14, MONO, MUTED)
-    footer(card, 'iphobiuss.github.io/proyectos.html', 'LOCAL / SIN SERVICIOS EXTERNOS')
+    card.text(f'Catálogo real {provenance["tool_version"]}', 597, 112, 14, MONO, MUTED)
+    footer(card, 'iphobiuss.github.io/proyectos.html', 'LOCAL / CONEXIONES OPCIONALES')
     card.save(OUT / 'assets/img/report-gen-og.png')
 
 

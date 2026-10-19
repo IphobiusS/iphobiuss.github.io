@@ -95,10 +95,17 @@ def english_chrome(filename, tree):
         if href == filename: node.set('aria-current', 'page')
         header.append(node)
     for brand in tree.xpath('//a[@class="brand"]'): brand.set('href', 'english.html')
+    # V15: la línea de disponibilidad también se traduce y lleva al contacto en inglés.
+    for status in tree.xpath('//a[@class="header-status"]'):
+        status.set('href', 'english.html#contact')
+        for node in status.xpath('./span'):
+            if node.get('class') == 'status-word': node.text = 'Available'
+            if node.get('class') == 'status-detail': node.text = ' · junior pentester in Santiago'
     replacements = {
         'Saltar al contenido': 'Skip to content', 'Menú': 'Menu', 'Buscar': 'Search',
         'Apariencia': 'Appearance', 'Elige tu lectura y el movimiento del fondo.': 'Choose a reading theme and background motion.',
         'Papel ': 'Paper ', 'Fondo animado': 'Background motion',
+        'Desactivado': 'Off', 'Activado': 'On',
     }
     for node in tree.iter():
         if node.tag not in ('script', 'style'):
@@ -178,10 +185,13 @@ def build_routes(document, page_head, record, report, root):
         source = source.replace('{{REPORT_VERSION}}', escape(report['version']))
         source = source.replace('{{REPORT_DOWNLOAD}}', escape(report['download'], quote=True))
         source = source.replace('{{REPORT_GUIDE}}', escape(report['guide'], quote=True))
+        source = source.replace('{{REPORT_GUIDE_EN}}', escape(report['guide'].replace('/guide.es.md', '/guide.en.md'), quote=True))
+        prometheus = json.loads((root / 'content/prometheus.json').read_text(encoding='utf-8'))
+        source = source.replace('{{PROMETHEUS_VERSION}}', escape(prometheus['version']))
         source = source.replace('{{FINDING_DEMO}}', demo_widget('en'))
         source = source.replace('{{HTTP_SCENARIOS}}', str(http_summary['scenarios']))
         source = source.replace('{{HTTP_EXCHANGES}}', str(http_summary['http_exchanges']))
-        edition = (report.get('release', {}).get('published_at') or '2026-10-10')[:10] if filename == 'report-gen-en.html' else '2026-10-10'
+        edition = '2026-10-19' if filename in {'report-gen-en.html', 'english.html'} else '2026-10-10'
         day = date.fromisoformat(edition)
         month = ('January','February','March','April','May','June','July','August','September','October','November','December')[day.month-1]
         edition_label = f'{day.day} {month} {day.year}'

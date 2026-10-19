@@ -8,19 +8,21 @@ const output = path.resolve(process.env.SITE_HOME_OUTPUT || path.join(__dirname,
 const { axeSource } = require('./qa-deps.cjs');
 const hashFiles = () => Object.fromEntries(fs.readdirSync(root, { recursive: true }).filter(file => fs.statSync(path.join(root, file)).isFile()).sort().map(file => [file, crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')]));
 const before = hashFiles(), checks = []; let browser;
-const heroLinks = '.welcome-actions a,.welcome-links a,.terminal-directory a,[data-open-session]';
+// V15: el hero tiene una sola acción principal y la evidencia (cat evidencia.txt); las rutas de estudio pasaron a «Mi laboratorio».
+const heroLinks = '.welcome-actions a,.welcome-links a,.hero-evidence a,.hero-availability a,.shell-input,.shell-run,.shell-chip,[data-open-session]';
+const heroCount = 18; // 1 acción + 3 enlaces + 4 pruebas + contacto + campo + Ejecutar + 6 comandos + sesión.
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp' };
 const server = http.createServer((req, res) => { const requested = decodeURIComponent(new URL(req.url, 'http://localhost').pathname), file = path.resolve(root, '.' + (requested === '/' ? '/index.html' : requested)); if (!file.startsWith(root + path.sep)) return res.writeHead(403).end(); fs.readFile(file, (error, data) => { if (error) return res.writeHead(404).end(); res.setHeader('Content-Type', mime[path.extname(file)] || 'application/octet-stream'); res.end(data); }); });
 const check = async (name, action) => { console.log(name); try { const detail = await action(); checks.push({ name, passed: true, ...(detail || {}) }); } catch (error) { checks.push({ name, passed: false, error: error.message }); throw error; } };
 const ready = async page => { await page.evaluate(() => document.fonts.ready); const skip = page.locator('[data-intro][open] [data-intro-skip]'); if (await skip.count()) await skip.click(); };
 const expectActions = async page => {
- assert.deepEqual(await page.locator('.welcome-actions .button').evaluateAll(nodes => nodes.map(node => [node.textContent.trim(), node.getAttribute('href')])), [['Ver trabajos propios', '#proyecto-destacado'], ['Ver casos HTB', '#casos']]);
+ assert.deepEqual(await page.locator('.welcome-actions .button').evaluateAll(nodes => nodes.map(node => [node.textContent.trim(), node.getAttribute('href')])), [['Ver trabajos propios', '#proyecto-destacado']]);
  const secondary = page.locator('.welcome-links a'); assert.equal(await secondary.count(), 3);
  assert.deepEqual(await secondary.evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['#contacto', 'recorrido.html', 'downloads/cv-sebastian-latorre.pdf']);
  const external = page.locator('.home-contact a[href*="linkedin.com"]');
  assert.equal(await external.getAttribute('target'), '_blank'); assert.match(await external.getAttribute('rel'), /\bnoopener\b/);
  assert.match(await external.textContent(), /abre otra pestaña/);
- assert.deepEqual(await page.locator('.home-presentation>.shell').evaluateAll(nodes => nodes.map(node => node.className)), ['welcome shell','shell home-featured','shell casos','shell skills-map','shell home-certifications','shell lab','shell home-contact']);
+ assert.deepEqual(await page.locator('.home-presentation>.shell').evaluateAll(nodes => nodes.map(node => node.className)), ['welcome shell','shell home-featured','shell skills-map','shell home-session','shell home-certifications','shell lab','shell home-contact']);
  assert.equal(await page.locator('.session-shell').getAttribute('open'), null);
  assert.equal(await page.locator('[data-library]').getAttribute('open'), null);
  assert.equal(await page.locator('[data-intro][open]').count(), 0);
@@ -29,12 +31,13 @@ const expectActions = async page => {
  assert.equal(await page.locator('.home-work-grid a[href="api-acceso.html"]').count(), 1);
  assert.equal(await page.locator('.home-work-grid a[href="report-gen-demo.html#finding-exercise"]').count(), 1);
  assert.equal(await page.locator('.project-window,.pw-shot').count(), 0, 'The home catalogue does not duplicate the full product introduction');
- assert.deepEqual(await page.locator('.home-case-links a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['cap-caso.html', 'forest-caso.html']);
+ assert.deepEqual(await page.locator('#casos .skill-case').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['cap-caso.html', 'forest-caso.html']);
  const hero = page.locator('[data-hero-terminal]');
  assert.ok(await hero.isVisible(), 'terminal is visible from initial render');
  assert.equal(await hero.locator('h1').count(), 1);
  assert.equal(await hero.evaluate(node => !!node.closest('details')), false, 'hero is not a disclosure');
- assert.deepEqual(await hero.locator('.terminal-directory a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['guias.html', 'tecnicas.html', 'herramientas.html']);
+ assert.deepEqual(await hero.locator('.hero-evidence a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['proyectos.html#report-gen', 'api-acceso.html', 'sesiones-seguras.html', '#certificaciones']);
+ assert.deepEqual(await page.locator('.lab .terminal-directory a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))), ['guias.html', 'tecnicas.html', 'herramientas.html']);
  assert.equal(await hero.locator('[data-open-session]').getAttribute('href'), '#terminal-lab');
  assert.equal(await page.locator('[data-intro][open]').count(), 0, 'intro is closed before using the page');
  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'page overflow');
@@ -44,7 +47,7 @@ const expectActions = async page => {
   return { label: node.innerText, x: rect.x, width: rect.width, height: rect.height, clipped: ranges.some(box => box.left < rect.left - 1 || box.right > rect.right + 1 || box.top < rect.top - 1 || box.bottom > rect.bottom + 1), underline: style.textDecorationLine };
  }));
  for (const item of bounds) { assert.ok(item.height >= 44, item.label + ': small target'); assert.ok(!item.clipped, item.label + ': text clipped'); assert.ok(item.x >= -1 && item.x + item.width <= (await page.evaluate(() => innerWidth)) + 1, item.label + ': outside viewport'); }
- for (const item of bounds.slice(2, 5)) assert.match(item.underline, /underline/);
+ for (const item of bounds.slice(1, 4)) assert.match(item.underline, /underline/); // V15: una acción principal, luego los tres enlaces de texto.
  return bounds;
 };
 const axe = async page => { await page.evaluate(axeSource); const result = await page.evaluate(() => axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(result => ({ violations: result.violations.map(item => ({ id: item.id, nodes: item.nodes.map(node => node.target) })) }))); assert.deepEqual(result.violations, []); return { executed: true, ...result }; };
@@ -57,9 +60,9 @@ const write = fatal => { fs.mkdirSync(path.dirname(output), { recursive: true })
    const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' }); context.setDefaultTimeout(10000);
    await context.addInitScript(theme => { sessionStorage.setItem('iphobiuss:intro', '1'); if (theme === 'paper') localStorage.setItem('iphobiuss:theme', 'paper'); if (theme === 'retro') localStorage.setItem('iphobiuss:retro', 'on'); }, theme);
    const page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message)); await page.goto(base + '/index.html');
-   if (textScale === 200) await page.addStyleTag({ content: 'html{font-size:200%!important}' }); await ready(page); const bounds = await expectActions(page);
-   const links = page.locator(heroLinks); assert.equal(await links.count(), 9); await links.first().focus();
-   for (let index = 0; index < 9; index++) { assert.ok(await links.nth(index).evaluate(node => node === document.activeElement), 'keyboard order ' + index); assert.ok(await links.nth(index).evaluate(node => node.matches(':focus-visible')), 'visible keyboard focus ' + index); assert.ok(await links.nth(index).evaluate(node => { const r = node.getBoundingClientRect(), header = document.querySelector('.site-header')?.getBoundingClientRect(); return r.top >= (header?.bottom || 0) - 1 && r.bottom <= innerHeight + 1; }), 'focused target remains fully visible ' + index); if (index < 8) await page.keyboard.press('Tab'); }
+   if (textScale === 200) await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; }); await ready(page); const bounds = await expectActions(page);
+   const links = page.locator(heroLinks); assert.equal(await links.count(), heroCount); await links.first().focus();
+   for (let index = 0; index < heroCount; index++) { assert.ok(await links.nth(index).evaluate(node => node === document.activeElement), 'keyboard order ' + index); assert.ok(await links.nth(index).evaluate(node => node.matches(':focus-visible')), 'visible keyboard focus ' + index); assert.ok(await links.nth(index).evaluate(node => { const r = node.getBoundingClientRect(), header = document.querySelector('.site-header')?.getBoundingClientRect(); return r.top >= (header?.bottom || 0) - 1 && r.bottom <= innerHeight + 1; }), 'focused target remains fully visible ' + index); if (index < heroCount - 1) await page.keyboard.press('Tab'); }
    // Tab to the footer may leave an unfocused 48 px action partly beyond the viewport.
    // Measure the full document from a stable scroll position; no nodes or axe rules are excluded.
    await page.evaluate(() => { scrollTo(0, 0); return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); });
@@ -73,7 +76,7 @@ const write = fatal => { fs.mkdirSync(path.dirname(output), { recursive: true })
    if (mode === 'storage-denied') await context.addInitScript(() => { for (const method of ['getItem', 'setItem', 'removeItem']) Object.defineProperty(Storage.prototype, method, { value() { throw new DOMException('Storage access denied', 'SecurityError'); } }); });
    else if (mode !== 'no-js') await context.addInitScript(() => sessionStorage.setItem('iphobiuss:intro', '1'));
    const page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message)); if (mode === 'site-blocked') await page.route('**/assets/js/site.js', route => route.abort());
-   for (const target of ['#proyecto-destacado', '#casos', '#contacto']) { await page.goto(base + '/index.html'); await ready(page); const actual = page.locator(`.welcome-actions a[href="${target}"],.welcome-links a[href="${target}"]`); assert.equal(await actual.count(), 1); await actual.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(hash => location.hash === hash, target); assert.ok(await page.locator(target).isVisible()); }
+   for (const target of ['#proyecto-destacado', '#certificaciones', '#contacto']) { await page.goto(base + '/index.html'); await ready(page); const actual = page.locator(`.welcome-actions a[href="${target}"],.welcome-links a[href="${target}"],.hero-evidence a[href="${target}"]`); assert.equal(await actual.count(), 1); await actual.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(hash => location.hash === hash, target); assert.ok(await page.locator(target).isVisible()); }
    await page.goto(base + '/index.html'); await ready(page); await page.locator('.home-work-grid a[href="proyectos.html#report-gen"]').focus(); await page.keyboard.press('Enter'); await page.waitForURL('**/proyectos.html#report-gen'); assert.ok(await page.locator('#report-gen').isVisible());
    await page.goto(base + '/index.html'); await ready(page); await page.locator('.welcome-links a[href="recorrido.html"]').focus(); await page.keyboard.press('Enter'); await page.waitForURL('**/recorrido.html'); assert.equal(await page.locator('h1').innerText(), 'Recorrido breve');
    await page.goto(base + '/index.html'); await ready(page); const contact = page.locator('.home-contact a[href*="linkedin.com"]'), expectedUrl = await contact.getAttribute('href'); await context.route('https://**/*', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>External navigation boundary</title>' })); const popupPromise = context.waitForEvent('page'); await contact.focus(); await page.keyboard.press('Enter'); const popup = await popupPromise; await popup.waitForURL(expectedUrl); assert.equal(await popup.evaluate(() => opener === null), true); assert.equal(new URL(page.url()).pathname, '/index.html'); await popup.close();

@@ -64,7 +64,7 @@ const writeResults = fatal => { fs.mkdirSync(path.dirname(output), { recursive: 
   });
   for (const theme of ['dark', 'paper', 'retro']) for (const width of [320, 390, 1366]) for (const textScale of [100, 200]) for (const guide of ['cap', 'forest']) await check(`graph semantics + reflow + axe ${guide}/${theme}/${width}/${textScale}`, async () => {
    const context = await newContext({ theme, reducedMotion: 'reduce', viewport: { width, height: 900 } }), page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message));
-   await page.goto(base + '/' + guide + '-caso.html'); if (textScale === 200) await page.addStyleTag({ content: 'html{font-size:200%!important}' }); await page.evaluate(() => document.fonts.ready); await frames(page); await verifyGraph(page, guide);
+   await page.goto(base + '/' + guide + '-caso.html'); if (textScale === 200) await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; }); await page.evaluate(() => document.fonts.ready); await frames(page); await verifyGraph(page, guide);
    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'horizontal overflow'); assert.equal(present(await crt(page)), false);
    const holder = page.locator('[data-case-graph]'); assert.equal(await holder.locator(width <= 700 ? '.graph-narrow' : '.graph-wide').isVisible(), true); assert.equal(await holder.locator(width <= 700 ? '.graph-wide' : '.graph-narrow').isVisible(), false);
    const diagram = await holder.locator(width <= 700 ? '.graph-narrow' : '.graph-wide').boundingBox(); assert.ok(diagram.width > 150 && diagram.height > 50);

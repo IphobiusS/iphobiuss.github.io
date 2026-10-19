@@ -151,7 +151,7 @@ def build_case(document, page_head, record, root):
            ("limites", "Límites y conclusiones")]
     links = ''.join(f'<a href="#{anchor}">{label}</a>' for anchor, label in toc)
     head = page_head(TITLE, "De una petición permitida a una escritura ajena: reproducir, corregir y comprobar la frontera de acceso.",
-                     folder="guias", path="casos/api-acceso")
+                     folder="proyectos", path="casos/api-acceso")
     opening = (
         '<div class="article-meta"><time datetime="2026-10-10">Edición 10 oct 2026</time>'
         '<span>Caso propio · HTTP local · datos sintéticos</span></div>'
@@ -278,5 +278,5 @@ def build_case(document, page_head, record, root):
             f'<nav aria-label="Índice del caso">{links}</nav></aside><div class="article-content">'
             f'<details class="mobile-toc"><summary>En este caso</summary><nav aria-label="Índice móvil">{links}</nav></details>'
             + opening + scope + render_explorer(evidence) + hypotheses + walkthrough + patch + retest + reproduce + limits + '</div></div>')
-    document(PAGE, TITLE, DESCRIPTION, body, "guias", article=True, date_modified=EDITION)
+    document(PAGE, TITLE, DESCRIPTION, body, "proyectos", article=True, date_modified=EDITION)
     record(TITLE, PAGE, "Laboratorio", DESCRIPTION, "Web, API, HTTP, IDOR, autorización, causa raíz, retest, Docker")

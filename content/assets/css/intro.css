@@ -15,7 +15,7 @@
 .intro-rain>span:nth-child(3n){opacity:.5;font-size:16px}
 .intro-rain>span:nth-child(4n){opacity:.2}
 .intro-card{position:relative;z-index:1;display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:min(38rem,100%);max-height:100%;min-height:0;overflow:hidden;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg);box-shadow:0 1.5rem 5rem #000b}
-.intro-titlebar{display:flex;align-items:center;gap:.8rem;padding:.75rem 1.2rem;border-bottom:1px solid var(--line);background:var(--surface);color:var(--dim);font-size:.8rem;overflow-wrap:anywhere}
+.intro-titlebar{display:flex;align-items:center;gap:.8rem;padding:.75rem 1.2rem;border-bottom:1px solid var(--line);background:var(--surface);color:var(--dim);font-size:.8125rem;overflow-wrap:anywhere}
 .intro-window-marks{display:flex;gap:.3rem;flex:none}
 .intro-window-marks i{width:.4rem;height:.4rem;border:1px solid var(--line-strong);border-radius:50%}
 .intro-terminal{min-height:0;overflow:auto;padding:1.5rem 1.3rem 1.15rem;font-size:1rem;line-height:1.85}
@@ -26,19 +26,22 @@
 .intro-line{overflow-wrap:anywhere}
 .intro-line-ready{margin-top:.7rem;color:var(--acc)}
 .intro-footer{display:flex;align-items:center;justify-content:space-between;gap:.75rem 1rem;padding:.85rem 1.2rem;border-top:1px solid var(--line);background:var(--surface)}
-.intro-footer p{margin:0;max-width:25ch;font:.8rem/1.6 var(--sans);color:var(--dim)}
-.intro-skip{flex:none;min-height:44px;padding:.6rem .85rem;font-size:.8rem;box-shadow:none}
+.intro-footer p{margin:0;max-width:25ch;font:.8125rem/1.6 var(--sans);color:var(--dim)}
+.intro-skip{flex:none;min-height:44px;padding:.6rem .85rem;font-size:.8125rem;box-shadow:none}
 .intro-skip:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
 .intro-preference .tgl-text{display:flex;flex-wrap:wrap;gap:.25rem .55rem;align-items:baseline}
 [data-intro-preference-state]{font-size:.75em;font-weight:400;color:var(--dim)}
-.appearance-panel>.intro-preference-note{font-size:.8rem;line-height:1.6;margin:.1rem 0 0}
+.appearance-panel>.intro-preference-note{font-size:.8125rem;line-height:1.6;margin:.1rem 0 0}
 @media(prefers-reduced-motion:no-preference){
-  html:not([data-paused]) .site-intro,
-  html:not([data-paused]) .site-intro::backdrop{transition:opacity .5s ease-in-out}
-  html:not([data-paused]) .site-intro .intro-card{transition:transform .5s cubic-bezier(.22,1,.36,1)}
-  html:not([data-paused]) .site-intro[data-intro-leaving],
+  /* V14.11: salida tipo `clear`. La pantalla se limpia de abajo hacia arriba (420 ms, curva que acelera y
+     frena) y descubre el sitio; el telón nativo se retira al instante porque el diálogo ya cubre toda la
+     pantalla. La tarjeta sube 16 px mientras sale. Antes: un fundido de 0,5 s con ease-in-out. */
+  html:not([data-paused]) .site-intro{clip-path:inset(0 0 0 0);transition:clip-path 420ms cubic-bezier(.77,0,.175,1)}
+  html:not([data-paused]) .site-intro::backdrop{transition:opacity 120ms linear}
+  html:not([data-paused]) .site-intro .intro-card{transition:transform 300ms cubic-bezier(.23,1,.32,1),opacity 300ms cubic-bezier(.23,1,.32,1)}
+  html:not([data-paused]) .site-intro[data-intro-leaving]{clip-path:inset(0 0 100% 0)}
   html:not([data-paused]) .site-intro[data-intro-leaving]::backdrop{opacity:0}
-  html:not([data-paused]) .site-intro[data-intro-leaving] .intro-card{transform:translateY(-12px) scale(.985)}
+  html:not([data-paused]) .site-intro[data-intro-leaving] .intro-card{transform:translateY(-16px);opacity:.7}
   html:not([data-paused]) .site-intro[open] .intro-rain>span{animation:intro-rain 7s linear both}
   html:not([data-paused]) .site-intro[open] .intro-rain>span:nth-child(3n){animation-duration:9s;animation-delay:-2s}
   html:not([data-paused]) .site-intro[open] .intro-rain>span:nth-child(3n+1){animation-duration:8s;animation-delay:-1s}

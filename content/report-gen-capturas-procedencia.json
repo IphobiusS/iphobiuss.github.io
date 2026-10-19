@@ -129,62 +129,6 @@
   },
   "images": [
     {
-      "stem": "report-gen-0260-editor",
-      "source": "report-gen-0260-editor.png",
-      "source_sha256": "3e4bd5bcc51e1495a0ecc7ef8aed833e8c6b3c5bc10d0b19f04c37a8901e424b",
-      "original": "assets/img/report-gen-0260-editor.png",
-      "width": 1512,
-      "height": 1100,
-      "alt": "Editor real de report-gen 0.26.0 con el hallazgo F01 y vista previa ajustada al ancho del caso ficticio Nimbus.",
-      "caption": "Captura real de report-gen 0.26.0: editor y vista previa sincronizada de Nimbus, una demo ficticia; no es una evaluación de un cliente.",
-      "captured_at": "2026-10-10T02:27:07.271Z",
-      "variants": [
-        {
-          "file": "assets/img/report-gen-0260-editor-960.webp",
-          "width": 960,
-          "height": 698,
-          "bytes": 78358,
-          "sha256": "0f724596aa0cd168cd4e82613ba3eb01d2c4b39de4358f433a4774419709c1ac"
-        },
-        {
-          "file": "assets/img/report-gen-0260-editor-1512.webp",
-          "width": 1512,
-          "height": 1100,
-          "bytes": 169514,
-          "sha256": "147e9c61194f92d99dca344446ece5e96810a4681ed662c0b032de004db74331"
-        }
-      ],
-      "fallback_bytes": 169514
-    },
-    {
-      "stem": "report-gen-0260-entrega",
-      "source": "report-gen-0260-entrega.png",
-      "source_sha256": "3d3fa1758c9b62ee4660f5289707d957d9006b699bd544368cf08a352b703969",
-      "original": "assets/img/report-gen-0260-entrega.png",
-      "width": 1512,
-      "height": 1100,
-      "alt": "Pantalla Entregar de report-gen 0.26.0 con los estados y accesos de preparación de la demo ficticia Nimbus.",
-      "caption": "Captura real de report-gen 0.26.0: preparación de Nimbus y revisión por puntos. En esta sesión se generó y comprobó el HTML de la misma fuente ficticia; la revisión humana sigue siendo necesaria.",
-      "captured_at": "2026-10-10T02:27:08.358Z",
-      "variants": [
-        {
-          "file": "assets/img/report-gen-0260-entrega-960.webp",
-          "width": 960,
-          "height": 698,
-          "bytes": 50102,
-          "sha256": "62647a4bfed0581904be3896a0471605504e4e8e1144df946034f9792d0764aa"
-        },
-        {
-          "file": "assets/img/report-gen-0260-entrega-1512.webp",
-          "width": 1512,
-          "height": 1100,
-          "bytes": 96300,
-          "sha256": "f6e7cf45d0393d479400140466a244cbdb0d02f968f38a082b81694cc7008cfc"
-        }
-      ],
-      "fallback_bytes": 96300
-    },
-    {
       "stem": "report-gen-0260-comprobaciones",
       "source": "report-gen-0260-comprobaciones.png",
       "source_sha256": "12098dd75e5c3242a7d486754980dfaa1f796ff2c316f69c4181e14a5b745b5d",

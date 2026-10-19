@@ -1,7 +1,25 @@
 {
   "name": "PrometheuS",
   "anchor": "prometheus",
-  "status": "En construcción",
-  "description": "Agente de pentesting por línea de comandos para planificar evaluaciones autorizadas, organizar inventario y generar reportes verificables.",
+  "status": "Candidata de lanzamiento",
+  "version": "0.56.0rc1",
+  "description": "Reconocimiento de red y web, evidencia y borradores de informe desde CLI y dashboard local. Alcance explícito y perfiles acotados para evaluaciones autorizadas.",
+  "platform": "Linux · Python",
+  "capabilities": [
+    {
+      "title": "Reconocimiento con límites",
+      "text": "Autopilot encadena descubrimiento e identificación ligera de servicios con Nmap y comprobaciones posteriores cuando existe evidencia suficiente. Incluye perfiles limitados de web, SSH, SMB y RPC; conserva exclusiones y presupuestos."
+    },
+    {
+      "title": "Evidencia para revisar",
+      "text": "Importa 44 formatos de evidencia y conserva su procedencia. La CLI y el dashboard local permiten consultar resultados y estados; la proyección de cobertura de la CLI detalla también ramas sin tarea."
+    },
+    {
+      "title": "Borradores de informe",
+      "text": "Prepara borradores YAML para revisar y completar en report-gen. La edición y exportación del informe se realizan por separado; la integración con report-gen 0.45.0 aún requiere validación conjunta."
+    }
+  ],
+  "release_note": "Esta candidata mejora el diagnóstico de requisitos, el registro de ramas SMB/HTTPx pendientes y el espaciado de conexiones.",
+  "limitations": "La validación operativa de esta versión en Kali y varias pruebas con productores reales siguen pendientes. Completar un plan no acredita un pentest completo ni ausencia de vulnerabilidades.",
   "availability": "Sin descarga ni demo pública en este sitio."
 }

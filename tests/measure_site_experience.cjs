@@ -96,7 +96,9 @@ function observe(options) {
       const value = { at: now, open: dialog.open, leaving: dialog.hasAttribute('data-intro-leaving'), opacity, backdropOpacity };
       audit.intro.frames.push(value);
       if (dialog.open && !value.leaving && opacity === 1 && backdropOpacity === 1) audit.intro.opaque = true;
-      if (dialog.open && value.leaving && opacity > 0 && opacity < 1 && backdropOpacity > 0 && backdropOpacity < 1) audit.intro.fade = true;
+      // V14.11: the exit clears the screen upward (clip-path) instead of fading it.
+      const cleared = Number((/inset\(0(?:px)? 0(?:px)? ([\d.]+)%/.exec(getComputedStyle(dialog).clipPath) || [0, 0])[1]);
+      if (dialog.open && value.leaving && cleared > 0 && cleared < 100 && backdropOpacity < 1) audit.intro.fade = true;
     }
     if (dialog.open) frame = requestAnimationFrame(() => sample(dialog));
   }
@@ -206,14 +208,15 @@ const median = values => { const sorted = values.slice().sort((a, b) => a - b), 
       const task = entry.interaction ? await interaction(page, entry.interaction) : null;
       let brand = null;
       if (entry.route === 'index.html') {
-        brand = await page.locator('.report-brand-card img').evaluate(async image => {
+        brand = await page.locator('.report-art img').evaluate(async image => {
           await image.decode();
           return { currentSource: new URL(image.currentSrc).pathname, renderedWidth: image.getBoundingClientRect().width,
             renderedHeight: image.getBoundingClientRect().height, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
             devicePixelRatio };
         });
-        assert.match(brand.currentSource, /report-gen-brand-mark-(108|216)\.webp$/, 'A 1× compact card must use a small derivative');
-        assert.ok(!measured.resources.some(resource => resource.path === '/assets/img/report-gen-brand-mark.webp'), 'Responsive browsers must not download the 900px fallback');
+        // V15.1: la ilustración de la tarjeta usa una variante proporcional a su ancho, nunca la de 1774 px en móvil 1×.
+        assert.match(brand.currentSource, /report-gen-ilustracion-(480|720)\.webp$/, 'A 1× card must use a small derivative');
+        assert.ok(!measured.resources.some(resource => resource.path === '/assets/img/report-gen-ilustracion-1774.webp'), 'Responsive browsers must not download the full-size variant');
       }
       assert.deepEqual(errors, []); assert.deepEqual(failedRequests, []); assert.deepEqual(responses, []);
       assert.deepEqual(await page.evaluate(() => window.__experience.csp), []);

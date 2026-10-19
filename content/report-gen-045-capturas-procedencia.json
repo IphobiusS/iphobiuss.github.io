@@ -1,0 +1,86 @@
+{
+  "tool_version": "0.45.0",
+  "source_commit": "9693c808ee35d0fa438159ff8752af7f5345b31f",
+  "workflow_run_id": 39080435398,
+  "workflow_url": "https://github.com/IphobiusS/report-gen/actions/runs/39080435398",
+  "executed_pentest": false,
+  "case": "Proyectos ficticios de pruebas de navegador; sin evaluación de un cliente.",
+  "images": [
+    {
+      "stem": "report-gen-0450-catalogo",
+      "source": "catalogo-es-escritorio.png",
+      "source_sha256": "9bf2bd4df66dd6bb30634d128d794130a445a4b4216d2b3a8bf9baec29298d89",
+      "original": "assets/img/report-gen-0450-catalogo.png",
+      "width": 1440,
+      "height": 1000,
+      "alt": "Catálogo de report-gen 0.45.0 con fichas de IA, LLM y agentes seleccionadas en inglés y controles en español.",
+      "caption": "report-gen 0.45.0: catálogo de fichas curadas en una prueba ficticia. La interfaz está en español y las fichas se han seleccionado en inglés; cambiar su idioma no traduce el informe.",
+      "variants": [
+        {
+          "file": "assets/img/report-gen-0450-catalogo-960.webp",
+          "width": 960,
+          "height": 667,
+          "bytes": 46056,
+          "sha256": "186bea8a00577a66908b476855d653f602ae2271eb2c0eec6a3d20f7a825deb2"
+        },
+        {
+          "file": "assets/img/report-gen-0450-catalogo-1440.webp",
+          "width": 1440,
+          "height": 1000,
+          "bytes": 85196,
+          "sha256": "0d82a80c4d449c27b68a70c98965435b876c7054485d267fd885401df251a4dc"
+        }
+      ],
+      "fallback_bytes": 85196,
+      "ci_evidence": {
+        "archivo": "catalogo-es-escritorio.png",
+        "descripcion": "Catálogo en la interfaz española con idioma de las fichas seleccionado independientemente en inglés.",
+        "sha256": "9bf2bd4df66dd6bb30634d128d794130a445a4b4216d2b3a8bf9baec29298d89",
+        "fuente_relativa": "audit/ci/browser/knowledge/artifact/es-1440-100-dark-catalog.png",
+        "artifact_id": 12118204993,
+        "artifact_name": "knowledge-browser-0440-9693c808ee35d0fa438159ff8752af7f5345b31f",
+        "artifact_sha256": "sha256:f5be3055e54953406c6f4c280a08a1f72d7d1cea0c8f31b47024e9f489caf342",
+        "revision_visual": "Inspección por el agente a resolución original; no constituye una sesión de usabilidad humana.",
+        "modificaciones": "Ninguna: copia binaria idéntica al PNG de CI."
+      }
+    },
+    {
+      "stem": "report-gen-0450-http",
+      "source": "comparacion-http-es.png",
+      "source_sha256": "da37e9f16c5a52c056000b01367c2d0e75727e30f1f07a5d2149a4810bb105e6",
+      "original": "assets/img/report-gen-0450-http.png",
+      "width": 1440,
+      "height": 1000,
+      "alt": "Comparador de peticiones y respuestas HTTP de report-gen 0.45.0 con dos registros sintéticos.",
+      "caption": "report-gen 0.45.0: comparación de evidencia HTTP ficticia. bank.test y PRIVATE_CANARY_0420 son datos sintéticos del test, no un destino evaluado ni una credencial válida. Las diferencias requieren interpretación del analista.",
+      "variants": [
+        {
+          "file": "assets/img/report-gen-0450-http-960.webp",
+          "width": 960,
+          "height": 667,
+          "bytes": 23678,
+          "sha256": "4f44202b46d9016c43756586bc739c8687eb3a5f9d0cbe1da7825a6830749108"
+        },
+        {
+          "file": "assets/img/report-gen-0450-http-1440.webp",
+          "width": 1440,
+          "height": 1000,
+          "bytes": 42780,
+          "sha256": "e5920f04778ca9a801bfb1c1b728319d9c856043c899bf5866be8b4cd5a4586c"
+        }
+      ],
+      "fallback_bytes": 42780,
+      "ci_evidence": {
+        "archivo": "comparacion-http-es.png",
+        "descripcion": "Comparador HTTP en español. PRIVATE_CANARY_0420 es un marcador sintético literal del test, no una credencial válida; bank.test es el destino ficticio.",
+        "sha256": "da37e9f16c5a52c056000b01367c2d0e75727e30f1f07a5d2149a4810bb105e6",
+        "fuente_relativa": "audit/ci/browser/senior/artifact/http-evidence/http-comparison-es.png",
+        "artifact_id": 12119090525,
+        "artifact_name": "senior-workflows-0420-9693c808ee35d0fa438159ff8752af7f5345b31f",
+        "artifact_sha256": "sha256:fe36bcedcc19e8f9d8af7aed7f7865dcf417ad621e8de4bf734317ff3e2224dc",
+        "revision_visual": "Inspección por el agente a resolución original; no constituye una sesión de usabilidad humana.",
+        "modificaciones": "Ninguna: copia binaria idéntica al PNG de CI."
+      }
+    }
+  ]
+}

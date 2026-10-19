@@ -1,0 +1,61 @@
+{
+  "tool": "fontTools 4.61.1",
+  "unicodes": "content/fonts-source/unicodes.txt",
+  "codepoints": 1258,
+  "options": "layout_features=*, hinting conservado, name_IDs=*, notdef_outline",
+  "license": "SIL Open Font License 1.1 (assets/fonts/ibmplexsans-OFL.txt, ibmplexmono-OFL.txt)",
+  "fonts": [
+    {
+      "family": "IBM Plex Sans",
+      "weight": 400,
+      "source": "content/fonts-source/1a9cad03d35e.woff2",
+      "source_sha256": "4a41533e882823f4f114231c7e0951f3008e9381d971ad11eecdfd0581556ee5",
+      "source_bytes": 69996,
+      "woff2": "assets/fonts/2164a13d3b0b.woff2",
+      "woff2_sha256": "2164a13d3b0b9c25e9627fc268cff633b068c8c50b24e10193d5533b6a9dd56d",
+      "woff2_bytes": 30324,
+      "woff": "assets/fonts/2164a13d3b0b.woff",
+      "woff_sha256": "dccc0e97a70d7db10c32e35e57e19c25b1b73c9a45c80999eb7854001016b2db",
+      "woff_bytes": 40024
+    },
+    {
+      "family": "IBM Plex Sans",
+      "weight": 600,
+      "source": "content/fonts-source/8da5dfcdccfb.woff2",
+      "source_sha256": "7e4be0d1bcb756e97e90a97bca17ace1ea513de5316ab8328fe31e91b1592330",
+      "source_bytes": 76684,
+      "woff2": "assets/fonts/d57ab90ffe32.woff2",
+      "woff2_sha256": "d57ab90ffe32cbb0bc4026f071912e0d3619ba1da9a8886483ab3294c1c8a91f",
+      "woff2_bytes": 32972,
+      "woff": "assets/fonts/d57ab90ffe32.woff",
+      "woff_sha256": "a10cbb550e63dfa10a7d2fefe9c915e2f5a6c2495d8d88037b144509632865fd",
+      "woff_bytes": 43840
+    },
+    {
+      "family": "IBM Plex Mono",
+      "weight": 400,
+      "source": "content/fonts-source/b0c618f6d8ea.woff2",
+      "source_sha256": "2fbe7bc507de0e1e7aca113f3b8efb9471d438d5f6f3a7b2c0a5ec672d597235",
+      "source_bytes": 37228,
+      "woff2": "assets/fonts/b8c1f0730a1b.woff2",
+      "woff2_sha256": "b8c1f0730a1b694fadc17fb60d069506b97c34cfbe24e42c090cb92c562a8f30",
+      "woff2_bytes": 22884,
+      "woff": "assets/fonts/b8c1f0730a1b.woff",
+      "woff_sha256": "b177e93478b6692d47d15066df2caf34afd54fbf2aac11a30f19eb78d25d5868",
+      "woff_bytes": 32256
+    },
+    {
+      "family": "IBM Plex Mono",
+      "weight": 600,
+      "source": "content/fonts-source/feead6344d56.woff2",
+      "source_sha256": "938e94e8aaf4971bc2944ccb6de98dce167dcbc3a24296aeb872d9a8f7ce2ca5",
+      "source_bytes": 39164,
+      "woff2": "assets/fonts/7c623b7aacd7.woff2",
+      "woff2_sha256": "7c623b7aacd7be2b7e71c09c3a13a8604350c9eeb310e1b35d89c4d2bddc3e03",
+      "woff2_bytes": 24088,
+      "woff": "assets/fonts/7c623b7aacd7.woff",
+      "woff_sha256": "725544921e488ae065149f1bc410d53076ce3683b83e76c7dc24daf102a343e0",
+      "woff_bytes": 33732
+    }
+  ]
+}

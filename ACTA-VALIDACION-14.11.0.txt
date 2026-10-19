@@ -1,0 +1,93 @@
+IPHOBIUSS 14.11.0: AUDITORÍA DE DISEÑO Y MEJORAS
+19 de octubre de 2026
+
+BASE
+iphobiuss-proyecto-v14.10.0.zip (entrega del mismo día). Su build se
+reprodujo byte a byte antes de cualquier cambio. Esta entrega es local; no se
+ha publicado en GitHub.
+
+AUDITORÍA (sobre 14.10.0)
+Skills usadas: impeccable 4.6.0 (audit, critique, detector), taste-skill v2
+(inspector en navegador a 1440/768/390) y las de Emil Kowalski
+(review-animations, animation-performance, find-animation-opportunities).
+Las reglas de estilo de taste-skill que contradicen la identidad de terminal
+(monoespaciada, líneas finas, cajas con borde, numeración, sin fotos) se
+registraron como estilo intencional, no como defectos.
+Resultado técnico de partida: 16/20 en la escala de impeccable; axe sin
+infracciones graves; contraste mínimo 5,1:1; sin desborde entre 320 y 1440 px.
+
+CAMBIOS (los cuatro lotes que eligió el autor)
+A. Movimiento y rendimiento
+- Red de nodos: animada sólo en la portada, a 30 cuadros por segundo y nunca
+  bajo la entrada; en las páginas de lectura, cuadro fijo. Halo con inercia;
+  el toque no lo mueve.
+- Sin fundido al cambiar de carpeta en el árbol (se recorre con flechas).
+- Descifrado de títulos: una vez por sesión, 400 ms (antes 700 ms en cada
+  página interior).
+- Revelado al hacer scroll: lo visible al cargar no parte oculto; lo demás
+  sube 6 px desde opacidad 0,4, 220 ms, escalonado 40 ms.
+- Botones: ceden al presionar (escala 0,97, 120 ms). El brillo al pasar el
+  puntero queda sólo en las acciones de la presentación y sólo con mouse.
+- Cabecera: 200 ms con curva de salida; sin will-change permanente.
+B. Fallos visibles
+- «Saltar al contenido» ya no queda fijo sobre la página al hacer scroll
+  después de saltar la entrada (el foco sigue yendo ahí, como antes).
+- api-acceso.html marca Proyectos en el menú, igual que sesiones-seguras.html.
+- «Mi laboratorio» usa el margen lateral de las demás secciones en móvil.
+- Nombre de la portada: 46 px en 1440 (antes 40) y 32 px en 768 (antes 29).
+- Títulos de sección de la portada con un solo estilo (Plex Mono, 24 px).
+C. Tipografía y peso
+- Escala tipográfica: los tamaños casi iguales se fusionaron; el texto de
+  interfaz más pequeño es 12 px (antes había 9, 10 y 11 px).
+- Fuentes Plex recortadas al repertorio del sitio con hinting y funciones
+  OpenType: de 216 a 106 KB en woff2. scripts/subset-fonts.py las regenera
+  byte a byte; los originales quedan en content/fonts-source/ y la
+  procedencia en content/fonts-subset-provenance.json.
+- Descartado tras medirlo: la fuente pixel ya no se descargaba fuera de
+  Retro; el índice de búsqueda ya cargaba diferido y sólo en buscar.html;
+  dossier.css sí se usa en la portada.
+D. Impacto
+- Salida de la entrada tipo `clear`: la pantalla se limpia hacia arriba en
+  420 ms, la red aparece y las tres rutas de `ls laboratorio/` se listan una a
+  una. Preferencia, Escape, botón y movimiento reducido sin cambios.
+- La sesión tmux sube como sección propia tras los trabajos, plegada y sin
+  reproducción automática, con un resumen de sus tres ventanas.
+- Casos HTB con sistema, dificultad y cadena documentada; certificaciones con
+  su emisor (tomado del dominio de verificación).
+- proyectos.html: la captura de report-gen va justo después de su
+  presentación, antes de las pruebas y límites.
+
+MEDICIONES (antes y después, mismo entorno)
+- Peso por página sin compresión: index 530 a 431 KB; forest 502 a 401 KB;
+  proyectos 536 a 436 KB; buscar 589 a 531 KB.
+- Hilo principal ocupado con CPU limitada a 4x y mouse en movimiento:
+  forest 91 % a 5 %; portada 87 % a 62 %. GPU por software: comparar entre
+  sí, no como cifras de un dispositivo real.
+- Tarjetas sociales (15): idénticas byte a byte a la 14.10.0.
+- Sin rayas largas en las páginas publicadas.
+
+PRUEBAS
+28 de 28 scripts test:* pasan sobre el build definitivo, entre ellos:
+layout 274/274 (70/70 dirigidas, sin infracciones de axe), journey 26/26,
+home-actions 29/29, graphs 48/48, pets-project 33/33, intro, experience,
+compatibility 39/39.
+Pruebas ajustadas porque el comportamiento cambió a propósito:
+- test_site_intro_143.cjs, test_site_compatibility_146.cjs y
+  measure_site_experience.cjs: la salida se comprueba como barrido parcial
+  (clip-path entre 0 y 100 %) en vez de fundido de opacidad.
+- test_site_home_actions_136.cjs: orden de secciones con «home-session».
+Hallazgos de las propias pruebas durante el trabajo, ya corregidos:
+- El emisor bajo cada certificación rompía la coincidencia entre texto
+  visible y nombre accesible (axe label-content-name-mismatch).
+- Con texto al 400 % en 768 px, la cadena de Forest desbordaba a 869 px.
+
+ENTORNO Y LÍMITES
+Linux, Python 3.12, Node 22.22.0, Playwright 1.62.1, Chromium 153.0.8010.0
+(paquete de npm; la descarga oficial de Playwright está bloqueada en este
+entorno), axe-core 4.14.0. compatibility se ejecutó sólo con Chromium
+(SITE_COMPAT_BROWSERS=chromium): Firefox y WebKit no estaban disponibles.
+En la línea base, layout falló una vez por tiempo de captura de un informe
+HTML de 1 MB; en la corrida final pasó. No se probó en teléfonos reales: la
+fluidez de la entrada en móvil y el salto de ~2 s del primer cuadro (visto
+sólo con GPU por software) quedan por confirmar en un dispositivo.
+La aceptación visual y el despliegue quedan a cargo del autor.

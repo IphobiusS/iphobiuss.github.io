@@ -18,6 +18,7 @@ def resources(filename):
  scripts='<script src="assets/js/notebook.js" defer></script>' if filename in NOTEBOOK_ROUTES or filename=='index.html' else ''
  if filename in DOSSIER_ROUTES:scripts+='<script src="assets/js/dossier.js" defer></script>'
  if filename=='recorrido.html':scripts+='<script src="assets/js/journey.js" defer></script>'
+ if filename=='index.html':scripts+='<script src="assets/js/shell.js" defer></script>'
  return css,scripts
 
 def attack_graph(guide,root):

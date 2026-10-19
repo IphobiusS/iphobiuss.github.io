@@ -52,10 +52,13 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
   await page.goto(base + '/index.html'); await page.evaluate(() => localStorage.setItem('iphobiuss:motion', 'paused')); await page.reload(); await frames(page);
   await check('portfolio hierarchy and case CTA target a visible real local section', async () => {
    assert.equal(await page.locator('.welcome-actions .primary').innerText(), 'Ver trabajos propios'); assert.equal(await page.locator('.welcome-actions .primary').getAttribute('href'), '#proyecto-destacado');
-   assert.equal(await page.locator('.welcome-actions a').filter({ hasText: 'Ver casos' }).getAttribute('href'), '#casos');
-   const cue = page.locator('.welcome-actions a[href="#casos"]'); assert.equal(await cue.innerText(), 'Ver casos HTB'); assert.equal(await cue.getAttribute('href'), '#casos'); assert.ok(await cue.isVisible());
+   // V15: una sola acción principal; la evidencia del hero lleva a destinos locales reales (credenciales verificables).
+   assert.equal(await page.locator('.welcome-actions a').count(), 1);
+   const cue = page.locator('.hero-evidence a[href="#certificaciones"]'); assert.match(await cue.innerText(), /certificaciones/); assert.ok(await cue.isVisible());
    assert.equal(await page.locator('.session-shell').getAttribute('open'), null); assert.equal(await page.locator('[data-library]').getAttribute('open'), null); assert.equal(await page.locator('[data-intro][open]').count(), 0);
-   await cue.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(() => location.hash === '#casos'); await frames(page); assert.equal(new URL(page.url()).hash, '#casos'); assert.ok(await page.locator('#casos').isVisible());
+   await cue.focus(); await page.keyboard.press('Enter'); await page.waitForFunction(() => location.hash === '#certificaciones'); await frames(page); assert.equal(new URL(page.url()).hash, '#certificaciones'); assert.ok(await page.locator('#certificaciones').isVisible());
+   // Los enlaces antiguos a index.html#casos siguen llegando a los casos HTB, ahora dentro de las habilidades.
+   await page.goto(base + '/index.html#casos'); await frames(page); assert.ok(await page.locator('#casos').isVisible()); assert.equal(await page.locator('#casos a[href="cap-caso.html"].skill-case').count(), 1);
    assert.equal(await cue.evaluate(el => el.getAnimations().length), 0);
   });
   await check('site motion remains paused and the terminal welcome needs no modal', async () => {
@@ -77,7 +80,7 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
    await p.locator('[data-journey-nav] a[href="#caso-ad"]').focus(); await p.keyboard.press('Enter'); await p.waitForFunction(() => location.hash === '#caso-ad'); assert.equal(new URL(p.url()).hash, '#caso-ad');
    assert.ok(await p.locator('#caso-ad').isVisible());
    await p.goto(base + '/index.html'); if (mode !== 'no-js') { const skip = p.locator('[data-intro][open] [data-intro-skip]'); if (await skip.count()) await skip.click(); }
-   const cue = p.locator('.welcome-actions a[href="#casos"]'); assert.ok(await cue.isVisible()); await cue.focus(); await p.keyboard.press('Enter'); await p.waitForFunction(() => location.hash === '#casos'); assert.equal(new URL(p.url()).hash, '#casos');
+   const cue = p.locator('.hero-evidence a[href="#certificaciones"]'); assert.ok(await cue.isVisible()); await cue.focus(); await p.keyboard.press('Enter'); await p.waitForFunction(() => location.hash === '#certificaciones'); assert.equal(new URL(p.url()).hash, '#certificaciones');
    assert.equal(await cue.evaluate(el => el.getAnimations().length), 0); assert.deepEqual(fallbackErrors, []); await ctx.close();
   });
   for (const theme of ['dark', 'paper', 'retro']) for (const width of [390, 1366]) for (const textScale of [100, 200]) await check(`reflow + WCAG axe ${theme}/${width}/${textScale}`, async () => {
@@ -85,9 +88,9 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
    await ctx.addInitScript(theme => { if (theme === 'paper') localStorage.setItem('iphobiuss:theme', 'paper'); if (theme === 'retro') localStorage.setItem('iphobiuss:retro', 'on'); }, theme);
    ctx.setDefaultTimeout(10000); const p = await ctx.newPage();
    for (const route of ['recorrido.html', 'index.html']) {
-    await p.goto(base + '/' + route); if (textScale === 200) await p.addStyleTag({ content: 'html{font-size:200%!important}' }); await p.evaluate(() => document.fonts.ready); await frames(p);
+    await p.goto(base + '/' + route); if (textScale === 200) await p.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; }); await p.evaluate(() => document.fonts.ready); await frames(p);
     assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), route + ' horizontal overflow');
-    const selector = route === 'recorrido.html' ? '[data-journey-nav] a' : '.welcome-actions a[href="#casos"]';
+    const selector = route === 'recorrido.html' ? '[data-journey-nav] a' : '.welcome-actions a, .hero-evidence a';
     for (const link of await p.locator(selector).all()) { assert.ok(await link.isVisible()); assert.ok(await link.evaluate(el => el.getBoundingClientRect().height >= 44)); }
     { await p.evaluate(axeSource); const violations = await p.evaluate(() => axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa'] } }).then(r => r.violations)); assert.deepEqual(violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })), []); }
    }

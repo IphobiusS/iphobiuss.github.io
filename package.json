@@ -1,8 +1,8 @@
 {
   "name": "iphobiuss-retro",
-  "version": "14.9.2",
+  "version": "15.1.1",
   "private": true,
-  "description": "Scripts de construcci\u00f3n del sitio est\u00e1tico.",
+  "description": "Scripts de construcción del sitio estático.",
   "scripts": {
     "build": "python scripts/build.py",
     "build:images": "python scripts/build-images.py",
@@ -12,10 +12,10 @@
     "test:graphs": "node tests/test_site_graph_scanlines_134.cjs",
     "test:graph-sources": "python tests/check_graph_sources_134.py",
     "test:pets-project": "node tests/test_site_pets_prometheus_135.cjs",
-    "test:home-actions": "node tests/test_site_home_actions_136.cjs",
+    "test:home-actions": "node tests/test_site_home_actions_136.cjs && node tests/test_site_shell_151.cjs",
     "test:layout": "node tests/test_site_layout_138.cjs",
     "build:all": "python scripts/build-site.py",
-    "test:guide-progress": "node tests/test_site_guide_progress_1310.cjs",
+    "test:guide-progress": "node tests/test_site_guide_progress_1310.cjs && node tests/test_site_reading_marks_151.cjs",
     "build:reports": "python scripts/optimize-report-html.py --in-place --manifest content/report-gen-html-optimization.json",
     "test:report-assets": "python tests/test_optimize_report_html.py",
     "test:build": "python tests/test_clean_build.py",

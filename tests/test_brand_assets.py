@@ -27,7 +27,7 @@ class BrandAssets(unittest.TestCase):
         original = DIST / provenance['asset']
         self.assertEqual(sha256(original.read_bytes()).hexdigest(), provenance['sha256'])
         self.assertEqual(original.read_bytes(), (ROOT / 'content/assets/img/report-gen-brand-mark.webp').read_bytes())
-        self.assertEqual([item['width'] for item in provenance['variants']], [108, 216, 432, 648])
+        self.assertEqual([item['width'] for item in provenance['variants']], [108, 216])
         with Image.open(original) as source_image:
             source = source_image.convert('RGBA')
             for variant in provenance['variants']:
@@ -45,19 +45,19 @@ class BrandAssets(unittest.TestCase):
                         self.assertEqual(actual.tobytes(), expected.tobytes(), 'No crop, missing alpha, lossy encoding or replacement artwork')
                         self.assertLess(actual.getchannel('A').getextrema()[0], 255, 'Transparency must remain')
 
-    def test_card_declares_browser_selection_and_native_fallback(self):
+    def test_logo_declares_browser_selection_and_native_fallback(self):
+        # Desde 15.1 la portada muestra la ilustración; el logo acompaña al nombre en proyectos.html.
         provenance = json.loads((ROOT / 'content/report-gen-brand-provenance.json').read_text())
         parser = Images()
-        parser.feed((DIST / 'index.html').read_text())
+        parser.feed((DIST / 'proyectos.html').read_text())
         images = [image for image in parser.images if image.get('src') == provenance['asset']]
         self.assertEqual(len(images), 1)
         image = images[0]
-        self.assertEqual(image['loading'], 'lazy')
-        self.assertEqual(image['sizes'], 'auto, 6rem')
+        self.assertEqual(image['class'], 'proj-logo')
+        self.assertEqual(image['sizes'], '4.5rem')
         self.assertEqual(image['srcset'].split(', '), [f"{item['file']} {item['width']}w" for item in provenance['variants']])
         self.assertEqual((image['width'], image['height']), ('900', '600'))
-        self.assertIn('Prometeo y Evaristo', image['alt'])
-
+        self.assertEqual(image['alt'], '', 'Decorativo: el nombre report-gen va al lado')
 
 if __name__ == '__main__':
     unittest.main()

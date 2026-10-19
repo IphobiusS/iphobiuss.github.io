@@ -82,8 +82,9 @@
   function scramble(el, text, duration) {
     const start = performance.now(), chars = [...text];
     activeScrambles.set(el, text);
-    el.innerHTML = chars.map(c => `<span class="ch sc">${c === ' ' ? '&nbsp;' : glyphs[Math.random() * glyphs.length | 0]}</span>`).join('');
-    const spans = [...el.querySelectorAll('.ch')];
+    // Nodos y textContent, nunca HTML: los glifos incluyen < > & y el título viene del propio documento.
+    const spans = chars.map(c => { const span = document.createElement('span'); span.className = 'ch sc'; span.textContent = c === ' ' ? '\u00a0' : glyphs[Math.random() * glyphs.length | 0]; return span; });
+    el.replaceChildren(...spans);
     const step = now => {
       const p = Math.min(1, (now - start) / duration), settled = Math.floor(p * chars.length);
       spans.forEach((s, i) => {
@@ -149,7 +150,13 @@
     const supported = !!canvas && typeof window.CanvasRenderingContext2D === 'function';
     const ctx = supported ? canvas.getContext('2d') : null;
     if (!ctx) return {sync() {}};
-    let w = 0, h = 0, nodes = [], packets = [], frame = 0, on = false, pointer = {x: -1e4, y: -1e4}, colors = {};
+    // V14.11: la red sólo se anima en la portada. En las páginas de lectura queda como un cuadro fijo
+    // (misma identidad, sin redibujar 60 veces por segundo detrás del texto). Bajo la entrada opaca no corre:
+    // nadie la ve. El halo del puntero sigue al mouse con una inercia corta en vez de saltar a la posición.
+    const home = document.body?.dataset.page === 'index';
+    const intro = document.querySelector('[data-site-intro]');
+    const introOpen = () => !!(intro && intro.open);
+    let w = 0, h = 0, nodes = [], packets = [], frame = 0, on = false, pointer = {x: -1e4, y: -1e4}, target = {x: -1e4, y: -1e4}, colors = {}, last = 0;
     const rgb = hex => { const m = /^#([0-9a-f]{6})$/i.exec(hex.trim()); if (!m) return '110,226,131'; const n = parseInt(m[1], 16); return `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`; };
     const readColors = () => { const cs = getComputedStyle(html); colors = {line: rgb(cs.getPropertyValue('--acc')), near: rgb(cs.getPropertyValue('--link')), dot: rgb(cs.getPropertyValue('--dim'))}; };
     const R = () => (w < 700 ? 110 : 150);
@@ -173,7 +180,11 @@
     function draw(still) {
       ctx.clearRect(0, 0, w, h);
       const r = R();
-      if (!still) nodes.forEach(n => { n.x += n.vx; n.y += n.vy; if (n.x < 0 || n.x > w) n.vx *= -1; if (n.y < 0 || n.y > h) n.vy *= -1; });
+      // A 30 cuadros por segundo cada nodo avanza el doble por cuadro: la deriva conserva su velocidad.
+      if (!still) nodes.forEach(n => { n.x += n.vx * 2; n.y += n.vy * 2; if (n.x < 0 || n.x > w) n.vx *= -1; if (n.y < 0 || n.y > h) n.vy *= -1; });
+      if (target.x < -1e3) pointer = target;
+      else if (pointer.x < -1e3 || still) pointer = {x: target.x, y: target.y};
+      else pointer = {x: pointer.x + (target.x - pointer.x) * .3, y: pointer.y + (target.y - pointer.y) * .3};
       ctx.lineWidth = 1;
       for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i], b = nodes[j], d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -186,10 +197,10 @@
         ctx.beginPath(); ctx.arc(n.x, n.y, near ? 2.2 : 1.4, 0, Math.PI * 2); ctx.fill();
       });
       if (!still) {
-        if (frame % 7 === 0 && packets.length < 18) spawn();
+        if (frame % 4 === 0 && packets.length < 18) spawn();
         packets = packets.filter(p => p.t <= 1);
         packets.forEach(p => {
-          p.t += p.v;
+          p.t += p.v * 2;
           for (let k = 0; k < 4; k++) {
             const tt = Math.max(0, p.t - k * .03), x = p.a.x + (p.b.x - p.a.x) * tt, y = p.a.y + (p.b.y - p.a.y) * tt;
             ctx.fillStyle = `rgba(${colors.line},${(.95 - k * .22).toFixed(2)})`; ctx.beginPath(); ctx.arc(x, y, 2 - k * .35, 0, Math.PI * 2); ctx.fill();
@@ -199,16 +210,23 @@
       frame++;
     }
     let rafId = 0;
-    function loop() { if (!on) { rafId = 0; return; } draw(false); rafId = requestAnimationFrame(loop); }
+    function loop(now) {
+      if (!on) { rafId = 0; return; }
+      if (!last || now - last >= 32) { last = now; draw(false); }
+      rafId = requestAnimationFrame(loop);
+    }
     window.addEventListener('resize', resize, {passive: true});
-    window.addEventListener('pointermove', e => { pointer = {x: e.clientX, y: e.clientY}; }, {passive: true});
-    document.addEventListener('pointerleave', () => { pointer = {x: -1e4, y: -1e4}; });
+    // El toque no deja un halo fijo donde se levantó el dedo; sólo el mouse lo mueve.
+    window.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') target = {x: e.clientX, y: e.clientY}; }, {passive: true});
+    document.addEventListener('pointerleave', () => { target = {x: -1e4, y: -1e4}; });
+    // Al cerrarse la entrada, la red arranca (y aparece con un fundido corto definido en identity.css).
+    if (intro) intro.addEventListener('close', () => syncControls());
     if (typeof MutationObserver === 'function') new MutationObserver(() => { readColors(); if (!on) draw(true); }).observe(html, {attributes: true, attributeFilter: ['data-theme', 'data-retro']});
     readColors(); resize();
     return {sync() {
-      const should = running() && onScreen;
+      const should = home && running() && onScreen && !introOpen();
       // F07: una sola cadena de requestAnimationFrame. Se cancela al detener y no se agenda una segunda.
-      if (should && !on) { on = true; if (!rafId) rafId = requestAnimationFrame(loop); }
+      if (should && !on) { on = true; last = 0; if (!rafId) rafId = requestAnimationFrame(loop); }
       else if (!should && on) { on = false; if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } packets = []; draw(true); }
     }};
   })();
@@ -292,11 +310,16 @@
     if (titleTimer) { clearTimeout(titleTimer); titleTimer = null; }
     if (headTitle) { if (activeScrambles.has(headTitle)) activeScrambles.delete(headTitle); headTitle.classList.remove('scrambling'); headTitle.textContent = headText; }
   }
+  // V14.11: el descifrado es un saludo, no un peaje: corre en el primer título interior de la sesión y,
+  // después, cada página muestra su título legible desde el primer cuadro.
+  const scrambleKey = 'iphobiuss:scramble';
+  const scrambledBefore = () => { try { return sessionStorage.getItem(scrambleKey) === '1'; } catch { return false; } };
   function startTitle() {
     if (!headTitle) return;
     cancelTitle();
-    if (!running()) { headTitle.textContent = headText; return; }
-    titleTimer = setTimeout(() => { titleTimer = null; if (running()) { headTitle.classList.add('scrambling'); scramble(headTitle, headText, 700); } else headTitle.textContent = headText; }, 80);
+    if (!running() || scrambledBefore()) { headTitle.textContent = headText; return; }
+    try { sessionStorage.setItem(scrambleKey, '1'); } catch { /* Sin almacenamiento, se anima en esta página. */ }
+    titleTimer = setTimeout(() => { titleTimer = null; if (running()) { headTitle.classList.add('scrambling'); scramble(headTitle, headText, 400); } else headTitle.textContent = headText; }, 80);
   }
   if (headTitle) startTitle();
   // R04: las tarjetas .reveal aparecen al entrar en viewport, pero solo si el movimiento está realmente activo
@@ -310,9 +333,16 @@
     reveals.forEach(el => el.addEventListener('focusin', () => el.classList.add('in', 'reveal-focus')));
     if (!running() || typeof IntersectionObserver === 'undefined') { html.classList.add('reveal-ready'); reveals.forEach(el => el.classList.add('in')); }
     else {
+      // V14.11: lo que ya está en pantalla al cargar se muestra de inmediato (sin fundido sobre lo que se está
+      // leyendo). Sólo las tarjetas que entran luego con el scroll aparecen, escalonadas dentro de su fila.
+      const viewH = window.innerHeight || document.documentElement.clientHeight;
+      reveals.forEach(el => { const r = el.getBoundingClientRect(); if (r.top < viewH && r.bottom > 0) el.classList.add('in', 'reveal-instant'); });
       html.classList.add('reveal-ready');
-      const io = new IntersectionObserver((entries, obs) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } }), {rootMargin: '0px 0px -10% 0px'});
-      reveals.forEach(el => io.observe(el));
+      const io = new IntersectionObserver((entries, obs) => {
+        let order = 0;
+        entries.forEach(e => { if (e.isIntersecting) { e.target.style.setProperty('--reveal-i', String(Math.min(order++, 3))); e.target.classList.add('in'); obs.unobserve(e.target); } });
+      }, {rootMargin: '0px'});
+      reveals.forEach(el => { if (!el.classList.contains('in')) io.observe(el); });
     }
   }
   // R08: encendido CRT al activar Retro. Limpieza idempotente: una sola instancia, retirada en animationend,

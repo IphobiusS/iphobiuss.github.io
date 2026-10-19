@@ -1,0 +1,47 @@
+{
+  "source": "content/illustrations/report-gen-ilustracion.png",
+  "source_sha256": "6ace381d37e832dcd9f005f8575813c4d77c0a4a77e17fb00ed7155a81182641",
+  "source_bytes": 1431982,
+  "width": 1774,
+  "height": 887,
+  "author": "Ilustración entregada por el autor del sitio el 19 de octubre de 2026.",
+  "derivation": "Pillow 12.3.0: LANCZOS, WebP calidad 86, método 6, sin metadatos.",
+  "alt": "Prometeo y Evaristo, las mascotas de report-gen, junto a una ventana con el nombre del programa y los formatos PDF, DOCX, MD y HTML.",
+  "variants": [
+    {
+      "file": "assets/img/report-gen-ilustracion-480.webp",
+      "width": 480,
+      "height": 240,
+      "bytes": 18702,
+      "sha256": "e19357ff2ac02e9eb703c6da7c15741cbfa7923b049e20aca9705e97a7edf638"
+    },
+    {
+      "file": "assets/img/report-gen-ilustracion-720.webp",
+      "width": 720,
+      "height": 360,
+      "bytes": 31702,
+      "sha256": "2e5bbe7aabf189d594326fa91402bd9e62ffe9c573916d95b9f9337e18df3733"
+    },
+    {
+      "file": "assets/img/report-gen-ilustracion-960.webp",
+      "width": 960,
+      "height": 480,
+      "bytes": 46112,
+      "sha256": "ddef991601141fcdbe2bb30e18ce2db75818607313e3d6285f71f55f783a6450"
+    },
+    {
+      "file": "assets/img/report-gen-ilustracion-1440.webp",
+      "width": 1440,
+      "height": 720,
+      "bytes": 75670,
+      "sha256": "bf4de24f3ded16d225e77ffdcb30010a072e87504f54a25dcd5625a0505432db"
+    },
+    {
+      "file": "assets/img/report-gen-ilustracion-1774.webp",
+      "width": 1774,
+      "height": 887,
+      "bytes": 95182,
+      "sha256": "5f8a1d286f78e4b18d33933fefd1be00281b706882bf4233b1072b1af36dcda6"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+IPHOBIUSS 14.10.0 — CAMBIOS Y VALIDACIÓN
+19 de octubre de 2026
+
+BASE
+Se recuperó iphobiuss-proyecto-v14.9.2.zip, entregado el 15 de octubre.
+La entrega actual es una actualización local; no se ha publicado en GitHub.
+
+REPORT-GEN
+Versión pública verificada: 0.45.0.
+Commit: 9693c808ee35d0fa438159ff8752af7f5345b31f.
+Release: https://github.com/IphobiusS/report-gen/releases/tag/v0.45.0
+Paquete: report-gen-0.45.0-9693c808ee35.zip (35131656 bytes).
+SHA-256: 93d81ae0ad4df18decc37b29ccb0c87769946b4874cf9db5889ce8ea9a23902b.
+Los tres assets de la Release coinciden byte por byte con el paquete
+reproducido desde el commit exacto. Cuatro workflows push/main validados.
+Se actualizaron descarga, guía ES/EN, funcionalidades, capturas, RSS, estado
+y referencia de versión del CV. Los originales de capturas son artefactos
+reales de CI; sus datos son ficticios. Se registran hashes y procedencia.
+Las muestras PDF 0.21.2 y HTML 0.25.0/0.23.0 conservan sus versiones.
+Las pruebas automáticas no acreditan revisión nativa en Word ni usabilidad
+humana. Las conexiones opcionales necesitan su propia aceptación operativa.
+
+PROMETHEUS
+Se presenta 0.56.0rc1 como candidata de lanzamiento para reconocimiento
+acotado y evidencia en evaluaciones autorizadas. Se explican CLI/dashboard,
+44 formatos de importación, borradores YAML, exclusiones y presupuestos.
+La validación operativa de esta candidata en Kali y la integración conjunta
+con report-gen 0.45.0 siguen pendientes. No se añade descarga o demo pública.
+La búsqueda conserva un destino directo para PrometheuS, sin duplicados.
+
+PRESENTACIÓN
+Se conservan diseño, terminal de entrada, mascotas y laboratorios.
+Se actualizan textos españoles e ingleses, metadatos y tarjeta social.
+Se corrige el solapamiento de la cabecera móvil sin JavaScript al abrir
+anclas de proyectos; el fallback vuelve a colocarla en el flujo normal.
+Inspección visual de componentes a 390 y 1440 px.
+
+COMPROBACIONES
+- 30 páginas generadas; 126 archivos públicos.
+- 32 HTML revisados (incluyen 2 informes HTML): 1913 enlaces locales, 0 fallos.
+- 6 pruebas de sincronización de Release; 5 de RSS; 2 de marca: todas pasan.
+- 33 pruebas de PrometheuS/portada/búsqueda: todas pasan. Incluyen teclado,
+  tres temas, 320/390/1366 px, texto 100/200%, sin JS, fallos de scripts,
+  almacenamiento bloqueado, impresión y repetición de búsqueda/cambio de tema.
+  La regresión final comprueba el ancla móvil sin JavaScript; además, 4/4
+  navegaciones directas y por clic con/sin JS conservan título y descarga visibles.
+- 18 comprobaciones del estado de report-gen en ES/EN: todas pasan.
+- Matriz de 36 estados de index, proyectos, English y report-gen-en:
+  tres temas, móvil/escritorio y texto al 200%; 36/36 pasan, sin desbordamientos
+  ni infracciones de axe detectadas. 20 estados contienen comprobaciones
+  incompletas que requieren juicio manual; no se certifica conformidad WCAG.
+- Dos builds limpios idénticos y eliminación de salida obsoleta verificadas.
+- Después de los últimos cambios, un build limpio independiente reproduce
+  byte por byte los 126 archivos de dist; las fuentes permanecen intactas.
+- CV: 2 páginas, 13 enlaces, sin contactos directos; fuente y dist idénticos.
+  El cambio de versión elevó inicialmente su peso por encima del presupuesto.
+  Compresión sin pérdida lo redujo a 122265 bytes; texto, enlaces y render de
+  ambas páginas idénticos píxel por píxel a 144 dpi. Presupuesto final aprobado.
+
+ENTORNO Y LÍMITES
+Python 3.12, Node 24.19.0, Playwright 1.62.1, Chromium 153.0.8010.0 y axe-core
+4.14.0 en Linux. No se probaron Firefox/Safari nativos ni Word de escritorio.
+Las comprobaciones del sitio no constituyen una nueva auditoría funcional
+de report-gen o PrometheuS. Véase audit-v14.10/validacion.json.
+
+USO
+El ZIP de proyecto contiene fuentes y dist. Para verlo:
+  python -m http.server 8000 --directory dist
+Abre http://localhost:8000. Para editar/reconstruir, sigue README.md.
+El ZIP «publicar» contiene sólo dist, con index.html en su raíz.

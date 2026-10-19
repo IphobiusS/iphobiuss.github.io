@@ -74,9 +74,9 @@
     html.dataset.retro = enabled ? 'on' : 'off';
     retroButtons.forEach(button => {
       button.setAttribute('aria-pressed', String(enabled));
-      button.setAttribute('aria-label', `Retro ${enabled ? 'ON' : 'OFF'}: ${english ? 'CRT appearance' : 'apariencia CRT'}`);
+      button.setAttribute('aria-label', `Retro ${english ? (enabled ? 'on' : 'off') : (enabled ? 'activado' : 'desactivado')}: ${english ? 'CRT appearance' : 'apariencia CRT'}`);
       const state = $('[data-retro-state]', button);
-      if (state) state.textContent = enabled ? 'ON' : 'OFF';
+      if (state) state.textContent = english ? (enabled ? 'On' : 'Off') : (enabled ? 'Activado' : 'Desactivado');
     });
     syncThemeColor();
   }
@@ -84,9 +84,9 @@
     if (enabled) html.dataset.theme = 'paper'; else delete html.dataset.theme;
     paperButtons.forEach(button => {
       button.setAttribute('aria-pressed', String(enabled));
-      button.setAttribute('aria-label', `${english ? 'Paper' : 'Papel'} ${enabled ? 'ON' : 'OFF'}: ${english ? 'light theme' : 'tema claro'}`);
+      button.setAttribute('aria-label', `${english ? 'Paper' : 'Papel'} ${english ? (enabled ? 'on' : 'off') : (enabled ? 'activado' : 'desactivado')}: ${english ? 'light theme' : 'tema claro'}`);
       const state = $('[data-paper-state]', button);
-      if (state) state.textContent = enabled ? 'ON' : 'OFF';
+      if (state) state.textContent = english ? (enabled ? 'On' : 'Off') : (enabled ? 'Activado' : 'Desactivado');
     });
     syncThemeColor();
   }
@@ -216,7 +216,8 @@
       const requested = byId(location.hash.slice(1));
       select(requested || links[0], {focus: false, push, reveal: !!requested});
     };
-    const restoreFolder = () => { fromHash(false); if (byId(location.hash.slice(1))) scrollLab(); };
+    // Un fragmento que no es una carpeta (#contacto, #habilidades) no cambia la carpeta elegida.
+    const restoreFolder = () => { if (location.hash && !byId(location.hash.slice(1))) return; fromHash(false); if (byId(location.hash.slice(1))) scrollLab(); };
     window.addEventListener('popstate', restoreFolder);
     window.addEventListener('hashchange', restoreFolder);
     fromHash(false);
@@ -225,40 +226,59 @@
   })();
 
   // Filtering operates only in the catalogue. Search never hides page sections.
-  const subject = $('#subject-filter'), cert = $('#cert-filter');
+  // V15: texto (q), área con botones (area) y certificación (cert). Los tres viven en la URL: se comparten,
+  // y Atrás/Adelante rehidratan el estado sin reescribir la dirección.
+  const cert = $('#cert-filter'), textFilter = $('#tech-filter'), areaTabs = $$('[data-area]');
   const filterItems = $$('[data-filterable]');
+  const fold = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const haystacks = new Map(filterItems.map(item => [item, fold(item.textContent)]));
+  // Con search-core.js, el filtro usa la misma búsqueda del sitio (sinónimos: «kerberos» incluye AS-REP,
+  // Kerberoasting, tickets y delegación). Sin él, cada palabra debe aparecer en la técnica.
+  const records = window.SiteSearch ? window.SiteSearch.prepare(filterItems.map(item => ({title: item.querySelector('summary .entry-title')?.textContent || '', text: item.textContent, url: 'tecnicas.html', kind: 'Técnica'}))) : null;
+  let areaValue = '';
+  const area = {get value() { return areaValue; }, set value(v) { areaValue = v; areaTabs.forEach(tab => tab.setAttribute('aria-pressed', String(tab.dataset.area === v))); }};
   function allowedValue(select, value) { return [...select.options].some(option => option.value === value) ? value : ''; }
   function applyFilters(updateUrl = true) {
-    if (!subject || !cert) return;
+    if (!cert) return;
+    const query = textFilter ? textFilter.value.trim() : '';
+    const terms = fold(query).split(/\s+/).filter(Boolean);
+    const matched = records && query ? new Set(window.SiteSearch.search(records, query).map(record => record._i)) : null;
     let count = 0;
-    filterItems.forEach(item => {
-      item.hidden = !!((subject.value && item.dataset.subject !== subject.value) || (cert.value && item.dataset.cert !== cert.value));
+    filterItems.forEach((item, index) => {
+      const text = haystacks.get(item);
+      const textOk = !terms.length || (matched ? matched.has(index) : terms.every(term => text.includes(term)));
+      item.hidden = !!((area.value && item.dataset.subject !== area.value) || (cert.value && item.dataset.cert !== cert.value) || !textOk);
       if (!item.hidden) count++;
     });
     $$('[data-catalog-section]').forEach(section => { section.hidden = !$$('[data-filterable]', section).some(item => !item.hidden); });
     $('#filter-count').textContent = `${count} ${count === 1 ? 'técnica' : 'técnicas'}`;
     $('#empty-filter').hidden = count !== 0;
+    const reset = $('#reset-filters'); if (reset) reset.disabled = !area.value && !cert.value && !terms.length;
     if (updateUrl) {
       const url = new URL(location.href);
-      for (const [key, value] of [['area', subject.value], ['cert', cert.value]]) value ? url.searchParams.set(key, value) : url.searchParams.delete(key);
+      for (const [key, value] of [['q', textFilter ? textFilter.value.trim() : ''], ['area', area.value], ['cert', cert.value]]) value ? url.searchParams.set(key, value) : url.searchParams.delete(key);
       url.hash = '';
       try { history.replaceState(null, '', url); } catch { /* Also works from downloaded HTML. */ }
     }
   }
-  // Lee area/cert de la URL actual y aplica los filtros SIN reescribir la dirección. Se llama en carga
-  // y en cada popstate, de modo que Atrás y Adelante dejan selector, contador y listado en sintonía con la URL.
+  // Lee q/area/cert de la URL actual y aplica los filtros SIN reescribir la dirección. Se llama en carga
+  // y en cada popstate, de modo que Atrás y Adelante dejan controles, contador y listado en sintonía con la URL.
   function filtersFromUrl() {
-    if (!subject || !cert) return;
+    if (!cert) return;
     const current = new URLSearchParams(location.search);
-    subject.value = allowedValue(subject, current.get('area') || '');
+    const requestedArea = current.get('area') || '';
+    area.value = areaTabs.some(tab => tab.dataset.area === requestedArea) ? requestedArea : '';
     cert.value = allowedValue(cert, current.get('cert') || '');
+    if (textFilter) textFilter.value = (current.get('q') || '').slice(0, 80);
     applyFilters(false);
   }
-  if (subject && cert) {
+  if (cert) {
     filtersFromUrl();
-    subject.addEventListener('change', () => applyFilters());
+    areaTabs.forEach(tab => tab.addEventListener('click', () => { area.value = tab.dataset.area; applyFilters(); }));
     cert.addEventListener('change', () => applyFilters());
-    $('#reset-filters').addEventListener('click', () => { subject.value = ''; cert.value = ''; applyFilters(); });
+    let typing;
+    if (textFilter) textFilter.addEventListener('input', () => { clearTimeout(typing); typing = setTimeout(() => applyFilters(), 120); });
+    $('#reset-filters').addEventListener('click', () => { area.value = ''; cert.value = ''; if (textFilter) textFilter.value = ''; applyFilters(); (textFilter || cert).focus(); });
     // Atrás/Adelante: rehidratar desde la URL y, si lleva fragmento, revelar el destino.
     window.addEventListener('popstate', () => { filtersFromUrl(); revealHash(); });
   }
@@ -268,9 +288,9 @@
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     const target = document.getElementById(id);
     if (!target) return;
-    if (subject && cert && (target.closest('[hidden]') || target.hidden)) {
-      subject.value = ''; cert.value = ''; applyFilters(false);
-      const url = new URL(location.href); url.searchParams.delete('area'); url.searchParams.delete('cert');
+    if (cert && (target.closest('[hidden]') || target.hidden)) {
+      area.value = ''; cert.value = ''; if (textFilter) textFilter.value = ''; applyFilters(false);
+      const url = new URL(location.href); url.searchParams.delete('area'); url.searchParams.delete('cert'); url.searchParams.delete('q');
       try { history.replaceState(null, '', url); } catch { /* file:// */ }
     }
     if (target.tagName === 'DETAILS') target.open = true;
@@ -465,10 +485,99 @@
       for (const section of articleSections) { if (section.getBoundingClientRect().top - line <= 1) active = section; else break; }
       return active;
     };
+    // V15: pasos leídos (marca en ambos índices), paso actual en móvil y atajos j/k entre secciones.
+    const allTocLinks = $$('.article-toc a, .mobile-toc a');
+    const seenKey = 'iphobiuss:seen:' + page;
+    const sectionIds = new Set(articleSections.map(section => section.id));
+    const readSeen = () => {
+      const saved = JSON.parse(localStorage.getItem(seenKey) || '[]');
+      return new Set(Array.isArray(saved) ? saved.filter(id => typeof id === 'string' && sectionIds.has(id)) : []);
+    };
+    let seen = new Set();
+    try { seen = readSeen(); } catch { /* Sin almacenamiento: sólo esta visita. */ }
+    const paintSeen = () => allTocLinks.forEach(link => { if (seen.has(link.hash.slice(1))) link.setAttribute('data-seen', ''); else link.removeAttribute('data-seen'); });
+    // Un cambio de geometría no acredita lectura. Sólo el desplazamiento iniciado
+    // con rueda, gesto táctil, teclas de lectura o arrastre de la barra puede hacerlo.
+    // Los enlaces y j/k suspenden la marca durante todo su desplazamiento suave.
+    let readingScroll = false, readingTimer;
+    const stopReadingScroll = () => { readingScroll = false; clearTimeout(readingTimer); };
+    const startReadingScroll = () => {
+      readingScroll = true; clearTimeout(readingTimer);
+      readingTimer = setTimeout(stopReadingScroll, 250);
+    };
+    window.addEventListener('wheel', startReadingScroll, {passive: true});
+    window.addEventListener('touchmove', startReadingScroll, {passive: true});
+    window.addEventListener('pointerdown', event => {
+      if (event.clientX >= html.clientWidth) startReadingScroll();
+    }, {passive: true});
+    document.addEventListener('keydown', event => {
+      const target = event.target instanceof Element ? event.target : document.body;
+      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || target.isContentEditable || target.closest('input, textarea, select, button, a, summary, [role=textbox], [role=combobox], [role=searchbox], dialog[open]')) return;
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(event.key)) startReadingScroll();
+      else if (['Home', 'End'].includes(event.key)) stopReadingScroll();
+    });
+    document.addEventListener('click', stopReadingScroll, true);
+    for (const event of ['hashchange', 'popstate', 'resize', 'beforeprint', 'pageshow']) window.addEventListener(event, stopReadingScroll);
+    window.addEventListener('storage', event => {
+      if (event.key !== seenKey && event.key !== null) return;
+      try { if (event.storageArea !== localStorage) return; seen = readSeen(); paintSeen(); } catch { /* Conserva las marcas de esta visita. */ }
+    });
+    const stepBar = $('[data-step-bar]'), stepText = $('[data-step-text]');
+    const toc = $('.article-toc nav') || $('.article-toc');
+    const titleOf = section => (section.querySelector('h2')?.textContent || '').replace(/\s+/g, ' ').trim();
+    let lastActive = '', previousIndex = -1;
+    const onActive = active => {
+      if (active.id === lastActive) return;
+      lastActive = active.id;
+      const index = articleSections.indexOf(active);
+      // Un paso cuenta como leído al pasar al siguiente leyendo. Un salto (índice, ancla, enlace directo)
+      // o la carga de la página no marca nada: sólo se marca la sección que se acaba de dejar atrás.
+      if (readingScroll && !printState && previousIndex >= 0 && index === previousIndex + 1) {
+        // Volver a leer evita restaurar marcas que otra pestaña acaba de borrar,
+        // incluso si su evento de almacenamiento todavía está en la cola.
+        try { seen = readSeen(); } catch { /* Sin almacenamiento: sólo esta visita. */ }
+        seen.add(articleSections[previousIndex].id);
+        try { localStorage.setItem(seenKey, JSON.stringify([...seen])); } catch { /* Se conserva en esta visita. */ }
+        paintSeen();
+      }
+      previousIndex = index;
+      if (stepText) stepText.textContent = titleOf(active);
+      if (stepBar) stepBar.hidden = false;
+      // El índice lateral sigue al paso actual cuando es más largo que la pantalla.
+      const current = $('.article-toc a[aria-current=location]');
+      if (current && toc && toc.scrollHeight > toc.clientHeight) {
+        const top = current.offsetTop - toc.offsetTop, view = toc.scrollTop;
+        if (top < view || top + current.offsetHeight > view + toc.clientHeight) toc.scrollTop = Math.max(0, top - toc.clientHeight / 3);
+      }
+    };
+    paintSeen();
+    if (stepBar) stepBar.addEventListener('click', () => {
+      const mobile = $('.mobile-toc');
+      if (!mobile) return;
+      mobile.open = true;
+      mobile.scrollIntoView({block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+      mobile.querySelector('summary')?.focus({preventScroll: true});
+    });
+    document.addEventListener('keydown', event => {
+      if (!['j', 'k'].includes(event.key) || event.ctrlKey || event.metaKey || event.altKey || event.isComposing || event.defaultPrevented) return;
+      const target = event.target instanceof Element ? event.target : document.body;
+      if (target.isContentEditable || target.closest('input, textarea, select, [role=textbox], [role=combobox], [role=searchbox], dialog[open]')) return;
+      const active = pickActive(), index = Math.max(0, articleSections.indexOf(active));
+      // Antes de llegar a la primera sección, j lleva a ella (no a la segunda).
+      const notReached = active.getBoundingClientRect().top - (axis() + 48) > 1;
+      const next = event.key === 'j' ? (notReached ? active : articleSections[Math.min(articleSections.length - 1, index + 1)]) : articleSections[Math.max(0, index - 1)];
+      if (!next) return;
+      event.preventDefault();
+      stopReadingScroll();
+      const heading = next.querySelector('h2') || next;
+      if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
+      next.scrollIntoView({block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+      heading.focus({preventScroll: true});
+    });
     let scheduled = false;
-    const refresh = () => { scheduled = false; const a = pickActive(); if (a) markCurrent(a.id); };
+    const refresh = () => { scheduled = false; const a = pickActive(); if (a) { markCurrent(a.id); onActive(a); } };
     const schedule = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(refresh); } };
-    window.addEventListener('scroll', schedule, {passive: true});
+    window.addEventListener('scroll', () => { if (readingScroll) startReadingScroll(); schedule(); }, {passive: true});
     window.addEventListener('resize', schedule, {passive: true});
     if (typeof ResizeObserver !== 'undefined') { const art = $('.article-content'); if (art) new ResizeObserver(schedule).observe(art); }
     refresh();

@@ -1,0 +1,93 @@
+IPHOBIUSS 15.1.0: TERMINAL LEGIBLE, ILUSTRACIÓN NUEVA Y AUDITORÍA FINAL
+19 de octubre de 2026
+
+BASE
+iphobiuss-proyecto-v15.0.0.zip (entrega del mismo día). Entrega local; no se
+ha publicado en GitHub.
+
+PEDIDOS DEL AUTOR
+1. certs ya no repite «verificar» en cada fila: el nombre de cada credencial
+   es el enlace a su verificación oficial, y una línea lo explica arriba.
+2. Terminal menos plana. Lo escrito va en negrita y blanco tras el prompt
+   verde; la respuesta va sangrada con un filete a la izquierda, columnas
+   alineadas y los errores en ámbar. El historial conserva lo que se estaba
+   escribiendo al subir y bajar con las flechas. La entrada admite 120
+   caracteres.
+3. La ilustración de Prometeo y Evaristo reemplaza la captura en la tarjeta
+   de report-gen. Variantes WebP de 480 a 1774 px generadas por
+   scripts/build-illustration.py, con procedencia
+   (content/report-gen-illustration-provenance.json). Se ve completa, sin
+   recorte.
+
+AUDITORÍA (usuario, reclutador, pentester y código)
+Corregido:
+- Terminal: `cd __proto__`, `cd constructor` y similares devolvían
+  respuestas internas de JavaScript; las tablas ya no tienen prototipo.
+  `ls cv.pdf` y `ls contacto.txt` muestran el archivo. `cat cv` lee el
+  número de páginas del PDF en el build (antes era un texto fijo).
+- CSP más estricta: style-src 'self' (sin estilos en línea). Se añadió
+  /.well-known/security.txt (contacto por LinkedIn, caduca 2027-10-19).
+- El efecto de texto del título ya no reescribe HTML con innerHTML.
+- Guías: j desde arriba saltaba la primera sección; ahora lleva a ella. Los
+  pasos se marcan como leídos sólo al avanzar leyendo al siguiente, no al
+  cargar la página ni al saltar desde el índice o un enlace.
+- Portada: un enlace a #contacto o #habilidades devolvía la vista de
+  carpetas al README; ahora la carpeta elegida se mantiene.
+- Cuaderno: «Borrar» también elimina las marcas de pasos leídos.
+- Textos: el PDF de ejemplo se presenta como histórico de report-gen 0.21.2
+  (antes podía leerse como el actual); idiomas en contacto, con inglés
+  técnico escrito y conversación básica; descripciones de Cap y Forest más
+  cortas; estados de Papel y Retro «Activado» y «Desactivado».
+- Visual: títulos en IBM Plex Mono en todo el sitio, certificaciones con
+  título propio, logo real en proyectos.html, separación del fragmento HTTP,
+  disponibilidad de la cabecera oculta bajo 480 px para no partirla.
+- Código muerto retirado: reglas CSS de la sección de casos antigua, de la
+  tarjeta de logo anterior, de enlaces externos del explorador y otros
+  selectores sin uso (comprobado cargando las 30 páginas en tres temas y dos
+  anchos); la función picture() sin uso, un f-string sin variables, el
+  parámetro external de explorer_row y una rama inalcanzable de sudo.
+- Archivos sin uso retirados: dos capturas de report-gen 0.26.0 (editor y
+  entrega, con sus variantes) y dos tamaños del logo que nadie pedía, unos
+  1,2 MB. Procedencias actualizadas.
+- Ninguna raya larga en el sitio generado (comprobado en todos los archivos).
+
+Encontrado y NO cambiado (decisión del autor):
+- CV (PDF): no menciona eJPT, titula «Penetration Tester» sin «Junior» y
+  algunos encabezados no coinciden con la web. Conviene regenerarlo desde
+  su fuente, no parchear el PDF.
+- Las guías dicen «según la guía» o «en mi laboratorio» donde no hay
+  evidencia propia. Se mantuvo por honestidad.
+- Correo y detalle de disponibilidad: no se publican, como se decidió.
+- Nombres de grupos de herramientas: cambiarlos rompe anclas enlazadas.
+- Banderas de HTB publicadas: máquinas retiradas, permitido por HTB.
+- buscar.html y cuaderno.html fuera del sitemap: son noindex a propósito.
+- Las dependencias de Python no fijan hashes.
+- La intro se mantiene como está por defecto.
+- La habilidad «Automatizar tareas» enlaza a ia-limites: revisar si el
+  nombre describe bien ese caso.
+- og-image.svg se publica junto a og-image.png aunque nadie lo enlaza; es
+  la fuente de la imagen social.
+
+PRUEBAS
+28 de 28 scripts test:* pasan sobre un build completo desde cero
+(scripts/build-site.py, que ahora incluye la ilustración): layout 274/274
+(70/70 dirigidas, 0 estados con infracciones de axe), compatibility 39/39 y
+el resto. Comprobado además a mano: j lleva a la primera sección, nada se
+marca al cargar una guía, la sección se marca al pasar a la siguiente, y
+#contacto mantiene la carpeta abierta.
+Pruebas ajustadas por cambios intencionados:
+- Diez pruebas simulaban texto al 200 % con un <style> inyectado, que la
+  nueva CSP bloquea. Ahora usan una hoja construida (CSSOM), así siguen
+  detectando cualquier estilo en línea del propio sitio en vez de
+  desactivar la CSP.
+- test_site_layout_138 (ilustración en la tarjeta; la captura oculta la
+  cabecera del mismo modo), test_brand_assets y test_site_brand (el logo
+  vive en proyectos.html con 108 y 216 px; la portada lleva la ilustración),
+  test_site_evolution_142 («Paper on» en minúscula) y
+  measure_site_experience (imagen nueva).
+
+ENTORNO Y LÍMITES
+Linux, Python 3.12, Node 22.22.0, Playwright 1.62.1, Chromium 153.0.8010.0
+(paquete de npm), axe-core 4.14.0. compatibility sólo con Chromium. No se probó
+en teléfonos reales ni con lectores de pantalla reales. La aceptación visual y
+el despliegue quedan a cargo del autor.

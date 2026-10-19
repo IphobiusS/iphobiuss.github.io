@@ -20,20 +20,6 @@
       "height": 144,
       "bytes": 31410,
       "sha256": "770aecbcc061aa892afd5d020815ed263cb12eb628015a8d6afcc7a233d4c3f5"
-    },
-    {
-      "file": "assets/img/report-gen-brand-mark-432.webp",
-      "width": 432,
-      "height": 288,
-      "bytes": 102022,
-      "sha256": "8dc7bb3cc37540f3ed2897904fa29c3df226f584d7ebb2dec755113c6be258c8"
-    },
-    {
-      "file": "assets/img/report-gen-brand-mark-648.webp",
-      "width": 648,
-      "height": 432,
-      "bytes": 207048,
-      "sha256": "8af5f82b359138ef3ab8ad8d20020769a2191002babaf5ab7886ceaf0d097b80"
     }
   ]
 }

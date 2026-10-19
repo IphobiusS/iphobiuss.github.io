@@ -1,0 +1,4 @@
+Contact: https://www.linkedin.com/in/sebastian-latorre-munoz/
+Expires: 2027-10-19T00:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://iphobiuss.github.io/.well-known/security.txt

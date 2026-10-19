@@ -132,7 +132,7 @@ const audit = async page => {
     const context = await contextFor({ theme, viewport: { width: size.width, height: 900 } }); const page = await context.newPage(); const pages = [];
     for (const file of ['index.html', 'cap-caso.html', 'forest-case-en.html', 'bitacora.html', 'engineering-notes.html']) {
       await page.goto(base + '/' + file);
-      if (size.scale === 200) await page.addStyleTag({ content: 'html{font-size:200%!important}' });
+      if (size.scale === 200) await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; });
       if (file === 'cap-caso.html') await page.locator('#evidencia>summary').click();
       if (file === 'forest-case-en.html') await page.locator('#decision-2>summary').click();
       const axe = await audit(page);

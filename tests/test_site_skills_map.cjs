@@ -30,7 +30,7 @@ const save = error => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     const page = await browser.newPage({ reducedMotion: 'reduce' });
     await page.goto(base + '/index.html');
     const links = await page.locator('#habilidades a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href')));
-    assert.equal(links.length, 8);
+    assert.equal(links.length, 10); // V15: 8 fuentes más el expediente de Cap y de Forest.
     for (const href of links) {
       const [file, fragment] = href.split('#');
       const response = await page.request.get(base + '/' + file);
@@ -51,8 +51,9 @@ const save = error => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
     await page.keyboard.press('Tab');
     assert.equal(await page.locator('#habilidades a').nth(1).evaluate(node => node === document.activeElement), true);
     await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Enter');
-    await page.waitForURL(base + '/cap.html#idor');
-    assert.ok(await page.locator('#idor').isVisible());
+    // V15: el primer enlace de la tarjeta Web es el expediente del caso Cap, que ahora vive en la habilidad.
+    await page.waitForURL(base + '/cap-caso.html');
+    assert.ok(await page.locator('main h1').isVisible());
     await context.close(); return { nativeNavigation: true };
   });
   for (const theme of ['dark', 'paper', 'retro']) for (const size of [{ width: 320, scale: 200 }, { width: 1440, scale: 100 }]) {
@@ -67,7 +68,7 @@ const save = error => fs.writeFileSync(path.join(output, 'results.json'), JSON.s
       await page.goto(base + '/index.html#habilidades');
       if (theme === 'paper') assert.equal(await page.locator('html').getAttribute('data-theme'), 'paper');
       if (theme === 'retro') assert.equal(await page.locator('html').getAttribute('data-retro'), 'on');
-      if (size.scale === 200) await page.addStyleTag({ content: 'html{font-size:200%!important}' });
+      if (size.scale === 200) await page.evaluate(() => { const sheet = new CSSStyleSheet(); sheet.replaceSync('html{font-size:200%!important}'); document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]; });
       await page.evaluate(() => document.fonts.ready);
       assert.equal(await page.locator('#habilidades').count(), 1);
       assert.equal(await page.locator('.skill-evidence-card').count(), 4);

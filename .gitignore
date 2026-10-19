@@ -10,3 +10,8 @@
 __pycache__/
 *.py[cod]
 .DS_Store
+
+# Local delivery metadata and notebook QA captures, not source inputs.
+/MANIFIESTO-SHA256.json
+/ESTADO-DEL-PROYECTO.txt
+/tests/notebook-*-320-200.png

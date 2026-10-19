@@ -154,7 +154,11 @@ def enhance_document(filename, tree):
     if filename == 'proyectos.html':
         container = tree.xpath('//*[@id="report-gen"]')[0]
         introduction = container.xpath('./div[contains(concat(" ",normalize-space(@class)," ")," project-intro ")]')[0]
-        container.insert(container.index(introduction) + 1, card('es'))
+        # V14.11: la captura principal va pegada a la presentación; las pruebas y límites siguen a la captura.
+        anchor = introduction.getnext()
+        if anchor is None or 'project-screenshot' not in (anchor.get('class') or '').split():
+            anchor = introduction
+        container.insert(container.index(anchor) + 1, card('es'))
     else:
         container = tree.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," professional-route ")]')[0]
         first_section = container.find('section')

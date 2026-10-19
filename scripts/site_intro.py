@@ -48,6 +48,13 @@ BOOTSTRAP = r'''(() => {
     removeEventListener('beforeprint', print);
     reduced.removeEventListener?.('change', reduce);
     printing?.removeEventListener?.('change', printChange);
+    root.removeAttribute('data-intro-active');
+    // The visitor watched the entrance or chose to skip it: the home arrives with a
+    // short listing of its three entry points. Other closes leave the page as is.
+    if (reason === 'complete' || reason === 'skip' || reason === 'escape') {
+      root.setAttribute('data-arrive', '');
+      setTimeout(() => root.removeAttribute('data-arrive'), 1200);
+    }
     // Automatic completion preserves the browser's normal starting focus. A
     // deliberate skip takes the keyboard to the site's existing skip link.
     if (reason === 'skip' || reason === 'escape') {
@@ -60,7 +67,7 @@ BOOTSTRAP = r'''(() => {
   const reduce = () => { if (reduced.matches) close('reduced-motion'); };
   const printChange = () => { if (printing.matches) close('print'); };
   const complete = event => {
-    if (event.target === dialog && event.propertyName === 'opacity' && !event.pseudoElement) close('complete');
+    if (event.target === dialog && event.propertyName === 'clip-path' && !event.pseudoElement) close('complete');
   };
   dialog.querySelector('[data-intro-skip]').addEventListener('click', () => close('skip'));
   dialog.addEventListener('cancel', event => { event.preventDefault(); close('escape'); });
@@ -73,11 +80,12 @@ BOOTSTRAP = r'''(() => {
   dialog.addEventListener('transitionend', complete);
   window.__iphobiussIntro = {close};
   dialog.hidden = false;
+  root.setAttribute('data-intro-active', '');
   try { dialog.showModal(); } catch { close('unavailable'); return; }
-  // Keep the document fully covered until the welcome is readable. Fade both
-  // native top-layer surfaces, then release the modal without an opaque snap.
+  // Keep the document fully covered until the welcome is readable. Then the
+  // screen clears upward like `clear`, uncovering the site from the bottom.
   // The independent deadline also works when CSS transitions never fire.
-  exitTimer = setTimeout(() => { if (!closed) dialog.setAttribute('data-intro-leaving', ''); }, 2000);
+  exitTimer = setTimeout(() => { if (!closed) dialog.setAttribute('data-intro-leaving', ''); }, 2050);
   deadline = setTimeout(() => close('complete'), 2600);
 })();'''
 

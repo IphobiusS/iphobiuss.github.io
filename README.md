@@ -1,6 +1,44 @@
-# iphobiuss · sitio estático v14.9.2
+# iphobiuss · sitio estático v15.1.1
 
 Portafolio y laboratorio de pentesting, con una terminal como portada. Las fuentes completas viven en la rama [`source`](https://github.com/IphobiusS/iphobiuss.github.io/tree/source); la rama `main` contiene únicamente el sitio generado que sirve GitHub Pages.
+
+## v15.1.1: auditoría previa a publicación
+
+Conserva los cambios visuales de la entrega 15.1.0 y corrige dos errores de las marcas de lectura: saltar por el índice o con `j`/`k` ya no acredita lectura, y borrar el cuaderno desde otra pestaña limpia las marcas abiertas sin restaurarlas al seguir desplazándose. Añade seis regresiones a `test:guide-progress` y ocho comprobaciones de la terminal a `test:home-actions`. Los controles de apariencia de las páginas inglesas muestran `On`/`Off` desde el HTML inicial. El rango Unicode de la terminal se expresa con escapes equivalentes para que el verificador de fuentes no confunda código con glifos de interfaz.
+
+El alcance, resultados y límites de esta revisión están en `ACTA-VALIDACION-15.1.1.txt`. La publicación conserva la construcción desde `source`, las pruebas en Linux/macOS y la comprobación de los bytes servidos por GitHub Pages.
+
+## v15.1.0: terminal legible, ilustración nueva y auditoría final
+
+- **Terminal.** Lo escrito va en negrita tras el prompt verde; la respuesta, sangrada con un filete, en columnas y con los errores en ámbar. En `certs` el nombre de cada credencial abre su verificación (sin la palabra «verificar» repetida). Las flechas conservan lo que se estaba escribiendo. Las tablas de comandos no tienen prototipo (`cd __proto__` ya no responde con internos de JavaScript).
+- **report-gen en la portada.** La ilustración de Prometeo y Evaristo reemplaza la captura. `scripts/build-illustration.py` genera las variantes WebP desde `content/illustrations/report-gen-ilustracion.png` y su procedencia.
+- **Auditoría.** CSP con `style-src 'self'`, `/.well-known/security.txt`, `j` en las guías ya no salta la primera sección, los pasos se marcan como leídos sólo al avanzar leyendo, los enlaces a secciones de la portada no reinician la carpeta, «Borrar» del cuaderno también quita esas marcas. Títulos en IBM Plex Mono en todo el sitio. Código y CSS sin uso retirados, y unos 1,2 MB de imágenes que nadie cargaba. Detalle y hallazgos que quedan a decisión del autor en `ACTA-VALIDACION-15.1.0.txt`.
+
+## v15.0.0: la portada le habla a quien evalúa
+
+- **Hero.** Una sola acción principal («Ver trabajos propios»). A la derecha, `cat evidencia.txt`: report-gen, la API con dos identidades, sesiones seguras y las credenciales, con la disponibilidad. Debajo, una terminal que acepta comandos (`help`, `whoami`, `ls`, `cd`, `certs`, `cat cv`, `contacto`, `clear`; Tab completa y las flechas recorren el historial). `content/assets/js/shell.js` responde sólo con datos de `#shell-data`, generados en el build; sin JavaScript queda la evidencia como enlaces normales.
+- **Trabajo real en la portada.** La tarjeta de report-gen muestra un recorte de su captura real; la de la API, el intercambio «Alice intenta leer el informe de Bruno» leído de `content/labs/http-access/resultados.json` (200 en la versión vulnerable, 404 en la corregida).
+- **Casos dentro de las habilidades.** Cap y Forest viven en «Habilidades con evidencia», con sistema, dificultad, cadena y enlace a su expediente; `index.html#casos` sigue llegando ahí. Las rutas de estudio (`cd guias/`, `cat tecnicas`, `ls herramientas/`) pasaron a «Mi laboratorio».
+- **Disponibilidad en la cabecera** de todas las páginas (traducida en las páginas en inglés). Bajo 480 px se oculta para no partir la cabecera (desde 15.1.0).
+- **Técnicas.** Filtro de texto con la misma búsqueda del sitio (sinónimos: «kerberos» encuentra AS-REP, Kerberoasting y tickets), áreas como botones y la primera línea del comando en cada fila. `q`, `area` y `cert` viven en la URL.
+- **Guías y casos.** Marca en los pasos ya leídos (en este navegador), atajos `j`/`k` entre pasos, el índice lateral sigue al paso actual y, en móvil, una barra con el paso actual que abre el índice.
+- **Accesibilidad.** Índices con nombre propio, `role="group"` donde había `aria-label` sin rol, objetivos táctiles de 24 px o más, colores de Retro como tokens.
+
+## v14.11.0: auditoría de diseño, movimiento y peso
+
+Revisión con las skills impeccable (auditoría y crítica), taste-skill (inspector en navegador) y las de Emil Kowalski (animación). Se conservan contenido, terminal, mascotas, temas y laboratorios.
+
+- **Movimiento.** La red de nodos sólo se anima en la portada, a 30 cuadros por segundo, y nunca bajo la entrada; en las páginas de lectura queda como un cuadro fijo. El halo sigue al mouse con inercia y el toque no lo mueve. El cambio de carpeta del árbol es inmediato. El descifrado de títulos corre una vez por sesión (400 ms). Las tarjetas que ya están en pantalla no parten ocultas. Los botones ceden al presionar; el brillo al pasar el puntero queda sólo en las acciones de la presentación.
+- **Entrada.** Tras «Bienvenido» la pantalla se limpia hacia arriba como `clear` (420 ms), la red aparece y las tres rutas de `ls laboratorio/` se listan una a una. La preferencia, Escape, el botón y el movimiento reducido siguen igual.
+- **Portada.** La sesión tmux sube como sección propia («La terminal del laboratorio»), plegada y sin reproducción automática, con un resumen de sus tres ventanas. Los casos HTB muestran sistema, dificultad y la cadena documentada; las certificaciones, su emisor. Títulos de sección con un solo estilo, nombre más grande y márgenes móviles iguales en todas las secciones. «Saltar al contenido» ya no queda fijo sobre la página al hacer scroll.
+- **Proyectos.** La captura de report-gen va justo después de su presentación. `api-acceso.html` pertenece a Proyectos, como `sesiones-seguras.html`.
+- **Tipografía y peso.** Los tamaños casi iguales se fusionaron en una escala (texto de interfaz mínimo 12 px). Las fuentes Plex se recortan al repertorio del sitio con `scripts/subset-fonts.py` (originales en `content/fonts-source/`, procedencia en `content/fonts-subset-provenance.json`): de 216 a 106 KB en woff2. Si un texto nuevo usa un carácter fuera del recorte, `python scripts/subset-fonts.py --check` lo indica.
+
+## Actualización del 19 de octubre de 2026
+
+report-gen se presenta en su Release pública 0.45.0, con descarga y guía fijadas al commit verificado, estado de CI, CV y capturas actuales del catálogo y del comparador HTTP. Las muestras Nimbus/Banco Lumbre y la captura de comprobaciones 0.26.0 conservan su versión histórica. PrometheuS se presenta como candidata 0.56.0rc1, con alcance, límites y validación operativa en Kali pendiente; no se añade una descarga pública. Se conservan el diseño, la terminal, las mascotas y los laboratorios. La cabecera móvil sin JavaScript vuelve al flujo normal para no tapar los destinos de los enlaces internos.
+
+`content/report-gen-045-capturas-procedencia.json` registra los PNG originales de CI y sus variantes WebP. Los datos de las capturas son ficticios; el marcador del comparador HTTP no es una credencial válida.
 
 ## Entrada de terminal
 

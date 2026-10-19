@@ -29,18 +29,20 @@ const server = http.createServer((request, response) => {
       const page = await context.newPage(), requested = [], errors = [];
       page.on('request', request => requested.push(new URL(request.url()).pathname)); page.on('pageerror', error => errors.push(error.message));
       await page.goto('http://127.0.0.1:' + server.address().port + '/index.html');
-      const image = page.locator('.report-brand-card img'); await image.scrollIntoViewIfNeeded();
+      // V15.1: la tarjeta de la portada muestra la ilustración de report-gen (2:1) con variantes WebP.
+      const image = page.locator('.report-art img'); await image.scrollIntoViewIfNeeded();
       await page.evaluate(() => document.fonts.ready); await image.evaluate(image => image.decode());
       const actual = await image.evaluate(image => ({ source: new URL(image.currentSrc).pathname, width: image.getBoundingClientRect().width,
         height: image.getBoundingClientRect().height, naturalRatio: image.naturalWidth / image.naturalHeight, density: devicePixelRatio }));
-      const expected = [108, 216, 432, 648].find(candidate => candidate >= Math.ceil(actual.width * density));
-      assert.equal(actual.source, '/assets/img/report-gen-brand-mark-' + expected + '.webp');
-      assert.ok(Math.abs(actual.width / actual.height - 1.5) < 0.001, 'Artwork ratio is preserved');
-      assert.equal(actual.naturalRatio, 1.5);
-      assert.ok(!requested.includes('/assets/img/report-gen-brand-mark.webp'), 'The full original must remain an unrequested fallback');
+      const widths = [480, 720, 960, 1440, 1774];
+      const expected = widths.find(candidate => candidate >= Math.ceil(actual.width * density)) || 1774;
+      assert.equal(actual.source, '/assets/img/report-gen-ilustracion-' + expected + '.webp');
+      assert.ok(Math.abs(actual.width / actual.height - 2) < 0.01, 'Artwork ratio is preserved');
+      assert.ok(Math.abs(actual.naturalRatio - 2) < 0.01);
+      if (expected !== 1774) assert.ok(!requested.includes('/assets/img/report-gen-ilustracion-1774.webp'), 'The full-size variant is only fetched when needed');
       assert.deepEqual(errors, []);
       const capture = `brand-${theme}-${width}-${density}x.png`;
-      await page.locator('.report-brand-card').screenshot({ path: path.join(output, capture), animations: 'disabled' });
+      await page.locator('.report-art').screenshot({ path: path.join(output, capture), animations: 'disabled' });
       checks.push({ width, density, theme, ...actual, capture });
     } finally { await context.close(); }
   }

@@ -30,7 +30,7 @@ BASE='https://iphobiuss.github.io/'
 # Las rutas utilitarias se pueden rastrear para leer el noindex, pero no son páginas de contenido.
 NOINDEX_PAGES=frozenset({'404.html','buscar.html','cuaderno.html'})
 DATE='2026-10-05'
-PAGE_EDITIONS={'cap-caso.html':'2026-10-10','forest-caso.html':'2026-10-10','index.html':'2026-10-11','proyectos.html':'2026-10-11','forest.html':'2026-10-08','sauna.html':'2026-10-08','cascade.html':'2026-10-08','tecnicas.html':'2026-10-08'}
+PAGE_EDITIONS={'cap-caso.html':'2026-10-10','forest-caso.html':'2026-10-10','index.html':'2026-10-19','proyectos.html':'2026-10-19','forest.html':'2026-10-08','sauna.html':'2026-10-08','cascade.html':'2026-10-08','tecnicas.html':'2026-10-08'}
 EDITION='5 oct 2026'
 NAME='Sebastián Latorre Muñoz'
 LINKEDIN='https://www.linkedin.com/in/sebastian-latorre-munoz/'
@@ -141,7 +141,7 @@ def nav(active):
  nav_block=f'<nav class="site-nav" id="site-nav" aria-label="Navegación principal">{links}</nav>'
  menu='<a href="#site-nav" class="icon-button menu-toggle" aria-label="Abrir navegación">Menú</a>'
  return f'''<a class="skip" href="#contenido">Saltar al contenido</a>
- <header class="site-header{" site-header-lab" if active=="index" else ""}"><div class="header-inner"><a class="brand" href="index.html">iphobiuss</a>
+ <header class="site-header{" site-header-lab" if active=="index" else ""}"><div class="header-inner"><a class="brand" href="index.html">iphobiuss</a><a class="header-status" href="index.html#contacto"><span class="status-dot" aria-hidden="true"></span><span class="status-word">Disponible</span><span class="status-detail"> · Pentester Junior en Santiago</span></a>
  {nav_block}
  <div class="header-tools"><a class="icon-button header-search" href="buscar.html" aria-label="Buscar en el sitio" aria-keyshortcuts="Control+K Meta+K /" title="Buscar (/, Ctrl+K o Command+K)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 16l5 5"/><circle cx="10" cy="10" r="7"/></svg><span>Buscar</span></a>{appearance_controls()}{menu}</div></div><div class="reading-progress" aria-hidden="true"></div></header>'''
 
@@ -161,10 +161,10 @@ def anim_button():
  return f'<button type="button" class="icon-button anim-toggle js-only" data-motion-toggle data-compact aria-label="Fondo animado" aria-pressed="true" title="Pausar o reanudar el fondo animado">{_tgl_ico("anim")}<span class="tgl-text" aria-hidden="true">Fondo animado</span></button>'
 
 def paper_button():
- return f'<button type="button" class="icon-button paper-toggle js-only" data-paper-toggle aria-label="Papel: tema claro" aria-pressed="false" title="Tema claro para leer: fondo papel, misma tipografía">{_tgl_ico("paper")}<span class="tgl-text" aria-hidden="true"><span class="ptoggle-word">Papel </span><span class="paper-state" data-paper-state>OFF</span></span></button>'
+ return f'<button type="button" class="icon-button paper-toggle js-only" data-paper-toggle aria-label="Papel: tema claro" aria-pressed="false" title="Tema claro para leer: fondo papel, misma tipografía">{_tgl_ico("paper")}<span class="tgl-text" aria-hidden="true"><span class="ptoggle-word">Papel </span><span class="paper-state" data-paper-state>Desactivado</span></span></button>'
 
 def retro_button():
- return f'<button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-label="Retro: apariencia CRT" aria-pressed="false" title="Retro: paleta verde y bordes pixelados. Líneas CRT solo en portada; se ocultan al pausar o reducir movimiento">{_tgl_ico("retro")}<span class="tgl-text" aria-hidden="true"><span class="rtoggle-word">Retro </span><span class="retro-state" data-retro-state>OFF</span></span></button>'
+ return f'<button type="button" class="icon-button retro-toggle js-only" data-retro-toggle aria-label="Retro: apariencia CRT" aria-pressed="false" title="Retro: paleta verde y bordes pixelados. Líneas CRT solo en portada; se ocultan al pausar o reducir movimiento">{_tgl_ico("retro")}<span class="tgl-text" aria-hidden="true"><span class="rtoggle-word">Retro </span><span class="retro-state" data-retro-state>Desactivado</span></span></button>'
 
 def appearance_controls():
  return ('<details class="appearance-controls js-only" data-appearance><summary class="icon-button">Apariencia</summary>'
@@ -183,7 +183,8 @@ def contact_links():
 def professional_contact():
  return ('<section class="shell home-contact" id="contacto" aria-labelledby="contact-title">'
   '<div><p class="section-eyebrow">Contacto</p><h2 id="contact-title">Hablemos de seguridad.</h2>'
-  '<p>Busco una oportunidad como Pentester Junior en Santiago. Puedes revisar mis proyectos y casos, y contactarme para conversar sobre mi trabajo.</p></div>'
+  '<p>Busco una oportunidad como Pentester Junior en Santiago. Puedes revisar mis proyectos y casos, y contactarme para conversar sobre mi trabajo.</p>'
+  '<p class="contact-languages">Español nativo. Inglés técnico escrito para documentación e informes; conversación básica.</p></div>'
   f'<div class="actions">{contact_links()}</div></section>')
 
 def footer():return f'''<footer class="footer"><div class="shell"><div class="footer-top"><div><a class="brand" href="index.html">iphobiuss</a><p>{NAME}, Santiago, Chile</p></div><div class="footer-links"><a href="fundamentos.html">Fundamentos</a><a href="cuaderno.html">Mi cuaderno</a><a href="recorrido.html">Recorrido breve</a><a href="feed.xml">Novedades (RSS)</a><a href="fundamentos.html#glosario">Glosario</a><a href="https://github.com/iphobiuss" rel="noopener" target="_blank">GitHub</a><a href="{LINKEDIN}" rel="noopener" target="_blank">LinkedIn</a><a href="index.html#contacto">Contacto</a>{cv_link()}</div></div><div class="footer-note">Material educativo para laboratorios y evaluaciones autorizadas. La base de técnicas utiliza ejemplos genéricos; los writeups documentan laboratorios de práctica de HTB. No son informes ni soluciones de exámenes de certificación.</div></div></footer><p id="action-status" class="sr-only" role="status" aria-live="polite"></p>'''
@@ -235,11 +236,25 @@ def document(filename,title,description,body,active='',article=False,social=None
  extra_css,extra_scripts=evolution.resources(filename)
  scripts='<script src="assets/js/site.js" defer></script><script src="assets/js/motion.js" defer></script>'+extra_scripts
  if filename=='buscar.html':scripts='<script src="assets/js/search-index.js" defer></script><script src="assets/js/search-core.js" defer></script>'+scripts
+ if filename=='tecnicas.html':scripts='<script src="assets/js/search-core.js" defer></script>'+scripts
  page=f'''<!doctype html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-{sh}' 'sha256-{jh}'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'"><meta name="theme-color" content="#0a0d0b"><script>{js_class_script}</script><meta name="color-scheme" content="dark light"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="{E(NAME)}">
-<title>{E(title)} // iphobiuss</title><meta name="description" content="{E(description)}">{robots_meta}<link rel="canonical" href="{url}"><meta property="og:title" content="{E(title)}"><meta property="og:description" content="{E(description)}"><meta property="og:type" content="{'article' if article else 'website'}"><meta property="og:url" content="{url}"><meta name="twitter:card" content="{'summary_large_image' if social else 'summary'}"><meta name="twitter:title" content="{E(title)}"><meta name="twitter:description" content="{E(description)}">{social_meta}<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="Proyectos, bitácora y guías de iphobiuss" href="feed.xml"><link rel="preload" href="assets/fonts/1a9cad03d35e.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/b0c618f6d8ea.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/feead6344d56.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/site.css"><link rel="stylesheet" href="assets/css/identity.css">{extra_css}<script type="application/ld+json">{structured}</script>{scripts}</head>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-{sh}' 'sha256-{jh}'; style-src 'self'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'"><meta name="theme-color" content="#0a0d0b"><script>{js_class_script}</script><meta name="color-scheme" content="dark light"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="author" content="{E(NAME)}">
+<title>{E(title)} // iphobiuss</title><meta name="description" content="{E(description)}">{robots_meta}<link rel="canonical" href="{url}"><meta property="og:title" content="{E(title)}"><meta property="og:description" content="{E(description)}"><meta property="og:type" content="{'article' if article else 'website'}"><meta property="og:url" content="{url}"><meta name="twitter:card" content="{'summary_large_image' if social else 'summary'}"><meta name="twitter:title" content="{E(title)}"><meta name="twitter:description" content="{E(description)}">{social_meta}<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="Proyectos, bitácora y guías de iphobiuss" href="feed.xml"><link rel="preload" href="assets/fonts/2164a13d3b0b.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/b8c1f0730a1b.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/7c623b7aacd7.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/site.css"><link rel="stylesheet" href="assets/css/identity.css">{extra_css}<script type="application/ld+json">{structured}</script>{scripts}</head>
 <body data-page="{filename[:-5]}">{icon_sprite()}<canvas class="net" data-net aria-hidden="true"></canvas>{nav(active)}<main class="site-main" id="contenido" tabindex="-1">{body}</main>{footer()}</body></html>'''
  tree=html.fromstring(page)
+ # V15: lectura. Barra con el paso actual en móvil (abre el índice), atajos j/k anunciados en el índice lateral.
+ for mobile in tree.xpath('//details[contains(concat(" ",normalize-space(@class)," ")," mobile-toc ")]'):
+  mobile.addprevious(html.fragment_fromstring('<button type="button" class="step-bar" data-step-bar hidden><span class="step-bar-label">Paso</span> <span class="step-bar-text" data-step-text></span><span class="step-bar-icon" aria-hidden="true">≡</span></button>'))
+ for toc in tree.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," article-toc ")]'):
+  if toc.tag=='aside':
+   toc.append(html.fragment_fromstring('<p class="toc-keys js-only"><kbd>j</kbd> <kbd>k</kbd> siguiente y anterior</p>'))
+  # Lote E: cada índice es un landmark con nombre propio (axe landmark-unique).
+  navs=[toc] if toc.tag=='nav' else toc.xpath('./nav')
+  for nav_el in navs:
+   if not nav_el.get('aria-label'):nav_el.set('aria-label','Índice del caso')
+ # Lote E: un aria-label sólo nombra un elemento con rol; las fuentes de la bitácora son un grupo.
+ for group in tree.xpath('//div[@aria-label and not(@role)]'):
+  group.set('role','group')
  # Match each heading to the actual content container, including non-article routes.
  heads=tree.xpath('//main/div[contains(concat(" ",normalize-space(@class)," ")," page-head ")]/div[contains(concat(" ",normalize-space(@class)," ")," shell ")]')
  if heads:
@@ -341,13 +356,26 @@ def subject(sec,t):
  if re.search(r'linux|ssh',n):return 'linux'
  return 'windows'
 
-def entry(eid,title,content,number='',attrs=''):
- return f'<details class="entry-details" id="{eid}" {attrs}><summary><span class="entry-number">{number}</span><span>{E(title)}</span></summary><div class="entry-content">{content}</div></details>'
+def entry(eid,title,content,number='',attrs='',preview=''):
+ # V15: la primera línea del comando asoma en la fila cerrada (decorativa: el comando completo está dentro).
+ peek=f'<span class="entry-preview" aria-hidden="true">$ {E(preview)}</span>' if preview else ''
+ return f'<details class="entry-details" id="{eid}" {attrs}><summary><span class="entry-number">{number}</span><span class="entry-title">{E(title)}</span>{peek}</summary><div class="entry-content">{content}</div></details>'
+
+def first_command(raw):
+ """Primera línea ejecutable de un bloque de comandos (sin comentarios ni líneas vacías)."""
+ text=html.fromstring('<pre>'+raw+'</pre>').text_content()
+ for line in text.splitlines():
+  line=line.strip()
+  if line and not line.startswith('#'):
+   line=line.removeprefix('$ ')
+   # Se acorta aquí (no con puntos suspensivos de CSS): el texto visible nunca queda recortado.
+   return line if len(line)<=48 else line[:47].rstrip()+'…'
+ return ''
 
 def build_catalog():
- options=''.join(f'<option value="{k}">{v}</option>' for k,v in SUBJECTS.items())
  cert_options=''.join(f'<option value="{x["id"]}">{x["code"]}</option>' for x in DATA['DATA'])
- filters=f'''<div class="filter-bar js-only"><label>Área<select id="subject-filter"><option value="">Todas las áreas</option>{options}</select></label><label>Notas de preparación<select id="cert-filter"><option value="">Todas las certificaciones</option>{cert_options}</select></label><button class="button" id="reset-filters" type="button">Limpiar filtros</button></div><p class="result-count" id="filter-count" role="status" aria-live="polite">52 técnicas documentadas</p><div class="empty-filter" id="empty-filter" hidden>No hay técnicas con estos filtros. Prueba otra combinación.</div>'''
+ area_buttons=''.join(f'<button type="button" class="area-tab" data-area="{k}" aria-pressed="false">{v}</button>' for k,v in SUBJECTS.items())
+ filters=f'''<div class="filter-bar js-only"><label class="filter-search">Filtrar técnicas<input type="search" id="tech-filter" placeholder="kerberos, sqlmap, xss…" autocomplete="off" spellcheck="false"></label><div class="area-tabs" role="group" aria-label="Área"><button type="button" class="area-tab" data-area="" aria-pressed="true">Todas</button>{area_buttons}</div><label class="filter-cert">Notas de preparación<select id="cert-filter"><option value="">Todas las certificaciones</option>{cert_options}</select></label><button class="button" id="reset-filters" type="button">Limpiar filtros</button></div><p class="result-count" id="filter-count" role="status" aria-live="polite">52 técnicas documentadas</p><div class="empty-filter" id="empty-filter" hidden>No hay técnicas con estos filtros. Prueba otra combinación.</div>'''
  body=page_head('Técnicas','Prerrequisitos, razonamiento, comandos, evidencia y respuesta defensiva. <a href="fundamentos.html">Lee los fundamentos y las convenciones</a>.',folder='tecnicas',path='tecnicas/')+'<div class="shell narrow">'+filters
  for sec in DATA['DATA']:
   body+=f'<section class="catalog-section" id="{sec["id"]}" data-catalog-section><h2>{E(sec["code"])} <span class="tag">{len(sec["techs"])} técnicas</span></h2><p class="section-desc">{E(sec["focus"])}</p>'
@@ -359,7 +387,7 @@ def build_catalog():
    content+=f'<p class="cmdlabel">{t["label"]}</p><pre>{t["cmd"]}</pre>'
    content+=''.join(f'<div class="field"><span class="field-label">{l}</span><p>{t[k]}</p></div>' for l,k in [('Evidencia','evidence'),('Detección','detect'),('Mitigación','mit')])
    if t.get('ref'):content+=f'<p><a href="{E(t["ref"]["url"])}" target="_blank" rel="noopener">{E(t["ref"]["label"])}</a></p>'
-   body+=entry(eid,t['n'],content,f'{i:02d}',f'data-filterable data-subject="{area}" data-cert="{sec["id"]}"')
+   body+=entry(eid,t['n'],content,f'{i:02d}',f'data-filterable data-subject="{area}" data-cert="{sec["id"]}"',first_command(t['cmd']))
    record(t['n'],'tecnicas.html#'+eid,'Técnica',' '.join(str(t[k]) for k in ['pre','why','ident','cmd','evidence','detect','mit']),sec['code']+', '+SUBJECTS[area])
   body+='</section>'
  body+='</div>'
@@ -403,10 +431,8 @@ def build_guides_index():
  body+=guide_group('h2')+'</div>'
  document('guias.html','Guías de Hack The Box','Serie de guías razonadas: setup, Cap, Knife, Forest, Vaccine, Sauna y Cascade.',body,'guias')
 
-def explorer_row(name,desc,meta,href,icon=None,external=False):
- attrs=' class="external" target="_blank" rel="noopener"' if external else ''
- extra='<span class="sr-only"> (abre otra pestaña)</span>' if external else ''
- return f'<li><a href="{E(href)}"{attrs}><span class="name">{pi(icon) if icon else ""}{E(name)}{extra}</span><span class="desc">{E(desc)}</span><span class="file-meta">{E(meta)}</span></a></li>'
+def explorer_row(name,desc,meta,href,icon=None):
+ return f'<li><a href="{E(href)}"><span class="name">{pi(icon) if icon else ""}{E(name)}</span><span class="desc">{E(desc)}</span><span class="file-meta">{E(meta)}</span></a></li>'
 
 PIXEL_ICONS={
  'folder':[(0,0,3,1),(0,1,8,6)],
@@ -423,7 +449,7 @@ SAMPLE_REPORT_BANCA='downloads/report-gen-informe-banco-lumbre.pdf'
 
 def icon_sprite():
  symbols=''.join(f'<symbol id="pi-{name}" viewBox="0 0 8 8">'+''.join(f'<rect x="{x}" y="{y}" width="{w}" height="{h}"/>' for x,y,w,h in rects)+'</symbol>' for name,rects in PIXEL_ICONS.items())
- return f'<svg class="pixel-sprite" aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden">{symbols}</svg>'
+ return f'<svg class="pixel-sprite" aria-hidden="true" focusable="false" width="0" height="0">{symbols}</svg>'
 
 def pi(name):
  return f'<svg class="pi" aria-hidden="true" focusable="false" width="16" height="16" shape-rendering="crispEdges"><use href="#pi-{name}"/></svg>'
@@ -431,19 +457,9 @@ def pi(name):
 def lab_crumbs(folder,path):
  return f'<p class="crumbs"><a class="back-lab" href="index.html#{folder}">{pi("folder")}Volver al laboratorio</a> <span class="crumb-path">~/iphobiuss/{E(path)}</span></p>'
 
-def picture(stem,width,height,alt,cls='',srcset=None,sizes='100vw'):
- webp=f'assets/img/{stem}.webp';png=f'assets/img/{stem}.png'
- source=''
- # Las variantes responsivas se seleccionan por su propia existencia; no dependen de un duplicado sin sufijo.
- if srcset and (OUT/f'assets/img/{srcset}').exists():
-  variants=[f'assets/img/{stem}-{w}.webp {w}w' for w in (960,1512,1920) if w<=width and (OUT/f'assets/img/{stem}-{w}.webp').exists()]
-  if not (OUT/f'assets/img/{stem}-{width}.webp').exists() and (OUT/webp).exists():variants.append(f'{webp} {width}w')
-  if variants:source=f'<source srcset="{", ".join(variants)}" sizes="auto, {E(sizes)}" type="image/webp">'
- elif (OUT/webp).exists():
-  source=f'<source srcset="{webp}" type="image/webp">'
- return f'<picture>{source}<img src="{png}" width="{width}" height="{height}" loading="lazy" decoding="async" alt="{E(alt)}"{f" class={chr(34)}{cls}{chr(34)}" if cls else ""}></picture>'
 def project_capture(kind):
- provenance=json.loads((ROOT/'content/report-gen-capturas-procedencia.json').read_text(encoding='utf-8'))
+ filename='report-gen-045-capturas-procedencia.json' if kind in ('catalogo','http') else 'report-gen-capturas-procedencia.json'
+ provenance=json.loads((ROOT/'content'/filename).read_text(encoding='utf-8'))
  return next(capture for capture in provenance['images'] if capture['stem'].endswith('-'+kind))
 def screenshot_sizes(kind):
  # Measured at five widths and DPR 1/2/3, including the overrides in identity.css.
@@ -455,16 +471,39 @@ def screenshot_sizes(kind):
   f'calc(min(1040px, min(100vw, 1280px) - 4rem){extra})')
 def project_shot(kind,cls=''):
  capture=project_capture(kind)
- return picture(capture['stem'],capture['width'],capture['height'],capture['alt'],cls,srcset=Path(capture['variants'][-1]['file']).name,sizes=screenshot_sizes(kind))
+ variants=', '.join(f'{E(item["file"])} {item["width"]}w' for item in capture['variants'])
+ return (f'<picture><source srcset="{variants}" sizes="auto, {E(screenshot_sizes(kind))}" type="image/webp">'
+  f'<img src="{E(capture["original"])}" width="{capture["width"]}" height="{capture["height"]}" loading="lazy" decoding="async" alt="{E(capture["alt"])}" class="{E(cls)}"></picture>')
+def api_fragment():
+ """V15: un intercambio HTTP registrado por el laboratorio (no escrito a mano): la misma petición, antes y después del parche."""
+ results=json.loads((ROOT/'content/labs/http-access/resultados.json').read_text(encoding='utf-8'))
+ scenario=next(item for item in results['results'] if item['id']=='alice_cross_read')
+ def side(mode,title):
+  trace=scenario[mode]['trace'][0];req=trace['request'];res=trace['response']
+  token=dict(req['headers']).get('Authorization','')
+  body=json.loads(res['body']) if res['body'] else {}
+  return (f'<div class="http-side http-{mode}"><p class="http-mode">{title}</p>'
+   # No es un <pre>: los bloques <pre> del sitio se convierten en ejemplos copiables de guía.
+   f'<p class="http-exchange"><span class="http-req">{E(req["method"])} {E(req["path"])}</span><span class="http-hdr">Authorization: {E(token)}</span><span class="http-status s{res["status"]}">HTTP {res["status"]}</span><span class="http-body">{E(json.dumps(body,ensure_ascii=False,separators=(",",":")))}</span></p></div>')
+ return (f'<figure class="work-fragment http-fragment"><div class="http-pair">{side("vulnerable","Vulnerable")}{side("fixed","Corregido")}</div>'
+  f'<figcaption>{E(scenario["label_es"])}: intercambio registrado en el laboratorio, datos sintéticos.</figcaption></figure>')
 def project_caption(kind):
  capture=project_capture(kind)
  return E(capture['caption'])+f' <a href="{E(capture["original"])}" target="_blank" rel="noopener">Ampliar captura<span class="sr-only"> (abre otra pestaña)</span></a>.'
-def shot_main(cls=''):return project_shot('editor',cls)
-def shot_hallazgos(cls=''):return project_shot('entrega',cls)
-def shot_readme():
- # A compact identity card, not a scaled dashboard. Labels remain real text.
- return ('<div class="report-brand-card"><img src="assets/img/report-gen-brand-mark.webp" srcset="assets/img/report-gen-brand-mark-108.webp 108w, assets/img/report-gen-brand-mark-216.webp 216w, assets/img/report-gen-brand-mark-432.webp 432w, assets/img/report-gen-brand-mark-648.webp 648w" sizes="auto, 6rem" width="900" height="600" loading="lazy" decoding="async" alt="Prometeo y Evaristo, mascotas de report-gen">'
-  '<strong class="report-brand-name">report-gen</strong><span class="report-brand-formats">PDF · Word · Markdown · HTML</span></div>')
+def shot_main(cls=''):return project_shot('catalogo',cls)
+def shot_hallazgos(cls=''):return project_shot('http',cls)
+def report_art():
+ """V15.1: la ilustración de report-gen en la tarjeta de la portada (mascotas, nombre y formatos)."""
+ art=json.loads((ROOT/'content/report-gen-illustration-provenance.json').read_text(encoding='utf-8'))
+ variants=', '.join(f'{E(v["file"])} {v["width"]}w' for v in art['variants'])
+ full=art['variants'][-1]
+ return (f'<figure class="report-art"><img src="{E(full["file"])}" srcset="{variants}" sizes="auto, (max-width:900px) calc(100vw - 4.5rem), 36rem" '
+  f'width="{art["width"]}" height="{art["height"]}" loading="lazy" decoding="async" alt="{E(art["alt"])}"></figure>')
+
+def brand_logo():
+ """El logo real de la aplicación junto a su nombre en proyectos.html."""
+ return ('<img class="proj-logo" src="assets/img/report-gen-brand-mark.webp" srcset="assets/img/report-gen-brand-mark-108.webp 108w, assets/img/report-gen-brand-mark-216.webp 216w" '
+  'sizes="4.5rem" width="900" height="600" decoding="async" alt="">')
 
 def download_size():
  return f'ZIP, {REPORT["download_bytes"] / (1024 * 1024):.2f} MiB'.replace('.',',') if REPORT.get('download_bytes') else 'ZIP · GitHub'
@@ -484,7 +523,7 @@ BANNER=(
 FOREST_PATH={'guide':'forest.html#bloodhound','nodes':[
  ('n1','u',60,186,'svc-alfresco','usr','svc-alfresco: cuenta de servicio sin preautenticación Kerberos. Su hash AS-REP se crackea y abre WinRM; pertenece de forma anidada (Service Accounts, Privileged IT Accounts) a Account Operators'),
  ('n2','g',150,78,'Account Operators','grp','Account Operators: el grupo permite crear usuarios y añadirlos a grupos no protegidos'),
- ('n3','g',250,186,'Exchange Windows Perm.','grp','Exchange Windows Permissions: grupo con WriteDacl sobre el dominio'),
+ ('n3','g',250,186,'Exchange Windows Perm','grp','Exchange Windows Permissions: grupo con WriteDacl sobre el dominio'),
  ('n4','d',345,78,'HTB.LOCAL','dom','HTB.LOCAL: con WriteDacl se concede el derecho de replicación (DCSync)'),
  ('n5','da',425,186,'Administrator','DA','Administrator: el hash se extrae con DCSync y se usa con pass-the-hash')],
  'edges':[('e1','M70 176 L140 92','MemberOf*',96,124,'end',''),('e2','M160 92 L240 176','GenericAll',214,118,'start',''),('e3','M260 176 L335 92','WriteDacl',286,152,'end',''),('e4','M355 92 L415 176','DCSync',398,118,'start',' hot')]}
@@ -514,6 +553,16 @@ def welcome(techs_total,tools_total):
  hero_badges.set('class','welcome-badges');hero_badges.set('role','group');hero_badges.set('aria-label','Certificaciones verificables')
  for badge in hero_badges.xpath('./a'):
   badge.set('class','badge');badge.set('aria-label',f'Verificar {badge.text_content().strip()} (abre otra pestaña)')
+  # V14.11: el emisor bajo cada sigla, tomado del dominio de verificación (no se escribe a mano).
+  href=badge.get('href','');issuer='OffSec' if 'offsec.com' in href else 'Hack The Box' if 'hackthebox.com' in href else 'INE Security' if 'ine.com' in href else ''
+  if issuer:
+   name=badge.text_content().strip()
+   for child in list(badge):badge.remove(child)
+   badge.text=None
+   # El nombre accesible repite el texto visible en el mismo orden (control por voz: "OSCP+ OffSec").
+   badge.set('aria-label',f'Verificar {name} {issuer} (abre otra pestaña)')
+   strong=etree.SubElement(badge,'span');strong.set('class','badge-name');strong.text=name;strong.tail=' '
+   small=etree.SubElement(badge,'span');small.set('class','badge-issuer');small.text=issuer
  rows=[('22/tcp','guias','#guias','guias',f'{len(SERIES)} guías: preparación y {len(SERIES)-1} máquinas de Hack The Box'),
   ('80/tcp','tecnicas','#tecnicas','tecnicas',f'{techs_total} técnicas con comandos, evidencia y respuesta defensiva'),
   ('443/tcp','herramientas','#herramientas','herramientas',f'{tools_total} herramientas en contexto, agrupadas por propósito'),
@@ -525,7 +574,7 @@ def welcome(techs_total,tools_total):
   '<span class="term-guardians"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><ellipse cx="5" cy="8" rx="2.4" ry="3"/><ellipse cx="10" cy="5" rx="2.4" ry="3"/><ellipse cx="16" cy="5" rx="2.4" ry="3"/><ellipse cx="20" cy="9" rx="2.4" ry="3"/><path d="M7 14c1-2 2-4 5-4s4 2 5 4c2 2 3 6 0 7-2 1-3-1-5-1s-3 2-5 1c-3-1-2-5 0-7Z"/></svg><span># guardianes del lab: Prometeo · Evaristo</span></span>'
   f'<span class="tl ttag">iphobiuss lab, edición {E(edition)}: {plural(len(SERIES),"guía","guías")}, {techs_total} técnicas, {tools_total} herramientas, report-gen {E(REPORT["version"])}</span>'
   f'<span class="tl tp2"><span class="tph">┌──(iphobiuss@lab)-[~]\n└─$ </span><span class="tcmd" data-cmd><span class="tcmd-text">nmap -sV --open iphobiuss.lab</span><span class="tcur" aria-hidden="true"></span></span></span>\n'
-  f'<span class="tl">Starting Nmap 7.95 ( https://nmap.org ) at {DATE}</span><span class="tl">Nmap scan report for iphobiuss.lab (127.0.0.1)</span><span class="tl">Host is up (0.0004s latency).</span><span class="tl">Not shown: 65530 closed tcp ports</span>'
+  f'<span class="tl">Starting Nmap 7.95 ( https://nmap.org ) at {PAGE_EDITIONS.get('index.html',DATE)}</span><span class="tl">Nmap scan report for iphobiuss.lab (127.0.0.1)</span><span class="tl">Host is up (0.0004s latency).</span><span class="tl">Not shown: 65530 closed tcp ports</span>'
   f'<span class="tl trow thd"><b>PORT</b><i>STATE</i><span>SERVICE</span><span>VERSION</span></span>{nmap_rows}'
   f'<span class="tl ttail">Nmap done: 1 IP address (1 host up) scanned in 1.87 seconds</span>'
   f'<span class="tl tready tph">┌──(iphobiuss@lab)-[~]\n└─$ <span class="tcur" aria-hidden="true"></span></span></div>')
@@ -542,23 +591,61 @@ def welcome(techs_total,tools_total):
  report=(f'<div class="rep"><span class="tl"><span class="tph">$</span> report-gen export --format pdf demo-es</span><span class="tl">revisión guardada <span class="ok">ok</span></span><span class="tl">{plural(facts["evidence"],"evidencia","evidencias")} y {plural(facts["assets"],"activo","activos")} <span class="ok">ok</span></span>'
   f'<div class="rbar" aria-hidden="true"><i data-bar></i></div><span class="tl rpct"><span>{SAMPLE_REPORT.split("/")[-1] if sample else "informe.pdf"}</span><span data-pages="{facts["pages"]}">{pages}</span></span>'
   f'<span class="tl">{plural(facts["findings"],"hallazgo","hallazgos")} por severidad</span><p class="sev-head" id="sev-head">Hallazgos por severidad</p><div class="sev" role="group" aria-labelledby="sev-head">{sevrows}</div></div>'
-  +(f'<p class="rep-link"><a class="rep-pdf" href="{SAMPLE_REPORT}">Ver informe de ejemplo (PDF, {facts["pages"]} páginas)</a></p>' if sample else f'<p class="rep-link"><a href="#proyectos" data-folder-link="proyectos">Abrir el proyecto</a></p>'))
+  +(f'<p class="rep-link"><a class="rep-pdf" href="{SAMPLE_REPORT}">Ver el informe de ejemplo Nimbus (PDF histórico de report-gen 0.21.2, {facts["pages"]} páginas)</a></p>' if sample else '<p class="rep-link"><a href="#proyectos" data-folder-link="proyectos">Abrir el proyecto</a></p>'))
+ # V15: el hero le habla a quien evalúa. A la izquierda, identidad y una sola acción principal; a la derecha,
+ # `cat evidencia.txt` con trabajos propios, credenciales y disponibilidad (enlaces normales, completos sin JS)
+ # y una terminal que acepta comandos (shell.js). Las rutas de estudio viven en «Mi laboratorio».
+ cert_names=[b.xpath('string(.//*[@class="badge-name"])').strip() or b.text_content().strip() for b in hero_badges.xpath('./a')]
+ others=len(cert_names)-1
+ cv_href='downloads/cv-sebastian-latorre.pdf' if (OUT/'downloads/cv-sebastian-latorre.pdf').is_file() else ''
+ cv_pages=0
+ if cv_href:
+  from pypdf import PdfReader
+  cv_pages=len(PdfReader(str(OUT/cv_href)).pages)
+ shell_data={'name':NAME,'role':'Pentester Junior','city':'Santiago, Chile','focus':['Seguridad web','Active Directory','IA / LLM'],
+  'certs':[{'name':b.xpath('string(.//*[@class="badge-name"])').strip() or b.text_content().strip(),'issuer':b.xpath('string(.//*[@class="badge-issuer"])').strip(),'url':b.get('href')} for b in hero_badges.xpath('./a')],
+  'projects':[{'name':f'report-gen v{REPORT["version"]}','text':'editor local de informes de pentest','href':'proyectos.html#report-gen'},
+              {'name':'api-acceso','text':'IDOR, parche en el servidor y retest','href':'api-acceso.html'},
+              {'name':'sesiones-seguras','text':'revocación, contraseña y caducidad de sesiones','href':'sesiones-seguras.html'}],
+  'cases':[{'name':'cap','text':'Linux · seguridad web','href':'cap-caso.html'},{'name':'forest','text':'Windows · Active Directory','href':'forest-caso.html'}],
+  'guides':[{'name':n,'href':n+'.html'} for n in SERIES],
+  'counts':{'guias':len(SERIES),'tecnicas':techs_total,'herramientas':tools_total},
+  'links':{'cv':cv_href,'cvPages':cv_pages,'linkedin':LINKEDIN,'github':'https://github.com/IphobiusS','contact':'#contacto'}}
+ shell_json=json.dumps(shell_data,ensure_ascii=False).replace('<','\\u003c')
+ chips=''.join(f'<button type="button" class="shell-chip" data-shell-cmd="{c}">{c}</button>' for c in ('help','whoami','ls proyectos','certs','cat cv','contacto'))
  hero=f'''<section class="welcome shell" aria-labelledby="welcome-title">
  <div class="welcome-terminal" data-hero-terminal>
  <div class="welcome-titlebar"><span class="terminal-window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>iphobiuss@lab: ~</span><span class="terminal-window-label">inicio</span></div>
- <div class="welcome-terminal-body"><div class="welcome-id"><div class="welcome-lead"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> whoami</p><p class="section-eyebrow">Seguridad web · Active Directory · IA / LLM</p><h1 id="welcome-title">{E(NAME)}</h1><p class="welcome-role">Pentester Junior<span>Santiago, Chile</span></p><p class="welcome-description">Investigo fallos, conecto evidencias y documento decisiones. Explora mis casos y herramientas.</p></div><div class="welcome-navigation"><div class="welcome-actions"><a class="button primary" href="#proyecto-destacado">Ver trabajos propios</a><a class="button" href="#casos">Ver casos HTB</a></div><div class="welcome-links"><a class="text-link welcome-contact" href="#contacto">Contacto</a><a class="text-link" href="recorrido.html">Recorrido breve</a></div></div></div>
- <nav class="terminal-directory" aria-labelledby="terminal-directory-title"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> ls laboratorio/</p><h2 id="terminal-directory-title">Elige por dónde entrar</h2><a href="guias.html"><span class="terminal-command">cd guias/ <span aria-hidden="true">→</span></span><span>{len(SERIES)} recorridos de práctica</span></a><a href="tecnicas.html"><span class="terminal-command">cat tecnicas <span aria-hidden="true">→</span></span><span>{techs_total} técnicas con contexto</span></a><a href="herramientas.html"><span class="terminal-command">ls herramientas/ <span aria-hidden="true">→</span></span><span>{tools_total} herramientas por propósito</span></a></nav></div>
+ <div class="welcome-terminal-body"><div class="welcome-id"><div class="welcome-lead"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> whoami</p><p class="section-eyebrow">Seguridad web · Active Directory · IA / LLM</p><h1 id="welcome-title">{E(NAME)}</h1><p class="welcome-role">Pentester Junior<span>Santiago, Chile</span></p><p class="welcome-description">Encuentro fallos, los demuestro con evidencia reproducible y documento cómo corregirlos. OSCP+ y proyectos propios para revisar.</p></div><div class="welcome-navigation"><div class="welcome-actions"><a class="button primary" href="#proyecto-destacado">Ver trabajos propios</a></div><div class="welcome-links"><a class="text-link welcome-contact" href="#contacto">Contacto</a><a class="text-link" href="recorrido.html">Recorrido breve</a></div></div></div>
+ <section class="hero-shell" aria-labelledby="hero-shell-title" data-shell><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> cat evidencia.txt</p><h2 id="hero-shell-title">Lo que puedes revisar</h2>
+ <ul class="hero-evidence">
+ <li><a href="proyectos.html#report-gen"><span class="ev-key">report-gen v{E(REPORT['version'])}</span><span class="ev-text">Editor local de informes de pentest</span></a></li>
+ <li><a href="api-acceso.html"><span class="ev-key">API con dos identidades</span><span class="ev-text">IDOR, parche en el servidor y retest</span></a></li>
+ <li><a href="sesiones-seguras.html"><span class="ev-key">Sesiones seguras</span><span class="ev-text">Revocación, contraseña y caducidad</span></a></li>
+ <li><a href="#certificaciones"><span class="ev-key">{E(cert_names[0])} y {others} certificaciones más</span><span class="ev-text">Cada una enlaza a su verificación</span></a></li>
+ </ul>
+ <p class="hero-availability"><span class="status-dot" aria-hidden="true"></span><span>Disponible como Pentester Junior en Santiago.</span> <a href="#contacto">Hablemos</a></p>
+ <script type="application/json" id="shell-data">{shell_json}</script></section>
+ <div class="shell-ui" data-shell-ui hidden><div class="shell-log" role="log" aria-live="polite" aria-label="Respuestas de la terminal" data-shell-log></div>
+ <form class="shell-form" data-shell-form autocomplete="off"><label class="shell-prompt" for="shell-input"><span class="shell-prompt-host">iphobiuss@lab:</span>~$<span class="sr-only"> Escribe un comando</span></label><input id="shell-input" class="shell-input" type="text" name="cmd" spellcheck="false" autocapitalize="off" autocomplete="off" enterkeyhint="send" aria-describedby="shell-hint" maxlength="120" data-shell-input><button class="shell-run" type="submit">Ejecutar</button></form>
+ <p class="shell-hint" id="shell-hint">Escribe un comando o elige uno. Tab completa; las flechas recorren el historial.</p>
+ <div class="shell-chips" role="group" aria-label="Comandos sugeridos">{chips}</div></div></div>
  <div class="welcome-terminal-footer"><span class="terminal-session-note"><span class="terminal-ready-dot" aria-hidden="true"></span>Nmap · Forest · report-gen</span><a href="#terminal-lab" data-open-session>Explorar la sesión completa <span aria-hidden="true">↓</span></a></div>
  </div></section>'''
- certifications=f'''<section class="shell home-certifications" aria-labelledby="certificaciones-title"><div class="welcome-creds" id="certificaciones" tabindex="-1"><h2 class="welcome-creds-label" id="certificaciones-title">Certificaciones verificables</h2>{serialize(hero_badges)}<p>Credenciales con enlace a su verificación. Los casos muestran cómo aplico y explico lo aprendido.</p></div></section>'''
- terminal=f'''<div class="lab-session">
+ certifications=f'''<section class="shell home-certifications" id="certificaciones" tabindex="-1" aria-labelledby="certificaciones-title"><h2 class="welcome-creds-label" id="certificaciones-title">Certificaciones verificables</h2><div class="welcome-creds">{serialize(hero_badges)}<p>Credenciales con enlace a su verificación. Los casos muestran cómo aplico y explico lo aprendido.</p></div></section>'''
+ # V14.11: la sesión sube a la portada como sección propia, justo después de los trabajos. Sigue plegada
+ # y sin reproducción automática; el resumen ya muestra lo que hay dentro (tres ventanas con su dato real).
+ preview_pdf=f'PDF de {facts["pages"]} páginas' if facts['pages'] else 'PDF listo'
+ preview=(f'<span class="session-preview" aria-hidden="true"><span><b>0:nmap</b>{len(rows)} servicios del laboratorio</span>'
+  f'<span><b>1:bloodhound</b>ruta de {len(FOREST_PATH["nodes"])} nodos en Forest</span><span><b>2:report-gen</b>{E(preview_pdf)}</span></span>')
+ terminal=f'''<section class="shell home-session" aria-labelledby="session-title"><div class="home-session-heading"><h2 id="session-title">La terminal del laboratorio</h2><p>Una sesión tmux de ejemplo: el reconocimiento con Nmap, la ruta de Forest y la exportación de un informe con report-gen.</p></div><div class="lab-session">
 
- <details class="session-shell" id="terminal-lab"><summary class="session-summary"><span class="session-summary-label">Explorar la terminal</span><span class="session-summary-hint" data-summary-hint>Sesión de ejemplo: Nmap, Forest y report-gen</span></summary><div class="session" data-session><div class="session-title"><span class="session-path">iphobiuss@lab: ~ (tmux)</span><span class="session-ctl"><button type="button" class="motion-toggle js-only" data-motion-toggle aria-label="Animación del sitio" aria-pressed="true"><span>Animación del sitio</span><svg class="motion-state-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path data-motion-indicator d="M22 12h-4l-3 9-6-18-3 9H2"/></svg><span class="sr-only" aria-hidden="true" data-motion-state>: activa</span></button><button type="button" class="motion-toggle js-only" data-motion-replay>Reproducir sesión</button></span></div>
+ <details class="session-shell" id="terminal-lab"><summary class="session-summary"><span class="session-summary-label">Abrir la sesión</span><span class="session-summary-hint" data-summary-hint>Nmap, Forest y report-gen en tres ventanas</span>{preview}</summary><div class="session" data-session><div class="session-title"><span class="session-path">iphobiuss@lab: ~ (tmux)</span><span class="session-ctl"><button type="button" class="motion-toggle js-only" data-motion-toggle aria-label="Animación del sitio" aria-pressed="true"><span>Animación del sitio</span><svg class="motion-state-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path data-motion-indicator d="M22 12h-4l-3 9-6-18-3 9H2"/></svg><span class="sr-only" aria-hidden="true" data-motion-state>: activa</span></button><button type="button" class="motion-toggle js-only" data-motion-replay>Reproducir sesión</button></span></div>
  <section class="spane spane-term" data-pane="term" aria-label="Terminal de ejemplo"><p class="ptitle"><b>0:nmap</b><span>elige un servicio para explorar</span></p>{term}</section>
  <section class="spane spane-graph" data-pane="graph" aria-label="Ruta de ataque de la guía Forest"><p class="ptitle"><b>1:bloodhound</b><a href="{FOREST_PATH['guide']}">ruta de Forest, guía 03</a></p>{graph}<p class="gcap" data-gcap data-default="Resumen de 5 nodos. De una cuenta de servicio al acceso como Administrator: AS-REP roasting, WinRM, membresía anidada (MemberOf*), WriteDacl, DCSync y pass-the-hash.">Resumen de 5 nodos. De una cuenta de servicio al acceso como Administrator: AS-REP roasting, WinRM, membresía anidada (MemberOf*), WriteDacl, DCSync y pass-the-hash.</p></section>
- <section class="spane spane-report" data-pane="report" aria-label="Exportación con report-gen"><p class="ptitle"><b>2:report-gen</b><span>{E(REPORT['version'])}, informe de ejemplo</span></p>{report}</section>
+ <section class="spane spane-report" data-pane="report" aria-label="Exportación con report-gen"><p class="ptitle"><b>2:report-gen</b><span>informe de ejemplo Nimbus (PDF histórico de 0.21.2)</span></p>{report}</section>
  <p class="session-status"><span><span class="sw now">0:nmap</span><span class="sw">1:bloodhound</span><span class="sw">2:report-gen</span></span><span class="session-right">edición {E(edition)} <span data-clock></span></span></p></div></details>
- </div>'''
+ </div></section>'''
  return hero,certifications,terminal
 
 
@@ -592,8 +679,8 @@ def build_home():
  featured=(f'<section class="shell home-featured" id="proyecto-destacado" aria-labelledby="featured-title">'
   '<div class="home-work-heading"><p class="section-eyebrow">Código propio · decisiones verificables</p><h2 id="featured-title">Dos trabajos para conocer mi criterio</h2><p>Un editor que uso para documentar y una API propia que permite seguir un fallo hasta su corrección.</p></div><div class="home-work-grid">'
   f'<article class="readme-project" aria-labelledby="home-report-title"><div class="readme-project-foot"><p class="section-eyebrow">Herramienta local · v{E(REPORT["version"])}</p><h3 id="home-report-title">report-gen</h3><p class="featured-tagline">Una revisión. Cuatro formatos.</p><p>Hallazgos, evidencias y remediación en una misma revisión. Prueba cómo cambia una ficha antes de instalar el editor.</p>'
-  f'{shot_readme()}<div class="readme-project-links"><a class="button primary" href="report-gen-demo.html#finding-exercise">Probar una ficha</a><a class="text-link" href="proyectos.html#report-gen">Proyecto y descarga</a></div></div></article>'
-  '<article class="home-api-work" aria-labelledby="home-api-title"><p class="section-eyebrow">Aplicación propia · HTTP real</p><h3 id="home-api-title">Una API, dos identidades</h3><p class="featured-tagline">Del acceso ajeno al retest.</p><p>Comparo lectura y escritura entre cuentas, corrijo la autorización en el servidor y repito casos positivos y negativos.</p><p class="home-work-scope">Laboratorio local con datos sintéticos. Código, intercambios HTTP y límites explícitos.</p><div class="readme-project-links"><a class="button" href="api-acceso.html">Seguir el caso completo</a><a class="text-link" href="api-acceso.html#retest">Consultar el retest</a></div></article></div></section>')
+  f'{report_art()}<div class="readme-project-links"><a class="button primary" href="report-gen-demo.html#finding-exercise">Probar una ficha</a><a class="text-link" href="proyectos.html#report-gen">Proyecto y descarga</a></div></div></article>'
+  '<article class="home-api-work" aria-labelledby="home-api-title"><p class="section-eyebrow">Aplicación propia · HTTP real</p><h3 id="home-api-title">Una API, dos identidades</h3><p class="featured-tagline">Del acceso ajeno al retest.</p><p>Comparo lectura y escritura entre cuentas, corrijo la autorización en el servidor y repito casos positivos y negativos.</p><p class="home-work-scope">Laboratorio local con datos sintéticos. Código, intercambios HTTP y límites explícitos.</p>'+api_fragment()+'<div class="readme-project-links"><a class="button" href="api-acceso.html">Seguir el caso completo</a><a class="text-link" href="api-acceso.html#retest">Consultar el retest</a></div></article></div></section>')
 
  proyectos=('<p class="prompt"><b>iphobiuss@lab</b>:~/iphobiuss/proyectos$ ls</p><h2 class="pane-title">Proyectos</h2>'
   '<p>Abre cada proyecto para consultar su estado, documentación y descargas.</p><ul class="explorer-list">'
@@ -613,8 +700,11 @@ def build_home():
  panes={'readme':readme,'proyectos':proyectos,'guias':guias,'tecnicas':tecnicas,'herramientas':herramientas}
  pane_html=''.join(f'<section class="pane" id="{k}" data-path="{"" if k=="readme" else k+"/"}" aria-label="{E(label)}">{panes[k]}</section>' for k,label,_,_ in folders)
  hero,certifications,terminal=welcome(techs_total,tools_total)
- body=('<div class="home-presentation" data-motion-stage>'+hero+featured+casos_section()+certifications
-  +f'<section class="shell lab" id="laboratorio" aria-labelledby="laboratorio-title"><div class="lab-intro"><p class="section-eyebrow">Para explorar con calma</p><h2 id="laboratorio-title">Mi laboratorio</h2><p>Guías, técnicas y herramientas para estudiar. Prometeo y Evaristo cuidan este rincón.</p><div class="lab-shortcuts"><a href="cuaderno.html">Mi cuaderno</a></div></div>{terminal}'
+ body=('<div class="home-presentation" data-motion-stage>'+hero+featured+terminal+certifications
+  +f'<section class="shell lab" id="laboratorio" aria-labelledby="laboratorio-title"><div class="lab-intro"><p class="section-eyebrow">Para explorar con calma</p><h2 id="laboratorio-title">Mi laboratorio</h2><p>Guías, técnicas y herramientas para estudiar. Prometeo y Evaristo cuidan este rincón.</p>'
+  # V15: las rutas de estudio que antes ocupaban el hero, con sus conteos reales.
+  f'<nav class="terminal-directory lab-routes" aria-labelledby="lab-routes-title"><p class="terminal-prompt" aria-hidden="true"><span>~ $</span> ls laboratorio/</p><h3 id="lab-routes-title">Elige por dónde entrar</h3><a href="guias.html"><span class="terminal-command">cd guias/ <span aria-hidden="true">→</span></span><span>{len(SERIES)} recorridos de práctica</span></a><a href="tecnicas.html"><span class="terminal-command">cat tecnicas <span aria-hidden="true">→</span></span><span>{techs_total} técnicas con contexto</span></a><a href="herramientas.html"><span class="terminal-command">ls herramientas/ <span aria-hidden="true">→</span></span><span>{tools_total} herramientas por propósito</span></a></nav>'
+  '<div class="lab-shortcuts"><a href="cuaderno.html">Mi cuaderno</a></div></div>'
   '<details class="library-disclosure" data-library><summary>Explorar carpetas y proyectos del laboratorio</summary><div class="lab-window"><div class="titlebar"><span class="window-path" id="window-path">iphobiuss@lab:~/iphobiuss</span><span class="titlebar-hint js-only">Flechas para cambiar de carpeta, Tab para entrar, Enter para abrir</span></div>'
   f'<div class="window-body"><nav class="tree-nav" aria-label="Carpetas"><div class="tree">{tree}</div></nav><div class="panes">{pane_html}</div></div>'
   f'<p class="statusbar"><span id="window-status">{plural(len(folders),"entrada","entradas")} en ~/iphobiuss</span><span>Cada carpeta tiene su propia dirección; el botón Atrás vuelve a la anterior.</span></p></div></details></section>'
@@ -632,33 +722,39 @@ def prometheus_card(home=False):
  identifier='home-prometheus' if home else PROMETHEUS['anchor']
  title_id=identifier+'-title'
  link=f'<p><a class="button" href="proyectos.html#{E(PROMETHEUS["anchor"])}">Ver estado de PrometheuS</a></p>' if home else ''
+ details=''
+ if not home:
+  capabilities=''.join(f'<li><strong>{E(item["title"])}.</strong> {E(item["text"])}</li>' for item in PROMETHEUS['capabilities'])
+  details=(f'<div class="prometheus-details"><p class="section-eyebrow">{E(PROMETHEUS["platform"])}</p>'
+   f'<ul class="takeaways" aria-label="Capacidades de PrometheuS">{capabilities}</ul>'
+   f'<p>{E(PROMETHEUS["release_note"])}</p><p class="prometheus-limitations">{E(PROMETHEUS["limitations"])}</p></div>')
  return (f'<article class="project-pending" id="{E(identifier)}" aria-labelledby="{E(title_id)}">'
-  f'<p class="project-state">{E(PROMETHEUS["status"])}</p><{heading} id="{E(title_id)}">{E(PROMETHEUS["name"])}</{heading}>'
-  f'<p>{E(PROMETHEUS["description"])}</p><p class="project-availability">{E(PROMETHEUS["availability"])}</p>{link}</article>')
+  f'<p class="project-state">{E(PROMETHEUS["status"])} · v{E(PROMETHEUS["version"])}</p><{heading} id="{E(title_id)}">{E(PROMETHEUS["name"])}</{heading}>'
+  f'<p>{E(PROMETHEUS["description"])}</p>{details}<p class="project-availability">{E(PROMETHEUS["availability"])}</p>{link}</article>')
 
 def build_projects():
  features=''.join(f'<li><h3>{E(item["title"])}</h3><p>{E(item["text"])}</p></li>' for item in REPORT['features'])
  banca_pages=REPORT.get('sample_banca_pages')
  if (OUT/SAMPLE_REPORT_BANCA).exists():
-  sample_note=(f'Dos informes de ejemplo: <a href="{SAMPLE_REPORT}">Nimbus (PDF)</a> y '
+  sample_note=(f'PDFs de ejemplo históricos (report-gen 0.21.2): <a href="{SAMPLE_REPORT}">Nimbus (PDF)</a> y '
                f'<a href="{BANK["summary_page"]}">Banco Lumbre: resumen y lectura HTML completa</a> '
                f'(<a href="{SAMPLE_REPORT_BANCA}">PDF, {banca_pages} páginas</a>).')
  else:
   sample_note=f'<a href="{SAMPLE_REPORT}">Ver un informe de ejemplo (PDF)</a>.'
  proj=f'''<article class="project-page" id="report-gen">
- <div class="project-intro"><div><div class="proj-top"><h2 class="proj-name">report-gen</h2><span class="version-label">v{E(REPORT['version'])}</span></div><p class="project-tagline">Del hallazgo al informe, en tu equipo.</p><p class="proj-desc">Organiza activos, documenta evidencias y sigue la remediación en un editor local. Exporta PDF, Word, Markdown y HTML portátil desde una misma revisión guardada.</p><ul class="project-meta" aria-label="Características técnicas"><li>Python + Flask</li><li>CVSS 3.1 / 4.0</li><li>CWE</li><li>Licencia MIT</li><li>Sin cuentas ni telemetría</li></ul><div class="proj-links"><a class="button primary" href="{E(REPORT['download'])}" download>Descargar v{E(REPORT['version'])} <span class="download-format">{download_size()}</span></a><a class="button external" href="{GITHUB}" target="_blank" rel="noopener">Repositorio en GitHub<span class="sr-only"> (abre otra pestaña)</span></a></div><p class="download-note">Versión {E(REPORT['version'])}: código fuente, guía de uso y ejemplos ficticios. {sample_note}</p></div></div>
+ <div class="project-intro"><div><div class="proj-top">{brand_logo()}<h2 class="proj-name">report-gen</h2><span class="version-label">v{E(REPORT['version'])}</span></div><p class="project-tagline">Del hallazgo al informe, en tu equipo.</p><p class="proj-desc">Organiza activos, documenta evidencias y sigue la remediación en un editor local. Exporta PDF, Word, Markdown y HTML portátil desde una misma revisión guardada.</p><ul class="project-meta" aria-label="Características técnicas"><li>Python + Flask</li><li>CVSS 3.1 / 4.0</li><li>CWE</li><li>Licencia MIT</li><li>Uso local · conexiones opcionales</li></ul><div class="proj-links"><a class="button primary" href="{E(REPORT['download'])}" download>Descargar v{E(REPORT['version'])} <span class="download-format">{download_size()}</span></a><a class="button external" href="{GITHUB}" target="_blank" rel="noopener">Repositorio en GitHub<span class="sr-only"> (abre otra pestaña)</span></a></div><p class="download-note">Versión {E(REPORT['version'])}: código fuente, guía de uso y ejemplos ficticios. {sample_note}</p></div></div>
+ <figure class="project-screenshot project-screenshot-lead">{shot_main()}<figcaption>{project_caption('catalogo')}</figcaption></figure>
  <section class="project-section" aria-labelledby="problem-title"><h2 id="problem-title">El problema que resuelve</h2><p>Preparar un informe exige mantener alineados los hallazgos, sus evidencias, las referencias y la remediación. Cuando cada formato se edita por separado, aparecen inconsistencias que dificultan la revisión. report-gen es un editor local para organizar ese trabajo y exportar PDF, Word, Markdown y HTML portátil desde una misma revisión guardada.</p><h3>Decisiones de implementación</h3><ul class="takeaways"><li><b>Identificadores estables.</b> Conservar los identificadores al eliminar, duplicar o reordenar fichas, para que las referencias mantengan su destino.</li><li><b>Copia para publicar.</b> Procesar una copia para publicar y conservar separados los originales privados.</li><li><b>Comprobaciones por formato.</b> Mostrar comprobaciones de cada exportación y distinguir sus límites de la revisión visual necesaria.</li></ul></section>
  {bank_teaser()}
- <figure class="project-screenshot">{shot_main()}<figcaption>{project_caption('editor')}</figcaption></figure>
  <section class="project-section" aria-labelledby="workflow-title"><h2 id="workflow-title">Un flujo completo de documentación</h2><ul class="feature-list">{features}</ul></section>
- <section class="project-section pagination-note" aria-labelledby="pagination-title"><h2 id="pagination-title">Comprobar antes de entregar</h2><p>La versión {E(REPORT['version'])} comprueba referencias, metadatos y enlaces. En HTML, Word y Markdown contrasta además el contexto de las evidencias; en PDF comprueba presencia de texto e imágenes y destinos del índice. En HTML detecta contenido oculto por las reglas CSS contempladas. Todos los formatos necesitan también revisión visual antes de compartirse.</p><details class="project-checks spoiler"><summary>Ver las comprobaciones del HTML portátil</summary><figure class="project-screenshot">{project_shot('comprobaciones')}<figcaption>{project_caption('comprobaciones')}</figcaption></figure></details></section>
- <figure class="project-screenshot">{shot_hallazgos()}<figcaption>{project_caption('entrega')}</figcaption></figure><section class="project-section" aria-labelledby="getting-started-title"><h2 id="getting-started-title">Empieza con la demo Nimbus</h2><ol class="project-steps"><li><strong>Instala en Linux o Kali.</strong> Desde la carpeta extraída, ejecuta <code>python3 scripts/install.py --desktop</code>. Abre report-gen desde el menú de aplicaciones o con <code>~/.local/bin/report-gen</code>.</li><li><strong>Abre «Probar Nimbus».</strong> Entra en <code>http://127.0.0.1:8080</code> desde el navegador. El ejemplo ficticio incluye 12 hallazgos para recorrer el flujo sin usar datos de un cliente.</li><li><strong>Trabaja, revisa y entrega.</strong> Edita una evidencia, guarda una revisión y prepara los formatos desde Entregar. Comprueba los archivos y su presentación antes de compartirlos.</li></ol><div class="actions"><a class="button" href="{E(REPORT['guide'])}">Guía de uso</a><a class="button" href="{SAMPLE_REPORT}">Ver informe Nimbus (PDF)</a></div><p class="project-requirements">Requiere Python 3.11 o posterior y las dependencias indicadas en el README. Conserva la carpeta extraída y su entorno <code>.venv</code>: el acceso los necesita, no es un ejecutable autónomo. En Windows y macOS, sigue la guía de instalación.</p><p>El instalador guarda los datos en <code>$XDG_DATA_HOME/report-gen</code> o, por defecto, <code>~/.local/share/report-gen</code>. Puedes elegir otra carpeta con <code>--workspace</code>; consulta la guía para trasladar proyectos antiguos.</p><p>Para pedir ayuda, abre «Comprobar instalación», revisa el diagnóstico sintético y descárgalo. Incluye versión, sistema y comprobaciones; excluye proyectos, rutas y nombres de usuario.</p></section>
+ <section class="project-section pagination-note" aria-labelledby="pagination-title"><h2 id="pagination-title">Comprobar antes de entregar</h2><p>La versión {E(REPORT['version'])} comprueba referencias, metadatos y enlaces. En HTML, Word y Markdown contrasta además el contexto de las evidencias; en PDF comprueba presencia de texto e imágenes y destinos del índice. En HTML detecta contenido oculto por las reglas CSS contempladas. Todos los formatos necesitan también revisión visual antes de compartirse.</p><details class="project-checks spoiler"><summary>Ver un ejemplo histórico de comprobaciones (0.26.0)</summary><figure class="project-screenshot">{project_shot('comprobaciones')}<figcaption>{project_caption('comprobaciones')}</figcaption></figure></details></section>
+ <figure class="project-screenshot">{shot_hallazgos()}<figcaption>{project_caption('http')}</figcaption></figure><section class="project-section" aria-labelledby="getting-started-title"><h2 id="getting-started-title">Empieza con la demo Nimbus</h2><ol class="project-steps"><li><strong>Instala en Linux o Kali.</strong> Desde la carpeta extraída, ejecuta <code>python3 scripts/install.py --desktop</code>. Abre report-gen desde el menú de aplicaciones o con <code>~/.local/bin/report-gen</code>.</li><li><strong>Crea una práctica ficticia.</strong> Entra en <code>http://127.0.0.1:8080</code> desde el navegador. Desde Inicio, «Crear práctica ficticia» prepara una copia editable de Nimbus con 12 hallazgos para recorrer el flujo sin usar datos de un cliente.</li><li><strong>Trabaja, revisa y entrega.</strong> Edita una evidencia, guarda una revisión y prepara los formatos desde Entregar. Comprueba los archivos y su presentación antes de compartirlos.</li></ol><div class="actions"><a class="button" href="{E(REPORT['guide'])}">Guía de uso</a><a class="button" href="{SAMPLE_REPORT}">Ver Nimbus (PDF histórico · 0.21.2)</a></div><p class="project-requirements">Requiere Python 3.11 o posterior y las dependencias indicadas en el README. Conserva la carpeta extraída y su entorno <code>.venv</code>: el acceso los necesita, no es un ejecutable autónomo. En Windows y macOS, sigue la guía de instalación.</p><p>El instalador guarda los datos en <code>$XDG_DATA_HOME/report-gen</code> o, por defecto, <code>~/.local/share/report-gen</code>. Puedes elegir otra carpeta con <code>--workspace</code>; consulta la guía para trasladar proyectos antiguos.</p><p>Para pedir ayuda, abre «Comprobar instalación», revisa el diagnóstico sintético y descárgalo. Incluye versión, sistema y comprobaciones; excluye proyectos, rutas y nombres de usuario.</p></section>
  </article>'''
  pending=prometheus_card()
- catalog='<nav class="project-catalog" aria-label="Proyectos propios"><a href="#report-gen">report-gen</a><a href="api-acceso.html">Autorización HTTP</a><a href="sesiones-seguras.html">Revocación de sesiones</a><a href="#prometheus">PrometheuS <span>En construcción</span></a></nav>'
+ catalog=f'<nav class="project-catalog" aria-label="Proyectos propios"><a href="#report-gen">report-gen</a><a href="api-acceso.html">Autorización HTTP</a><a href="sesiones-seguras.html">Revocación de sesiones</a><a href="#prometheus">PrometheuS <span>{E(PROMETHEUS["status"])}</span></a></nav>'
  body=page_head('Proyectos','Herramientas que construyo para documentar y mejorar mi trabajo en seguridad.',folder='proyectos',path='proyectos/')+'<div class="shell">'+catalog+proj+pending+'</div>'+professional_contact()
  body=body.replace('<section class="project-section pagination-note"', '<p><a class="button" href="report-gen-demo.html">Explorar tres tareas de reporting</a></p><section class="project-section pagination-note"',1)
- document('proyectos.html','Proyectos: report-gen y PrometheuS','report-gen '+REPORT['version']+': informes locales en cuatro formatos. PrometheuS: agente de pentesting por línea de comandos, en construcción.',body,'proyectos',social='assets/img/report-gen-og.png')
+ document('proyectos.html','Proyectos: report-gen y PrometheuS','report-gen '+REPORT['version']+': informes locales en cuatro formatos. PrometheuS '+PROMETHEUS['version']+': reconocimiento autorizado y evidencia; candidata de lanzamiento.',body,'proyectos',social='assets/img/report-gen-og.png')
  record('report-gen','proyectos.html#report-gen','Proyecto',proj,'Python, Flask, CVSS, v'+REPORT['version'])
  record(PROMETHEUS['name'],'proyectos.html#'+PROMETHEUS['anchor'],'Proyecto',pending,PROMETHEUS['status'])
 
@@ -725,7 +821,7 @@ def build_cases():
  render_case('cap-caso.html','cap',
   'Cap: una captura de red expuesta y su impacto hasta root',
   'Control de acceso, tráfico sensible y privilegios en Linux: cómo se encadenan tres fallos.',
-  'Caso de laboratorio Cap (HTB, Linux): de una captura de red expuesta a root. Hipótesis, evidencia citada a la guía, decisiones y mitigaciones propuestas, por iphobiuss.',
+  'Caso Cap (HTB, Linux): de una captura de red expuesta a root. Hipótesis, evidencia citada, decisiones y mitigaciones propuestas.',
   cap_synth,cap_intro,cap_hyp,cap_ev,cap_mit,
   'Leer la guía completa de Cap','forest-caso.html','Siguiente caso: Forest',
   'Fuente: mi guía de Cap (capítulos 02 a 05). Resultado histórico documentado; las mitigaciones son propuestas, no verificadas.')
@@ -757,17 +853,10 @@ def build_cases():
  render_case('forest-caso.html','forest',
   'Forest: una cuenta de servicio y una cadena de permisos en Active Directory',
   'De material Kerberos expuesto a acceso como Administrator: interpretar identidades y ACLs.',
-  'Caso de laboratorio Forest (HTB, Active Directory): de una cuenta de servicio a acceso como Administrator. Hipótesis, evidencia citada a la guía, decisiones y mitigaciones propuestas.',
+  'Caso Forest (HTB, Active Directory): de una cuenta de servicio a Administrator. Hipótesis, evidencia citada, decisiones y mitigaciones.',
   for_synth,for_intro,for_hyp,for_ev,for_mit,
   'Leer la guía completa de Forest','cap-caso.html','Otro caso: Cap',
   'Fuente: mi guía de Forest (enumeración, AS-REP, acceso y escalada). Resultado histórico documentado; las mitigaciones son propuestas, no verificadas.')
-
-def casos_section():
- return ('<section class="shell casos" id="casos" aria-labelledby="casos-title">'
-  '<div class="casos-head"><h2 id="casos-title" class="pane-title">Casos HTB documentados</h2>'
-  '<p>Retrospectivas de laboratorio con evidencia citada y límites. Cada caso conserva su expediente y guía completa.</p></div>'
-  '<div class="home-case-links"><a href="cap-caso.html"><strong>Cap · Seguridad web</strong><span>De una captura expuesta a root</span></a>'
-  '<a href="forest-caso.html"><strong>Forest · Active Directory</strong><span>Identidades, permisos y DCSync</span></a></div></section>')
 
 def guide_environment(raw):
  values=['Kali Linux y VirtualBox: versiones no especificadas en la guía original.']
@@ -896,7 +985,7 @@ def build_bank_case():
   '<p>El HTML ofrece texto seleccionable, encabezados, tablas, enlaces e índice, lectura sin JavaScript y filtros opcionales. '
   'Es una alternativa al PDF sin etiquetado completo; no implica certificación WCAG, PDF/UA ni validación con lector de pantalla.</p>'
   f'<div class="actions"><a class="button" href="{html_href}">Abrir HTML actual</a><a class="button" href="{pdf_href}">Abrir PDF original</a>'
-  f'<a class="text-link" href="{E(REPORT["sample_banca_html_historical"])}">Consultar HTML histórico 0.23.0</a>'
+  f'<a class="text-link" href="{E(REPORT["sample_banca_html_historical"])}">Consultar la exportación HTML intermedia ({E(REPORT["sample_banca_html_historical_export_version"])})</a>'
   '<a class="text-link" href="proyectos.html#report-gen">Conocer report-gen</a></div></section>'
  )
  body=(head+f'<div class="shell article-layout"><aside class="article-toc"><span class="toc-label">En esta simulación</span><nav aria-label="Índice de la simulación">{toc_links}</nav></aside>'
