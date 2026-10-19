@@ -5,8 +5,17 @@
     <link>https://iphobiuss.github.io/</link>
     <description>Casos reproducibles, decisiones técnicas, novedades de report-gen y guías de laboratorio de Sebastián Latorre Muñoz.</description>
     <language>es</language>
-    <lastBuildDate>Sun, 11 Oct 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 19 Oct 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://iphobiuss.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>report-gen 0.45.0: documentación guiada y evidencia HTTP</title>
+      <link>https://github.com/IphobiusS/report-gen/releases/tag/v0.45.0</link>
+      <guid isPermaLink="true">https://github.com/IphobiusS/report-gen/releases/tag/v0.45.0</guid>
+      <description>Editor local en español, inglés y portugués de Brasil, con biblioteca de 90 fichas curadas, comparación HTTP/HAR y seguimiento de instancias y retests. Los contenidos y las importaciones requieren revisión del analista.</description>
+      <category>report-gen</category>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 GMT</pubDate>
+      <dcterms:modified>2026-10-19</dcterms:modified>
+    </item>
     <item>
       <title>report-gen 0.31.2: auditoría de estrés y recuperación</title>
       <link>https://github.com/IphobiusS/report-gen/releases/tag/v0.31.2</link>

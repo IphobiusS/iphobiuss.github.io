@@ -3,14 +3,14 @@
   font-style: normal;
   font-weight: 400;
   font-display: optional;
-  src: url(../fonts/b0c618f6d8ea.woff2) format('woff2'), url(../fonts/b0c618f6d8ea.woff) format('woff');
+  src: url(../fonts/b8c1f0730a1b.woff2) format('woff2'), url(../fonts/b8c1f0730a1b.woff) format('woff');
 }
 @font-face {
   font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 600;
   font-display: optional;
-  src: url(../fonts/feead6344d56.woff2) format('woff2'), url(../fonts/feead6344d56.woff) format('woff');
+  src: url(../fonts/7c623b7aacd7.woff2) format('woff2'), url(../fonts/7c623b7aacd7.woff) format('woff');
 }
 @font-face {
   font-family: 'IBM Plex Sans';
@@ -18,7 +18,7 @@
   font-weight: 400;
   font-stretch: normal;
   font-display: optional;
-  src: url(../fonts/1a9cad03d35e.woff2) format('woff2'), url(../fonts/1a9cad03d35e.woff) format('woff');
+  src: url(../fonts/2164a13d3b0b.woff2) format('woff2'), url(../fonts/2164a13d3b0b.woff) format('woff');
 }
 @font-face {
   font-family: 'IBM Plex Sans';
@@ -26,7 +26,7 @@
   font-weight: 600;
   font-stretch: normal;
   font-display: optional;
-  src: url(../fonts/8da5dfcdccfb.woff2) format('woff2'), url(../fonts/8da5dfcdccfb.woff) format('woff');
+  src: url(../fonts/d57ab90ffe32.woff2) format('woff2'), url(../fonts/d57ab90ffe32.woff) format('woff');
 }
 @font-face {
   font-family: 'Press Start 2P';
